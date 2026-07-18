@@ -64,7 +64,7 @@ export default function ReviewsCarousel({ googleBtnLabel = "See all reviews on G
 
       <div className="mt-8">
         <a
-          href="https://www.google.com/maps/place/Liberty+Footwear,+Inc./@42.9954407,-85.6877067,17z/data=!3m1!4b1!4m6!3m5!1s0x8819ae9f0b2f698b:0x8279d33ea7492787!8m2!3d42.9954407!4d-85.6877067?hl=en#lrd=0x8819ae9f0b2f698b:0x8279d33ea7492787,1"
+          href="https://www.google.com/search?sca_esv=f9a143fe12cd4714&hl=cs-US&sxsrf=APpeQnuUaM9qh5pbIRPT6ZNlfzF6E74Rbw:1784413928468&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_xZe46s5oqymSyFdtcoefDuNb1FMU2BCZrKGjLFFFbHtVA0Sl-hx4Ce-1YiemEbu3BEHUM0VaMSbsDDCtHt9i4DG07G5pHe4DpRXdj3gd_nOqYVUMg%3D%3D&q=Liberty+Footwear,+Inc.+Recenze&sa=X&ved=2ahUKEwiDqdryo92VAxVyrysGHUzIGcgQ0bkNegQIPxAH"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 border border-navy/30 hover:border-navy text-navy font-semibold px-6 py-2.5 rounded-lg transition text-sm"
