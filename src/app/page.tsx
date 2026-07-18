@@ -95,7 +95,7 @@ export default function HomePage() {
     <>
       {/* ── HERO ── */}
       <section
-        className="relative text-white overflow-hidden min-h-[65vh] flex items-center"
+        className="relative text-white overflow-hidden min-h-[80vh] flex items-center"
         style={{
           backgroundImage: "url('/images/hero-boots.jpg')",
           backgroundSize: "cover",
@@ -104,10 +104,10 @@ export default function HomePage() {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/75 to-navy/40" />
 
-        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-0">
-          <div className="max-w-2xl">
+        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-24">
+          <div className="max-w-3xl">
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] mb-6">
+            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black leading-[1.03] mb-10">
               {t.hero.h1a}
               <br />
               <span className="text-red">{t.hero.h1b}</span>
@@ -115,32 +115,18 @@ export default function HomePage() {
               {t.hero.h1c}
             </h1>
 
-            <p className="text-white/75 text-lg lg:text-xl mb-8 max-w-lg leading-relaxed">
+            <p className="text-white/75 text-xl lg:text-2xl mb-12 max-w-xl leading-relaxed">
               {t.hero.sub}
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-wrap gap-3 mb-10">
-              <Link href="/shop" className="bg-red hover:bg-red/90 active:scale-95 text-white font-black px-8 py-4 rounded-xl transition shadow-lg shadow-red/30 text-base tracking-wide">
+            <div className="flex flex-wrap gap-4">
+              <Link href="/shop" className="bg-red hover:bg-red/90 active:scale-95 text-white font-black px-9 py-5 rounded-xl transition shadow-lg shadow-red/30 text-lg tracking-wide">
                 {t.hero.cta}
               </Link>
-              <Link href="/contact" className="border-2 border-white/30 hover:border-white hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-xl transition text-base">
+              <Link href="/contact" className="border-2 border-white/30 hover:border-white hover:bg-white/10 text-white font-semibold px-9 py-5 rounded-xl transition text-lg">
                 {t.hero.ctaContact}
               </Link>
-            </div>
-
-            {/* Trust pills */}
-            <div className="flex flex-wrap gap-3">
-              {[
-                { icon: "★", text: "4.9 · Google Reviews" },
-                { icon: "✓", text: "Free Shipping" },
-                { icon: "⚑", text: "Grand Rapids, MI" },
-              ].map((p) => (
-                <span key={p.text} className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/70 bg-white/10 border border-white/15 rounded-full px-3 py-1.5">
-                  <span className="text-tan">{p.icon}</span>
-                  {p.text}
-                </span>
-              ))}
             </div>
           </div>
         </div>
