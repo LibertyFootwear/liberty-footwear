@@ -7,7 +7,14 @@ interface AuthUser {
   email: string;
   phone: string;
   newsletter: boolean;
+  notifications: {
+    specialOffers: boolean;
+    newsletter: boolean;
+    blog: boolean;
+    newProducts: boolean;
+  };
   favorites: string[];
+  createdAt?: string;
 }
 
 interface AuthCtx {

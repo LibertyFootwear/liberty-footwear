@@ -28,6 +28,7 @@ export async function PATCH(req: NextRequest) {
 
   if (body.phone !== undefined) updates.phone = body.phone.trim();
   if (body.newsletter !== undefined) updates.newsletter = Boolean(body.newsletter);
+  if (body.notifications !== undefined) updates.notifications = body.notifications;
 
   if (body.currentPassword !== undefined || body.newPassword !== undefined) {
     if (!body.currentPassword || !body.newPassword) return NextResponse.json({ error: "Both current and new password required" }, { status: 400 });
@@ -45,5 +46,6 @@ export async function PATCH(req: NextRequest) {
     email: updated!.email,
     phone: updated!.phone,
     newsletter: updated!.newsletter,
+    notifications: updated!.notifications,
   });
 }

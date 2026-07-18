@@ -1,6 +1,20 @@
 import { getSupabase } from "./supabase";
 import crypto from "crypto";
 
+export interface Notifications {
+  specialOffers: boolean;
+  newsletter: boolean;
+  blog: boolean;
+  newProducts: boolean;
+}
+
+export const defaultNotifications: Notifications = {
+  specialOffers: true,
+  newsletter: true,
+  blog: true,
+  newProducts: true,
+};
+
 export interface User {
   id: string;
   name: string;
@@ -9,6 +23,7 @@ export interface User {
   passwordHash: string;
   favorites: string[];
   newsletter: boolean;
+  notifications: Notifications;
   createdAt: string;
 }
 
@@ -21,6 +36,7 @@ function mapRow(row: Record<string, unknown>): User {
     passwordHash: row.password_hash as string,
     favorites: (row.favorites as string[]) ?? [],
     newsletter: (row.newsletter as boolean) ?? false,
+    notifications: (row.notifications as Notifications) ?? defaultNotifications,
     createdAt: row.created_at as string,
   };
 }
@@ -39,7 +55,7 @@ export async function getUserById(id: string): Promise<User | undefined> {
   return data ? mapRow(data) : undefined;
 }
 
-export async function createUser(data: Omit<User, "id" | "favorites" | "createdAt">): Promise<User> {
+export async function createUser(data: Omit<User, "id" | "favorites" | "createdAt" | "notifications">): Promise<User> {
   const id = crypto.randomUUID();
   const row = {
     id,
@@ -49,6 +65,7 @@ export async function createUser(data: Omit<User, "id" | "favorites" | "createdA
     password_hash: data.passwordHash,
     favorites: [],
     newsletter: data.newsletter ?? false,
+    notifications: defaultNotifications,
     created_at: new Date().toISOString(),
   };
   const { data: inserted, error } = await getSupabase().from("users").insert(row).select().single();
@@ -58,7 +75,7 @@ export async function createUser(data: Omit<User, "id" | "favorites" | "createdA
 
 export async function updateUser(
   userId: string,
-  fields: Partial<Pick<User, "name" | "email" | "phone" | "newsletter" | "passwordHash">>
+  fields: Partial<Pick<User, "name" | "email" | "phone" | "newsletter" | "passwordHash" | "notifications">>
 ): Promise<void> {
   const update: Record<string, unknown> = {};
   if (fields.name !== undefined) update.name = fields.name;
@@ -66,6 +83,7 @@ export async function updateUser(
   if (fields.phone !== undefined) update.phone = fields.phone;
   if (fields.newsletter !== undefined) update.newsletter = fields.newsletter;
   if (fields.passwordHash !== undefined) update.password_hash = fields.passwordHash;
+  if (fields.notifications !== undefined) update.notifications = fields.notifications;
   await getSupabase().from("users").update(update).eq("id", userId);
 }
 
