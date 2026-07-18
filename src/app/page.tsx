@@ -173,7 +173,7 @@ export default function HomePage() {
                 {t.about.h2}
               </h2>
               <p className="text-gray-600 leading-relaxed mb-5 text-lg">{t.about.p1}</p>
-              <p className="text-gray-600 leading-relaxed mb-8">{t.about.p2}</p>
+              <p className="text-gray-600 leading-relaxed mb-8 text-lg">{t.about.p2}</p>
 
               {/* Pull quote */}
               <blockquote className="border-l-4 border-red pl-5 mb-8">
@@ -265,7 +265,7 @@ export default function HomePage() {
               <p className="text-red text-xs font-black tracking-widest uppercase mb-4">{t.builtInAmerica.tag}</p>
               <h2 className="text-4xl lg:text-5xl font-black leading-tight mb-6">{t.builtInAmerica.h2}</h2>
               <p className="text-white/75 leading-relaxed mb-5 text-lg">{t.builtInAmerica.p1}</p>
-              <p className="text-white/75 leading-relaxed mb-10">{t.builtInAmerica.p2}</p>
+              <p className="text-white/75 leading-relaxed mb-10 text-lg">{t.builtInAmerica.p2}</p>
               <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/10">
                 {[
                   { label: t.builtInAmerica.stat1label, sub: t.builtInAmerica.stat1sub },
