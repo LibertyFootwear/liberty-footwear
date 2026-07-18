@@ -295,7 +295,7 @@ export default function HomePage() {
               ))}
             </div>
             <h2 className="text-3xl lg:text-4xl font-black text-navy">{t.reviews.h2}</h2>
-            <p className="text-gray-500 mt-2 text-sm">5.0 average · over 80 reviews on Google</p>
+            <p className="text-gray-500 mt-2 text-sm">5.0 average · 87 reviews on Google</p>
             <div className="w-16 h-1 bg-red mx-auto mt-4" />
           </div>
           <div className="mt-12">
