@@ -242,7 +242,7 @@ function ShopContent() {
 
         {/* Sidebar – desktop */}
         <aside className="hidden lg:block w-52 flex-shrink-0">
-          <div className="sticky top-20">
+          <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">
             <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Filters</p>
             {FiltersPanel}
           </div>
