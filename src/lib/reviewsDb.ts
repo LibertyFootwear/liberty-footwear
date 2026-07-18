@@ -11,7 +11,7 @@ export interface Review {
 
 function mapRow(row: Record<string, unknown>): Review {
   return {
-    id: row.id as string,
+    id: String(row.id),
     stockNo: row.stock_no as string,
     author: row.author as string,
     rating: row.rating as number,
