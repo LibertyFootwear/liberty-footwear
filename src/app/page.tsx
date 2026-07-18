@@ -145,7 +145,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-center justify-center lg:justify-between gap-6 py-5 text-white/60 text-sm">
             {[
-              { label: "★★★★★", sub: "4.9 rating on Google" },
+              { label: "★★★★★", sub: "5.0 rating on Google" },
               { label: "Family Owned", sub: "Grand Rapids, Michigan" },
               { label: "Handcrafted in the USA", sub: "Every pair built by hand" },
               { label: "Free Shipping", sub: "On all US orders" },
@@ -295,7 +295,7 @@ export default function HomePage() {
               ))}
             </div>
             <h2 className="text-3xl lg:text-4xl font-black text-navy">{t.reviews.h2}</h2>
-            <p className="text-gray-500 mt-2 text-sm">4.9 average · over 80 reviews on Google</p>
+            <p className="text-gray-500 mt-2 text-sm">5.0 average · over 80 reviews on Google</p>
             <div className="w-16 h-1 bg-red mx-auto mt-4" />
           </div>
           <div className="mt-12">
