@@ -191,7 +191,7 @@ const _raw: RawProduct[] = [
   {
     stockNo: "KS0521", slug: slug("KS0521","gary-hiker-black-cream"),
     name: "Gary Hiker", family: "Gary", safetyToe: false,
-    colorLeather: "Jet Black", outsoleType: "Andes rubber cup", colorOutsole: "Cream",
+    colorLeather: "Jet Black", outsoleType: "Andes rubber cup", colorOutsole: "Black",
     description: '6" Moc Toe non-waterproof hiker',
     sizes: "M: 9–12, 12.5, 13, 13.5 | EW: 9–12, 12.5, 13, 13.5", price: 235, isNew: false, image: img("KS0521"),
   },
