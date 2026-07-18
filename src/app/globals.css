@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --navy: #0b3154;
+  --navy-dark: #071f36;
+  --red: #d1282a;
+  --red-dark: #a81f21;
+  --cream: #f5f0e8;
+  --cream-dark: #e8e0d0;
+  --tan: #c4a882;
+}
+
+@theme {
+  --color-navy: #0b3154;
+  --color-navy-dark: #071f36;
+  --color-red: #d1282a;
+  --color-red-dark: #a81f21;
+  --color-cream: #f5f0e8;
+  --color-cream-dark: #e8e0d0;
+  --color-tan: #c4a882;
+}
+
+body {
+  @apply bg-white text-gray-900 antialiased;
+  font-family: "Inter", Arial, Helvetica, sans-serif;
+}
