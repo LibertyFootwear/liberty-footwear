@@ -40,6 +40,10 @@ export default function AccountPage() {
   const [notifications, setNotifications] = useState<Notifications>(defaultNotifications);
   const [settingsStatus, setSettingsStatus] = useState<"idle" | "saving" | "ok" | "err">("idle");
   const [settingsError, setSettingsError] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteStatus, setDeleteStatus] = useState<"idle" | "deleting" | "err">("idle");
+  const [deleteError, setDeleteError] = useState("");
 
   // Password form
   const [currentPassword, setCurrentPassword] = useState("");
@@ -121,6 +125,25 @@ export default function AccountPage() {
       const data = await res.json();
       setSettingsError(data.error ?? "Something went wrong.");
       setSettingsStatus("err");
+    }
+  }
+
+  async function deleteAccount(e: React.FormEvent) {
+    e.preventDefault();
+    setDeleteStatus("deleting");
+    setDeleteError("");
+    const res = await fetch("/api/account", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: deletePassword }),
+    });
+    if (res.ok) {
+      await logout();
+      router.push("/");
+    } else {
+      const data = await res.json();
+      setDeleteError(data.error ?? "Something went wrong.");
+      setDeleteStatus("err");
     }
   }
 
@@ -448,6 +471,49 @@ export default function AccountPage() {
               </button>
               {settingsStatus === "ok" && <p className="text-green-600 text-sm text-center font-semibold">Changes saved!</p>}
             </form>
+
+            {/* Delete account */}
+            <div className="bg-white rounded-2xl shadow-sm p-8 border border-red/20">
+              <h2 className="text-lg font-black text-red mb-1">Delete Account</h2>
+              <p className="text-sm text-gray-500 mb-5">This will permanently delete your account, order history, and saved boots. This cannot be undone.</p>
+              {!deleteConfirm ? (
+                <button
+                  onClick={() => setDeleteConfirm(true)}
+                  className="px-5 py-2.5 rounded-xl border-2 border-red text-red text-sm font-bold hover:bg-red hover:text-white transition"
+                >
+                  Delete My Account
+                </button>
+              ) : (
+                <form onSubmit={deleteAccount} className="space-y-4">
+                  <p className="text-sm font-semibold text-gray-700">Enter your password to confirm:</p>
+                  <input
+                    type="password"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Your password"
+                    required
+                    className="w-full border-2 border-red/40 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red transition"
+                  />
+                  {deleteError && <p className="text-red text-sm">{deleteError}</p>}
+                  <div className="flex gap-3">
+                    <button
+                      type="submit"
+                      disabled={deleteStatus === "deleting"}
+                      className="px-5 py-2.5 rounded-xl bg-red text-white text-sm font-bold hover:bg-red/80 disabled:opacity-50 transition"
+                    >
+                      {deleteStatus === "deleting" ? "Deleting..." : "Yes, delete my account"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setDeleteConfirm(false); setDeletePassword(""); setDeleteError(""); setDeleteStatus("idle"); }}
+                      className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm font-bold hover:text-navy transition"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
         )}
 

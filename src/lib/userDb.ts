@@ -90,3 +90,7 @@ export async function updateUser(
 export async function updateFavorites(userId: string, favorites: string[]): Promise<void> {
   await getSupabase().from("users").update({ favorites }).eq("id", userId);
 }
+
+export async function deleteUser(userId: string): Promise<void> {
+  await getSupabase().from("users").delete().eq("id", userId);
+}

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getAuthUserId } from "@/lib/authJwt";
-import { getUserById, getUserByEmail, updateUser } from "@/lib/userDb";
+import { getUserById, getUserByEmail, updateUser, deleteUser } from "@/lib/userDb";
 
 export async function PATCH(req: NextRequest) {
   const userId = await getAuthUserId();
@@ -48,4 +48,24 @@ export async function PATCH(req: NextRequest) {
     newsletter: updated!.newsletter,
     notifications: updated!.notifications,
   });
+}
+
+export async function DELETE(req: NextRequest) {
+  const userId = await getAuthUserId();
+  if (!userId) return NextResponse.json({ error: "Not logged in" }, { status: 401 });
+
+  const user = await getUserById(userId);
+  if (!user) return NextResponse.json({ error: "User not found" }, { status: 401 });
+
+  const { password } = await req.json();
+  if (!password) return NextResponse.json({ error: "Password required" }, { status: 400 });
+
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (!valid) return NextResponse.json({ error: "Incorrect password" }, { status: 400 });
+
+  await deleteUser(userId);
+
+  const res = NextResponse.json({ ok: true });
+  res.cookies.set("lf_auth", "", { maxAge: 0, path: "/" });
+  return res;
 }
