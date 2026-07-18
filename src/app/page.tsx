@@ -95,7 +95,7 @@ export default function HomePage() {
     <>
       {/* ── HERO ── */}
       <section
-        className="relative text-white overflow-hidden min-h-[80vh] flex items-center"
+        className="relative text-white overflow-hidden min-h-[68vh] flex items-center"
         style={{
           backgroundImage: "url('/images/hero-boots.jpg')",
           backgroundSize: "cover",
@@ -104,10 +104,10 @@ export default function HomePage() {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/75 to-navy/40" />
 
-        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-24">
+        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-20">
           <div className="max-w-3xl">
             {/* Headline */}
-            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black leading-[1.03] mb-10">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] mb-8">
               {t.hero.h1a}
               <br />
               <span className="text-red">{t.hero.h1b}</span>
@@ -115,7 +115,7 @@ export default function HomePage() {
               {t.hero.h1c}
             </h1>
 
-            <p className="text-white/75 text-xl lg:text-2xl mb-12 max-w-xl leading-relaxed">
+            <p className="text-white/75 text-lg lg:text-xl mb-10 max-w-xl leading-relaxed">
               {t.hero.sub}
             </p>
 
