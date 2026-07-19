@@ -177,7 +177,7 @@ export default function ProductOptions({ product, variants }: Props) {
                   selectedWidth === w ? "border-navy bg-navy text-white" : "border-gray-200 text-gray-700 hover:border-navy"
                 }`}
               >
-                {w === "EW" ? "EW (Extra Wide)" : "M (Medium)"}
+                {w === "EW" ? "Extra Wide" : "Medium"}
               </button>
             ))}
           </div>

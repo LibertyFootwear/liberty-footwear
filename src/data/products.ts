@@ -459,7 +459,7 @@ export function getVariantGroup(p: Product): Product[] {
 export function parseSizes(sizes: string): Record<string, number[]> {
   const result: Record<string, number[]> = {};
   for (const part of sizes.split("|")) {
-    const m = part.match(/^([A-Z]+(?:\s[A-Z]+)?)\s*:\s*(.+)/);
+    const m = part.trim().match(/^([A-Z]+(?:\s[A-Z]+)?)\s*:\s*(.+)/);
     if (!m) continue;
     const width = m[1].trim();
     const nums: number[] = [];
