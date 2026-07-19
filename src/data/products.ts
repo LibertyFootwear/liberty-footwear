@@ -472,7 +472,18 @@ export function parseSizes(sizes: string): Record<string, number[]> {
         if (!isNaN(n)) nums.push(n);
       }
     }
-    result[width] = nums;
+    // Half sizes: every whole size up to 12 also gets a .5 (max 12.5).
+    // Sizes 13 and up are whole only — any half above 12.5 is dropped.
+    const set = new Set<number>();
+    for (const n of nums) {
+      if (Number.isInteger(n)) {
+        set.add(n);
+        if (n + 0.5 <= 12.5) set.add(n + 0.5);
+      } else if (n <= 12.5) {
+        set.add(n);
+      }
+    }
+    result[width] = [...set].sort((a, b) => a - b);
   }
   return result;
 }
