@@ -70,7 +70,7 @@ export default function FounderStoryPage() {
         <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-6">
 
           <p>
-            Petr Kovarik is owner and founder of Liberty Footwear, at 1750 Alpine Ave. NW in Grand
+            Petr Kovarik is owner and founder of Liberty Footwear, at 1750 Alpine Ave NW in Grand
             Rapids, located in an industrial park north of Grand Rapids Foam Technologies and south of
             Crystal Flash.
           </p>

@@ -50,7 +50,7 @@ const FAQS = [
     items: [
       {
         q: "Do you offer bulk or corporate discounts?",
-        a: "Yes. We offer volume pricing for orders of 10 pairs or more. Discounts scale with quantity. Contact us at hello@libertyfootwear.com or call 616.930.3060 to discuss pricing for your team or company.",
+        a: "Yes. We offer volume pricing for orders of 10 pairs or more. Discounts scale with quantity. Contact us at info@libertyfootwear.com or call 616.930.3060 to discuss pricing for your team or company.",
       },
       {
         q: "Can you supply boots for an entire crew or company?",
@@ -87,7 +87,7 @@ const FAQS = [
       },
       {
         q: "How do I start a return?",
-        a: "Contact us at hello@libertyfootwear.com or call 616.930.3060 to request a return authorization number. This number must appear on the outside of the package and in all correspondence. Do not send back boots without authorization — unauthorized returns will not be accepted.",
+        a: "Contact us at info@libertyfootwear.com or call 616.930.3060 to request a return authorization number. This number must appear on the outside of the package and in all correspondence. Do not send back boots without authorization — unauthorized returns will not be accepted.",
       },
       {
         q: "Are shipping charges refundable?",

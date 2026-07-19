@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
   if (!message || message.length > 10000) return NextResponse.json({ error: "Message too long" }, { status: 400 });
 
   await resend.emails.send({
-    from: "Liberty Footwear Website <hello@libertyfootwear.com>",
-    to: "vojtech.kovarik05@gmail.com",
+    from: "Liberty Footwear Website <info@libertyfootwear.com>",
+    to: "info@libertyfootwear.com",
     replyTo: email,
     subject: `Contact form: ${esc(subject || "No subject")} – from ${esc(name)}`,
     html: `
