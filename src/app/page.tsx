@@ -147,7 +147,7 @@ export default function HomePage() {
             {[
               { label: "★★★★★", sub: "5.0 rating on Google" },
               { label: "Family Owned", sub: "Grand Rapids, Michigan" },
-              { label: "Handcrafted in the USA", sub: "Every pair built by hand" },
+              { label: "Handcrafted in America", sub: "Every pair built by hand" },
               { label: "Free Shipping", sub: "On all US orders" },
               { label: "Custom Fitting", sub: "No appointment needed" },
             ].map((item) => (

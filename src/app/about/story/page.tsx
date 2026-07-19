@@ -192,7 +192,7 @@ export default function FounderStoryPage() {
             Kovarik said it has been gratifying to discover his instincts in starting a business were
             correct. While there has been a decline in U.S. manufacturing during the past two decades,
             he sees a revival on the horizon of stateside manufacturing and a rising interest in
-            "Built in the USA" goods.
+            "Built in America" goods.
           </p>
 
           <p>

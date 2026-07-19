@@ -30,7 +30,7 @@ export const translations = {
       p1: "Our safety boots offer a full range of protective features for drops, spills, abrasion, slips and other common workplace hazards — exceeding many industry standards.",
       p2: "Combined with exceptional customer service, on-site sizing and custom fitting, Liberty Footwear's quality, comfort and affordable boots represent American craftsmanship at its best.",
       stat1label: "Family Owned", stat1sub: "Since day one",
-      stat2label: "Built in USA", stat2sub: "Grand Rapids, MI",
+      stat2label: "Built in America", stat2sub: "Grand Rapids, MI",
       stat3label: "Wide Widths", stat3sub: "Sizes 5 – 16",
     },
     featured: {
@@ -157,7 +157,7 @@ export const translations = {
       p1: "Nuestras botas de seguridad ofrecen una gama completa de características de protección contra caídas, derrames, abrasión, resbalones y otros peligros comunes del lugar de trabajo.",
       p2: "Combinado con un servicio al cliente excepcional, medición en sitio y ajuste personalizado, las botas de calidad, comodidad y precio accesible de Liberty Footwear representan la artesanía americana en su máxima expresión.",
       stat1label: "Empresa Familiar", stat1sub: "Desde el primer día",
-      stat2label: "Fabricado en EE.UU.", stat2sub: "Grand Rapids, MI",
+      stat2label: "Fabricado en América", stat2sub: "Grand Rapids, MI",
       stat3label: "Anchos Especiales", stat3sub: "Tallas 5 – 16",
     },
     featured: {
