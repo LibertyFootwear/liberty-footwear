@@ -102,6 +102,48 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Family Tradition */}
+      <section className="py-20 bg-navy text-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center mb-12">
+            <p className="text-tan text-xs font-bold tracking-widest uppercase mb-3">Family Tradition</p>
+            <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight">Keeping the Craft in the Family</h2>
+            <div className="space-y-4 text-white/75 leading-relaxed">
+              <p>
+                Liberty Footwear's family-owned and operated business grew out of a deep family
+                heritage of quality shoemaking — a craft carried from a master shoemaker in
+                Czechoslovakia to the factory floor in Grand Rapids, Michigan.
+              </p>
+              <p>
+                Every stitch, every sole, every last is still learned by hand, the old-world way —
+                using traditional techniques refined over generations. It's the same pride and
+                patience that goes into every boot that leaves our shop.
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
+              <Image
+                src="/about-family.jpg"
+                alt="The Kovarik family and team on the Liberty Footwear factory floor in Grand Rapids, Michigan"
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 100vw, 50vw"
+              />
+            </div>
+            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
+              <Image
+                src="/about-family-2.jpg"
+                alt="Petr Kovarik inspecting a handcrafted work boot with an apprentice at the Liberty Footwear factory"
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 100vw, 50vw"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Store photo */}
       <section className="py-20 bg-cream">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
