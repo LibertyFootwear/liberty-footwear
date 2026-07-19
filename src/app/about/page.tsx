@@ -121,25 +121,28 @@ export default function AboutPage() {
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
-              <Image
-                src="/about-family.jpg"
-                alt="The Kovarik family and team on the Liberty Footwear factory floor in Grand Rapids, Michigan"
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 100vw, 50vw"
-              />
+          <div className="max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
+                <Image
+                  src="/about-family.jpg"
+                  alt="Petr Kovarik and his children on the Liberty Footwear factory floor in Grand Rapids, Michigan"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 320px"
+                />
+              </div>
+              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
+                <Image
+                  src="/about-family-2.jpg"
+                  alt="Petr Kovarik inspecting a handcrafted work boot with his son at the Liberty Footwear factory"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 320px"
+                />
+              </div>
             </div>
-            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
-              <Image
-                src="/about-family-2.jpg"
-                alt="Petr Kovarik inspecting a handcrafted work boot with an apprentice at the Liberty Footwear factory"
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 100vw, 50vw"
-              />
-            </div>
+            <p className="text-center text-white/50 text-sm mt-5 italic">Petr Kovarik and his children</p>
           </div>
         </div>
       </section>
