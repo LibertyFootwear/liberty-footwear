@@ -31,7 +31,7 @@ export const translations = {
       p2: "Combined with exceptional customer service, on-site sizing and custom fitting, Liberty Footwear's quality, comfort and affordable boots represent American craftsmanship at its best.",
       stat1label: "Family Owned", stat1sub: "Since day one",
       stat2label: "Built in America", stat2sub: "Grand Rapids, MI",
-      stat3label: "Wide Widths", stat3sub: "Sizes 5 – 16",
+      stat3label: "Made to Fit", stat3sub: "Sizes 5 – 16",
     },
     featured: {
       tag: "Our Collection",
@@ -43,7 +43,7 @@ export const translations = {
       cards: [
         { title: "Built in America", body: "Every pair is crafted in our Grand Rapids factory by skilled American workers who take pride in every stitch." },
         { title: "Safety Toe & EH", body: "ASTM-rated composite safety toe and Electrical Hazard protection available across all styles." },
-        { title: "Wide Width Specialists", body: "Most styles come in both M and EW widths, from size 5 up to 16." },
+        { title: "Made to Fit", body: "Most styles come in both M and EW widths, from size 5 up to 16." },
         { title: "Water Resistant Leather", body: "Premium full-grain and Nubuck leather — stays dry through the toughest job sites." },
       ],
     },
@@ -158,7 +158,7 @@ export const translations = {
       p2: "Combinado con un servicio al cliente excepcional, medición en sitio y ajuste personalizado, las botas de calidad, comodidad y precio accesible de Liberty Footwear representan la artesanía americana en su máxima expresión.",
       stat1label: "Empresa Familiar", stat1sub: "Desde el primer día",
       stat2label: "Fabricado en América", stat2sub: "Grand Rapids, MI",
-      stat3label: "Anchos Especiales", stat3sub: "Tallas 5 – 16",
+      stat3label: "Hecho a Medida", stat3sub: "Tallas 5 – 16",
     },
     featured: {
       tag: "Nuestra Colección",
@@ -170,7 +170,7 @@ export const translations = {
       cards: [
         { icon: "🏭", title: "Hecho a mano en Grand Rapids", body: "Cada par es elaborado a mano en nuestra fábrica de Grand Rapids, Michigan por artesanos especializados que se enorgullecen de cada puntada." },
         { icon: "🛡️", title: "Puntera de Seguridad", body: "Puntera de seguridad compuesta con clasificación ASTM y protección contra riesgos eléctricos disponible en todos los estilos." },
-        { icon: "👢", title: "Especialistas en Anchos", body: "La mayoría de los estilos vienen en anchos M y EW, desde la talla 5 hasta la 16." },
+        { icon: "👢", title: "Hecho a Medida", body: "La mayoría de los estilos vienen en anchos M y EW, desde la talla 5 hasta la 16." },
         { icon: "💧", title: "Cuero Resistente al Agua", body: "Cuero de grano completo y Nubuck premium — se mantiene seco en los sitios de trabajo más exigentes." },
       ],
     },
