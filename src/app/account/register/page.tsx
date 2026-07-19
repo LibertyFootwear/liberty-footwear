@@ -4,6 +4,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
+const BENEFITS = [
+  { title: "Track your orders", body: "Follow every pair from our Grand Rapids factory to your door." },
+  { title: "Save your favorites", body: "Build a wishlist of the boots you love and come back anytime." },
+  { title: "Faster checkout", body: "Your details are saved, so ordering takes just a few clicks." },
+  { title: "Order history", body: "Reorder your go-to boots without hunting for them again." },
+];
+
 export default function RegisterPage() {
   const router = useRouter();
   const { refresh } = useAuth();
@@ -34,9 +41,32 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen bg-cream flex items-center justify-center px-4 py-16">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-4xl overflow-hidden grid md:grid-cols-2">
+        {/* Benefits panel */}
+        <div className="bg-navy text-white p-8 lg:p-10 flex flex-col justify-center">
+          <p className="text-tan text-xs font-black tracking-widest uppercase mb-3">Why create an account?</p>
+          <h2 className="text-2xl font-black leading-tight mb-8">Get more from<br />every pair.</h2>
+          <ul className="space-y-5">
+            {BENEFITS.map((b) => (
+              <li key={b.title} className="flex gap-3">
+                <span className="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-red flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+                <div>
+                  <p className="font-bold text-sm">{b.title}</p>
+                  <p className="text-white/60 text-xs leading-relaxed">{b.body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Form */}
+        <div className="p-8">
         <h1 className="text-2xl font-bold text-navy mb-2">Create an Account</h1>
-        <p className="text-gray-500 mb-6 text-sm">Save your favorite boots and track your orders.</p>
+        <p className="text-gray-500 mb-6 text-sm">It only takes a minute — and it's free.</p>
 
         {error && <p className="bg-red-50 text-red-700 rounded-lg px-4 py-2 mb-4 text-sm">{error}</p>}
 
@@ -94,6 +124,7 @@ export default function RegisterPage() {
             Sign in
           </Link>
         </p>
+        </div>
       </div>
     </main>
   );
