@@ -19,6 +19,8 @@ export interface Product {
   gallery?: string[];
   /** Set true to place a product in the "One of a Kind" category (overrides auto-categorization). */
   oneOfAKind?: boolean;
+  /** Force-show the "Popular" badge regardless of sales (manual override). */
+  popular?: boolean;
 }
 
 function categoryOf(name: string, family: ProductFamily, safetyToe: boolean): ProductCategory {
