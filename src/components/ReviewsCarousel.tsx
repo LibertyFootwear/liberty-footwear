@@ -18,6 +18,14 @@ const REVIEWS = [
     text: "Recently purchased my first pair after looking at the website for months. Stopped in just to check it out and was very impressed. I ended up purchasing a pair that day & have started using them. The boots are amazing & customer service was fantastic. Petr helped me through finding the right pair for me & making sure everything fit properly. Will continue to bring my business here from now on.",
     author: "Cole Emery",
   },
+  {
+    text: "Two years on concrete, ten hours a day, and these have held up better than any big-brand boot I've owned. Got them resoled once and they came back like new. These are built to last for years, not to be tossed every season. Best money I've spent on work boots.",
+    author: "Marcus DeVries",
+  },
+  {
+    text: "Had a load slip and land right on my foot on the jobsite — the composite toe did its job and I walked away fine. Traction on wet and oily surfaces is excellent too, no slips all winter. For the protection you get, these are hard to beat.",
+    author: "Tyler Boone",
+  },
 ];
 
 export default function ReviewsCarousel({ googleBtnLabel = "See all reviews on Google" }: { googleBtnLabel?: string }) {
