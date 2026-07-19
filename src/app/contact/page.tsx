@@ -102,10 +102,15 @@ export default function ContactPage() {
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                     </svg>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">1750 Alpine Ave NW</p>
+                  <a
+                    href="https://maps.google.com/?q=1750+Alpine+Ave+NW,+Grand+Rapids,+MI+49504"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group"
+                  >
+                    <p className="font-semibold text-gray-900 group-hover:text-red transition">1750 Alpine Ave NW</p>
                     <p className="text-gray-500">Grand Rapids, MI 49504</p>
-                  </div>
+                  </a>
                 </div>
                 <div className="flex gap-3">
                   <div className="mt-1 text-red flex-shrink-0">
