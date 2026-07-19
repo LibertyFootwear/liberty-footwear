@@ -233,22 +233,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Custom fitting */}
-      <section className="bg-navy text-white py-16">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-black mb-4">Custom Fitting & Bulk Orders</h2>
-          <p className="text-white/70 text-lg mb-8">
-            In addition to work boots designed for safety, hiking, and everyday wear, we offer custom
-            fitting for local businesses and bulk order discounts — keeping with our mission to provide
-            comfort and safety to the workers who need it most.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact" className="btn-primary">Contact Us</Link>
-            <a href="tel:6169303060" className="btn-outline-white">Call 616.930.3060</a>
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="py-20 text-center px-4">
         <h2 className="text-3xl font-black text-navy mb-4">Ready to Find Your Boot?</h2>
