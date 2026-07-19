@@ -75,7 +75,7 @@ const FAQS = [
       },
       {
         q: "How long does shipping take?",
-        a: "In-stock items normally leave our warehouse within 1 business day of receiving your order. Out-of-stock items ship within 10 business days. Delivery time after that depends on your location. Business days do not include weekends or federal holidays.",
+        a: "In-stock items normally leave our factory within 1 business day of receiving your order. Out-of-stock items ship within 10 business days. Delivery time after that depends on your location. Business days do not include weekends or federal holidays.",
       },
       {
         q: "Can I ship my order to multiple addresses?",

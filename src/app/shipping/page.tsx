@@ -33,7 +33,7 @@ export default function ShippingPage() {
             <ul className="space-y-3">
               <li className="flex gap-3">
                 <span className="text-red font-bold mt-0.5 flex-shrink-0">—</span>
-                <span><strong>In-stock items</strong> normally leave our warehouse within <strong>1 business day</strong> of receiving your order.</span>
+                <span><strong>In-stock items</strong> normally leave our factory within <strong>1 business day</strong> of receiving your order.</span>
               </li>
               <li className="flex gap-3">
                 <span className="text-red font-bold mt-0.5 flex-shrink-0">—</span>
@@ -67,7 +67,7 @@ export default function ShippingPage() {
           <div>
             <h2 className="text-xl font-black text-navy mb-4 pb-2 border-b border-gray-100">Shipping Charges</h2>
             <p>
-              Shipping and processing charges cover order processing, payment handling, warehouse storage, packing, and delivery — including replacement of any goods lost or damaged in transit. These charges are <strong>non-refundable</strong>, except in cases where merchandise is defective or was shipped incorrectly.
+              Shipping and processing charges cover order processing, payment handling, factory storage, packing, and delivery — including replacement of any goods lost or damaged in transit. These charges are <strong>non-refundable</strong>, except in cases where merchandise is defective or was shipped incorrectly.
             </p>
           </div>
 
