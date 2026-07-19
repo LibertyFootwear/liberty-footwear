@@ -16,6 +16,36 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Where We Come From — video background */}
+      <section className="relative overflow-hidden bg-navy text-white py-28">
+        {/* Black & white video background */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover grayscale opacity-60"
+        >
+          <source src="/workshop.mp4" type="video/mp4" />
+        </video>
+        {/* Dark overlay for legibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/70 to-navy/90" />
+        {/* Content */}
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-tan text-xs font-bold tracking-widest uppercase mb-3">Where We Come From</p>
+          <h2 className="text-3xl lg:text-5xl font-black mb-6 leading-tight">
+            A Small Family Workshop<br />in Czechoslovakia
+          </h2>
+          <p className="text-white/85 text-lg leading-relaxed">
+            Liberty Footwear's roots reach back to a small family workshop in Czechoslovakia, where
+            Petr Kovarik learned the craft at his father's bench — a master shoemaker who built every
+            pair by hand. That old-world know-how is the foundation of every boot we build in Grand
+            Rapids today.
+          </p>
+        </div>
+      </section>
+
       {/* Founder */}
       <section className="py-20 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
