@@ -1,5 +1,5 @@
 export type ProductFamily = "Gary" | "Terry" | "Larry" | "Kenny";
-export type ProductCategory = "Work" | "Casual" | "Outdoors" | "Safety";
+export type ProductCategory = "Work" | "Casual" | "Outdoors" | "Safety" | "One of a Kind";
 
 export interface Product {
   stockNo: string;
@@ -17,6 +17,8 @@ export interface Product {
   isNew: boolean;
   image: string | null;
   gallery?: string[];
+  /** Set true to place a product in the "One of a Kind" category (overrides auto-categorization). */
+  oneOfAKind?: boolean;
 }
 
 function categoryOf(name: string, family: ProductFamily, safetyToe: boolean): ProductCategory {
@@ -432,7 +434,7 @@ const _raw: RawProduct[] = [
 
 export const products: Product[] = _raw.map((p) => ({
   ...p,
-  category: categoryOf(p.name, p.family, p.safetyToe),
+  category: p.oneOfAKind ? "One of a Kind" : categoryOf(p.name, p.family, p.safetyToe),
 }));
 
 export function getProductBySlug(s: string) {

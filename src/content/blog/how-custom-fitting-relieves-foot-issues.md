@@ -30,7 +30,7 @@ The result: a more precise fit, especially for workers who are on their feet for
 
 ## What Custom Fitting Actually Looks Like
 
-When you come into our Grand Rapids store, we measure both feet individually — length and width — and assess how your foot sits in the boot under load. From there, we have several tools available:
+When you come into our Grand Rapids factory outlet store, we measure both feet individually — length and width — and assess how your foot sits in the boot under load. From there, we have several tools available:
 
 - **Removable footbeds** to fine-tune volume and arch support
 - **Boot stretching** for spot adjustments in leather width or toe box
@@ -47,6 +47,6 @@ Custom fitting corrects these problems at the source rather than treating sympto
 
 ## Come In and Find Out
 
-If your current work boots are causing discomfort — blisters, hot spots, heel pain, toe crowding — there's a good chance it's a fit problem, not a quality problem. Stop by our store at 1750 Alpine Ave NW, Grand Rapids, MI, or call us at 616.930.3060 to schedule a fitting.
+If your current work boots are causing discomfort — blisters, hot spots, heel pain, toe crowding — there's a good chance it's a fit problem, not a quality problem. Stop by our factory outlet store at 1750 Alpine Ave NW, Grand Rapids, MI, or call us at 616.930.3060 to schedule a fitting.
 
 There's no charge for the fitting. And once you've been fitted right, you'll never go back to guessing your size off a chart.

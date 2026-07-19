@@ -137,7 +137,7 @@ export default function AboutPage() {
             <div className="flex justify-center">
               <Image
                 src="/about-store.jpg"
-                alt="Liberty Footwear store – boots on display"
+                alt="Liberty Footwear factory outlet store – boots on display"
                 width={500}
                 height={420}
                 className="w-full max-w-sm rounded-2xl shadow-lg object-cover"
