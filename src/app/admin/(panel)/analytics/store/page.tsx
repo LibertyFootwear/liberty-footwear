@@ -109,7 +109,7 @@ export default async function StoreAnalytics() {
         <h2 className="font-black text-navy mb-5">Top Selling Boots (all-time)</h2>
         <div className="space-y-2.5">
           {topBoots.map((b) => (
-            <Bar key={b.stockNo} label={`${b.name}${b.color ? ` · ${b.color}` : ""}`} value={b.units} max={maxBoot} sub="pairs" />
+            <Bar key={b.stockNo} label={b.stockNo} value={b.units} max={maxBoot} sub="pairs" />
           ))}
         </div>
       </div>
