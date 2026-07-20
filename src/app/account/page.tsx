@@ -386,7 +386,17 @@ export default function AccountPage() {
                               )}
                               <p className="text-xs text-gray-400">Qty: {item.qty}</p>
                             </div>
-                            <p className="text-sm font-bold text-gray-700">${(item.price * item.qty).toFixed(2)}</p>
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              <p className="text-sm font-bold text-gray-700">${(item.price * item.qty).toFixed(2)}</p>
+                              {item.slug && (
+                                <Link
+                                  href={`/shop/${item.slug}`}
+                                  className="text-xs font-bold text-navy border border-navy rounded-lg px-3 py-1.5 hover:bg-navy hover:text-white transition whitespace-nowrap"
+                                >
+                                  Order Again
+                                </Link>
+                              )}
+                            </div>
                           </div>
                         );
                       })}
