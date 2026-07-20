@@ -13,10 +13,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Liberty Footwear – Built in America",
   description:
-    "Handcrafted work boots built in Grand Rapids, Michigan. Gary, Terry, Larry & Kenny styles – safety toe, waterproof, wide widths available.",
+    "Handcrafted work boots built in Grand Rapids, Michigan. Gary, Terry, Larry & Kenny styles – safety toe, waterproof, made to fit.",
   openGraph: {
     title: "Liberty Footwear – Built in America",
-    description: "Handcrafted work boots made in the USA.",
+    description: "Handcrafted work boots built in America.",
     images: ["/logo/logo-800.png"],
   },
 };

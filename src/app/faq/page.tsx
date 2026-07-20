@@ -8,7 +8,7 @@ const FAQS = [
     items: [
       {
         q: "What sizes and widths do you carry?",
-        a: "We carry sizes 5 through 16 in most styles. Larger sizes are available on request — contact us to discuss your needs. The majority of our boots are available in both Medium (M) and Extra Wide (EW) widths. If you're unsure about your size, we offer on-site sizing and custom fitting at our Grand Rapids store.",
+        a: "We carry sizes 5 through 16 in most styles. Larger sizes are available on request — contact us to discuss your needs. The majority of our boots are available in both Medium (M) and Extra Wide (EW) widths. If you're unsure about your size, we offer on-site sizing and custom fitting at our Grand Rapids factory outlet store.",
       },
       {
         q: "Are your boots available in safety toe versions?",
@@ -33,15 +33,15 @@ const FAQS = [
     items: [
       {
         q: "Do you offer custom fitting?",
-        a: "Yes — we provide on-site custom fitting at our Grand Rapids factory store. Our team measures both feet individually and selects the best last, width, and style for your foot shape. No appointment needed during store hours.",
+        a: "Yes — we provide on-site custom fitting at our Grand Rapids factory outlet store. Our team measures both feet individually and selects the best last, width, and style for your foot shape. No appointment needed during factory outlet store hours.",
       },
       {
         q: "Can I get boots custom made to my specifications?",
-        a: "Absolutely. We offer custom boot builds including choice of leather color, outsole type, safety toe options, and special sizing. Contact us at 616.930.3060 or visit the store to discuss your requirements. Lead times vary by complexity.",
+        a: "Absolutely. We offer custom boot builds including choice of leather color, outsole type, safety toe options, and special sizing. Contact us at 616.930.3060 or visit the factory outlet store to discuss your requirements. Lead times vary by complexity.",
       },
       {
         q: "What if the boot doesn't fit correctly after purchase?",
-        a: "Bring them back to our store. We stand behind our fitting process and will work with you to make adjustments or find the right size. Customer satisfaction is our priority.",
+        a: "Bring them back to our factory outlet store. We stand behind our fitting process and will work with you to make adjustments or find the right size. Customer satisfaction is our priority.",
       },
     ],
   },
@@ -50,7 +50,7 @@ const FAQS = [
     items: [
       {
         q: "Do you offer bulk or corporate discounts?",
-        a: "Yes. We offer volume pricing for orders of 10 pairs or more. Discounts scale with quantity. Contact us at hello@libertyfootwear.com or call 616.930.3060 to discuss pricing for your team or company.",
+        a: "Yes. We offer volume pricing for orders of 10 pairs or more. Discounts scale with quantity. Contact us at info@libertyfootwear.com or call 616.930.3060 to discuss pricing for your team or company.",
       },
       {
         q: "Can you supply boots for an entire crew or company?",
@@ -75,7 +75,7 @@ const FAQS = [
       },
       {
         q: "How long does shipping take?",
-        a: "In-stock items normally leave our warehouse within 1 business day of receiving your order. Out-of-stock items ship within 10 business days. Delivery time after that depends on your location. Business days do not include weekends or federal holidays.",
+        a: "In-stock items normally leave our factory within 1 business day of receiving your order. Out-of-stock items ship within 10 business days. Delivery time after that depends on your location. Business days do not include weekends or federal holidays.",
       },
       {
         q: "Can I ship my order to multiple addresses?",
@@ -87,7 +87,7 @@ const FAQS = [
       },
       {
         q: "How do I start a return?",
-        a: "Contact us at hello@libertyfootwear.com or call 616.930.3060 to request a return authorization number. This number must appear on the outside of the package and in all correspondence. Do not send back boots without authorization — unauthorized returns will not be accepted.",
+        a: "Contact us at info@libertyfootwear.com or call 616.930.3060 to request a return authorization number. This number must appear on the outside of the package and in all correspondence. Do not send back boots without authorization — unauthorized returns will not be accepted.",
       },
       {
         q: "Are shipping charges refundable?",
@@ -103,8 +103,8 @@ const FAQS = [
         a: "All Liberty Footwear boots are handcrafted at our factory in Grand Rapids, Michigan. We are family-owned and have been building boots in America from day one.",
       },
       {
-        q: "Can I visit your factory store?",
-        a: "Yes — we welcome visitors at our Grand Rapids location: 1750 Alpine Ave NW, Grand Rapids, MI 49504. Store hours are Monday–Friday 10 am–6 pm and Saturday 9 am–4 pm. Closed Sundays.",
+        q: "Can I visit your factory outlet store?",
+        a: "Yes — we welcome visitors at our Grand Rapids location: 1750 Alpine Ave NW, Grand Rapids, MI 49504. Factory outlet store hours are Monday–Friday 10 am–6 pm and Saturday 9 am–4 pm. Closed Sundays.",
       },
       {
         q: "Do you have a warranty on your boots?",
@@ -164,7 +164,7 @@ export default function FAQPage() {
 
           <div className="mt-10 bg-navy text-white rounded-2xl p-8 text-center">
             <h2 className="text-xl font-black mb-2">Still have questions?</h2>
-            <p className="text-white/70 mb-6 text-sm">Our team is happy to help — call us or stop by the store.</p>
+            <p className="text-white/70 mb-6 text-sm">Our team is happy to help — call us or stop by the factory outlet store.</p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link href="/contact" className="bg-red hover:bg-red/90 text-white font-bold px-6 py-2.5 rounded-lg transition text-sm">
                 Contact Us

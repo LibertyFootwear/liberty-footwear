@@ -1,9 +1,14 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import { Product } from "@/data/products";
 import FavoriteButton from "./FavoriteButton";
+import { usePopular } from "@/lib/usePopular";
 
 export default function ProductCard({ product: p }: { product: Product }) {
+  const popularSet = usePopular();
+  const isPopular = p.popular === true || popularSet.has(p.stockNo);
+
   return (
     <Link
       href={`/shop/${p.slug}`}
@@ -24,11 +29,18 @@ export default function ProductCard({ product: p }: { product: Product }) {
             <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" /></svg>
           </div>
         )}
-        {p.isNew && (
-          <span className="absolute top-3 left-3 bg-red text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">
-            New
-          </span>
-        )}
+        <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
+          {p.isNew && (
+            <span className="bg-red text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">
+              New
+            </span>
+          )}
+          {isPopular && (
+            <span className="inline-flex items-center gap-1 bg-tan text-navy text-xs font-bold px-2 py-1 rounded uppercase tracking-wide shadow-sm">
+              <span className="text-red">★</span> Popular
+            </span>
+          )}
+        </div>
         <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
           {p.safetyToe && (
             <span className="bg-navy text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">

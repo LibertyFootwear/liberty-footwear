@@ -20,7 +20,7 @@ const PROCESS_STEPS = [
   {
     n: "01",
     title: "Come In & Get Fitted",
-    body: "We measure both feet individually — width, arch, and instep. No appointment needed at our Grand Rapids factory store.",
+    body: "We measure both feet individually — width, arch, and instep. No appointment needed at our Grand Rapids factory outlet store.",
     icon: (
       <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -95,7 +95,7 @@ export default function HomePage() {
     <>
       {/* ── HERO ── */}
       <section
-        className="relative text-white overflow-hidden min-h-[65vh] flex items-center"
+        className="relative text-white overflow-hidden min-h-[68vh] flex items-center"
         style={{
           backgroundImage: "url('/images/hero-boots.jpg')",
           backgroundSize: "cover",
@@ -104,10 +104,10 @@ export default function HomePage() {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/75 to-navy/40" />
 
-        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-0">
-          <div className="max-w-2xl">
+        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-20">
+          <div className="max-w-3xl">
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] mb-8">
               {t.hero.h1a}
               <br />
               <span className="text-red">{t.hero.h1b}</span>
@@ -115,32 +115,18 @@ export default function HomePage() {
               {t.hero.h1c}
             </h1>
 
-            <p className="text-white/75 text-lg lg:text-xl mb-8 max-w-lg leading-relaxed">
+            <p className="text-white/75 text-lg lg:text-xl mb-10 max-w-xl leading-relaxed">
               {t.hero.sub}
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-wrap gap-3 mb-10">
-              <Link href="/shop" className="bg-red hover:bg-red/90 active:scale-95 text-white font-black px-8 py-4 rounded-xl transition shadow-lg shadow-red/30 text-base tracking-wide">
+            <div className="flex flex-wrap gap-4">
+              <Link href="/shop" className="bg-red hover:bg-red/90 active:scale-95 text-white font-black px-9 py-5 rounded-xl transition shadow-lg shadow-red/30 text-lg tracking-wide">
                 {t.hero.cta}
               </Link>
-              <Link href="/contact" className="border-2 border-white/30 hover:border-white hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-xl transition text-base">
+              <Link href="/contact" className="border-2 border-white/30 hover:border-white hover:bg-white/10 text-white font-semibold px-9 py-5 rounded-xl transition text-lg">
                 {t.hero.ctaContact}
               </Link>
-            </div>
-
-            {/* Trust pills */}
-            <div className="flex flex-wrap gap-3">
-              {[
-                { icon: "★", text: "4.9 · Google Reviews" },
-                { icon: "✓", text: "Free Shipping" },
-                { icon: "⚑", text: "Grand Rapids, MI" },
-              ].map((p) => (
-                <span key={p.text} className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/70 bg-white/10 border border-white/15 rounded-full px-3 py-1.5">
-                  <span className="text-tan">{p.icon}</span>
-                  {p.text}
-                </span>
-              ))}
             </div>
           </div>
         </div>
@@ -157,17 +143,20 @@ export default function HomePage() {
       {/* ── SOCIAL PROOF RIBBON ── */}
       <section className="bg-navy-dark border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px py-5">
+          <div className="flex flex-wrap items-center justify-center lg:justify-between gap-6 py-5 text-white/60 text-sm">
             {[
-              { label: "★★★★★", sub: "4.9 rating on Google" },
+              { label: "★★★★★", sub: "5.0 rating on Google" },
               { label: "Family Owned", sub: "Grand Rapids, Michigan" },
-              { label: "Handcrafted in USA", sub: "Every pair built by hand" },
+              { label: "Handcrafted in America", sub: "Every pair built by hand" },
               { label: "Free Shipping", sub: "On all US orders" },
               { label: "Custom Fitting", sub: "No appointment needed" },
             ].map((item) => (
-              <div key={item.label} className="text-center px-3 py-2">
-                <p className="text-white font-black text-sm tracking-wide">{item.label}</p>
-                <p className="text-white/50 text-xs mt-0.5">{item.sub}</p>
+              <div key={item.label} className="flex items-center gap-3">
+                <div className="w-px h-6 bg-white/10 hidden lg:block first:hidden" />
+                <div className="text-center lg:text-left">
+                  <p className="text-white font-black text-sm tracking-wide">{item.label}</p>
+                  <p className="text-white/50 text-xs">{item.sub}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -184,7 +173,7 @@ export default function HomePage() {
                 {t.about.h2}
               </h2>
               <p className="text-gray-600 leading-relaxed mb-5 text-lg">{t.about.p1}</p>
-              <p className="text-gray-600 leading-relaxed mb-8">{t.about.p2}</p>
+              <p className="text-gray-600 leading-relaxed mb-8 text-lg">{t.about.p2}</p>
 
               {/* Pull quote */}
               <blockquote className="border-l-4 border-red pl-5 mb-8">
@@ -276,7 +265,7 @@ export default function HomePage() {
               <p className="text-red text-xs font-black tracking-widest uppercase mb-4">{t.builtInAmerica.tag}</p>
               <h2 className="text-4xl lg:text-5xl font-black leading-tight mb-6">{t.builtInAmerica.h2}</h2>
               <p className="text-white/75 leading-relaxed mb-5 text-lg">{t.builtInAmerica.p1}</p>
-              <p className="text-white/75 leading-relaxed mb-10">{t.builtInAmerica.p2}</p>
+              <p className="text-white/75 leading-relaxed mb-10 text-lg">{t.builtInAmerica.p2}</p>
               <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/10">
                 {[
                   { label: t.builtInAmerica.stat1label, sub: t.builtInAmerica.stat1sub },
@@ -306,7 +295,7 @@ export default function HomePage() {
               ))}
             </div>
             <h2 className="text-3xl lg:text-4xl font-black text-navy">{t.reviews.h2}</h2>
-            <p className="text-gray-500 mt-2 text-sm">4.9 average · over 80 reviews on Google</p>
+            <p className="text-gray-500 mt-2 text-sm">5.0 average · 87 reviews on Google</p>
             <div className="w-16 h-1 bg-red mx-auto mt-4" />
           </div>
           <div className="mt-12">
@@ -388,7 +377,7 @@ export default function HomePage() {
                 </svg>
               </div>
               <h3 className="text-2xl font-black text-navy mb-3">Custom Fitting</h3>
-              <p className="text-gray-600 leading-relaxed mb-5">No two feet are the same. We measure both feet individually and fit you to the right last, width, and style — at our Grand Rapids factory store, no appointment needed.</p>
+              <p className="text-gray-600 leading-relaxed mb-5">No two feet are the same. We measure both feet individually and fit you to the right last, width, and style — at our Grand Rapids factory outlet store, no appointment needed.</p>
               <ul className="space-y-2.5 text-sm text-gray-600 mb-8">
                 {["On-site measurement & fitting", "Custom last and width selection", "Made-to-order leather, sole, and safety toe options", "Ready to wear out the door or built to your spec"].map((item) => (
                   <li key={item} className="flex items-start gap-2.5">

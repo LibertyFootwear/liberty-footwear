@@ -42,9 +42,16 @@ export default function Footer() {
 
           {/* Store info */}
           <div>
-            <h3 className="text-xs font-bold tracking-widest uppercase text-tan mb-4">Store</h3>
+            <h3 className="text-xs font-bold tracking-widest uppercase text-tan mb-4">Factory Outlet Store</h3>
             <address className="not-italic text-sm text-white/70 space-y-2 mb-4">
-              <p>1750 Alpine Ave NW<br />Grand Rapids, MI 49504</p>
+              <a
+                href="https://maps.google.com/?q=1750+Alpine+Ave+NW,+Grand+Rapids,+MI+49504"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition block"
+              >
+                1750 Alpine Ave NW<br />Grand Rapids, MI 49504
+              </a>
               <a href="tel:6169303060" className="hover:text-white transition block">616.930.3060</a>
             </address>
             <div className="space-y-1 text-sm">

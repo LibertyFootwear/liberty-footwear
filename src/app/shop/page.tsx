@@ -7,10 +7,11 @@ import { useLang } from "@/context/LanguageContext";
 import { Suspense, useState } from "react";
 
 const CATEGORIES: { id: ProductCategory; label: string }[] = [
-  { id: "Work",     label: "Work" },
-  { id: "Casual",   label: "Casual" },
-  { id: "Outdoors", label: "Outdoors" },
-  { id: "Safety",   label: "Safety" },
+  { id: "Work",         label: "Work" },
+  { id: "Casual",       label: "Casual" },
+  { id: "Outdoors",     label: "Outdoors" },
+  { id: "Safety",       label: "Safety" },
+  { id: "One of a Kind", label: "One of a Kind" },
 ];
 
 const PRICE_RANGES = [
@@ -242,7 +243,7 @@ function ShopContent() {
 
         {/* Sidebar – desktop */}
         <aside className="hidden lg:block w-52 flex-shrink-0">
-          <div className="sticky top-20">
+          <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">
             <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Filters</p>
             {FiltersPanel}
           </div>
@@ -348,10 +349,11 @@ function ShopContent() {
                 const count = products.filter((p) => p.category === c.id).length;
                 const isActive = cat === c.id;
                 const BG: Record<string, string> = {
-                  Work:     "bg-navy",
-                  Casual:   "bg-[#6B3A2A]",
-                  Outdoors: "bg-[#2D5016]",
-                  Safety:   "bg-[#8B1A1A]",
+                  Work:           "bg-navy",
+                  Casual:         "bg-[#6B3A2A]",
+                  Outdoors:       "bg-[#2D5016]",
+                  Safety:         "bg-[#8B1A1A]",
+                  "One of a Kind": "bg-[#8A6D3B]",
                 };
                 return (
                   <button

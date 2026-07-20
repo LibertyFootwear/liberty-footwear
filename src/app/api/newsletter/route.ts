@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
 
   try {
     await resend.emails.send({
-      from: "Liberty Footwear <hello@libertyfootwear.com>",
+      from: "Liberty Footwear <info@libertyfootwear.com>",
       to: email,
       subject: "Welcome to Liberty Footwear",
       html: `
@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
 
     // Also notify the shop owner
     await resend.emails.send({
-      from: "Liberty Footwear <hello@libertyfootwear.com>",
-      to: "vojtech.kovarik05@gmail.com",
+      from: "Liberty Footwear <info@libertyfootwear.com>",
+      to: "info@libertyfootwear.com",
       subject: `New newsletter subscriber: ${email}`,
       html: `<p>New subscriber: <strong>${email}</strong></p>`,
     });

@@ -94,7 +94,7 @@ export default function ContactPage() {
 
             {/* Address & phone */}
             <div>
-              <h2 className="text-2xl font-black text-navy mb-5">Visit Our Store</h2>
+              <h2 className="text-2xl font-black text-navy mb-5">Visit Our Factory Outlet Store</h2>
               <div className="space-y-4">
                 <div className="flex gap-3">
                   <div className="mt-1 text-red flex-shrink-0">
@@ -102,10 +102,15 @@ export default function ContactPage() {
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                     </svg>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">1750 Alpine Ave NW</p>
+                  <a
+                    href="https://maps.google.com/?q=1750+Alpine+Ave+NW,+Grand+Rapids,+MI+49504"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group"
+                  >
+                    <p className="font-semibold text-gray-900 group-hover:text-red transition">1750 Alpine Ave NW</p>
                     <p className="text-gray-500">Grand Rapids, MI 49504</p>
-                  </div>
+                  </a>
                 </div>
                 <div className="flex gap-3">
                   <div className="mt-1 text-red flex-shrink-0">
@@ -122,7 +127,7 @@ export default function ContactPage() {
 
             {/* Hours */}
             <div>
-              <h3 className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-3">Store Hours</h3>
+              <h3 className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-3">Factory Outlet Store Hours</h3>
               <div className="bg-cream rounded-xl overflow-hidden">
                 {HOURS.map(({ day, time }) => (
                   <div key={day} className="flex justify-between items-center px-5 py-3 border-b border-cream-dark last:border-0">
@@ -140,7 +145,7 @@ export default function ContactPage() {
               <h3 className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-3">Location</h3>
               <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm">
                 <iframe
-                  title="Liberty Footwear Store"
+                  title="Liberty Footwear Factory Outlet Store"
                   src="https://maps.google.com/maps?q=1750+Alpine+Ave+NW,+Grand+Rapids,+MI+49504&output=embed"
                   width="100%"
                   height="260"
@@ -179,7 +184,7 @@ export default function ContactPage() {
               <div className="text-3xl mb-4">👞</div>
               <h3 className="text-xl font-black text-navy mb-2">Custom Fitting</h3>
               <p className="text-gray-600 text-sm leading-relaxed mb-5">
-                Visit our Grand Rapids factory store for a personalized fitting — no appointment needed. We measure both feet individually and help you choose the right last, width, leather, and sole for your work.
+                Visit our Grand Rapids factory outlet store for a personalized fitting — no appointment needed. We measure both feet individually and help you choose the right last, width, leather, and sole for your work.
               </p>
               <ul className="space-y-2 text-sm text-gray-600 mb-6">
                 {["Individual foot measurement", "Last & width selection", "Made-to-order options", "Safety toe & EH rating available"].map(item => (

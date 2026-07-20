@@ -102,6 +102,81 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Family Tradition */}
+      <section className="py-20 bg-navy text-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center mb-12">
+            <p className="text-tan text-xs font-bold tracking-widest uppercase mb-3">Family Tradition</p>
+            <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight">Keeping the Craft in the Family</h2>
+            <div className="space-y-4 text-white/75 leading-relaxed">
+              <p>
+                Liberty Footwear's family-owned and operated business grew out of a deep family
+                heritage of quality shoemaking — a craft carried from a master shoemaker in
+                Czechoslovakia to the factory floor in Grand Rapids, Michigan.
+              </p>
+              <p>
+                Every stitch, every sole, every last is still learned by hand, the old-world way —
+                using traditional techniques refined over generations. It's the same pride and
+                patience that goes into every boot that leaves our shop.
+              </p>
+            </div>
+          </div>
+          <div className="max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
+                <Image
+                  src="/about-family.jpg"
+                  alt="Petr Kovarik and his children on the Liberty Footwear factory floor in Grand Rapids, Michigan"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 320px"
+                />
+              </div>
+              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
+                <Image
+                  src="/about-family-2.jpg"
+                  alt="Petr Kovarik inspecting a handcrafted work boot with his son at the Liberty Footwear factory"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 320px"
+                />
+              </div>
+            </div>
+            <p className="text-center text-white/50 text-sm mt-5 italic">Petr Kovarik and his children</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Where We Come From — video background */}
+      <section className="relative overflow-hidden bg-navy text-white py-28">
+        {/* Black & white video background */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover grayscale opacity-60"
+        >
+          <source src="/workshop.mp4" type="video/mp4" />
+        </video>
+        {/* Dark overlay for legibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/70 to-navy/90" />
+        {/* Content */}
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-tan text-xs font-bold tracking-widest uppercase mb-3">Where We Come From</p>
+          <h2 className="text-3xl lg:text-5xl font-black mb-6 leading-tight">
+            A Small Family Workshop<br />in Czechoslovakia
+          </h2>
+          <p className="text-white/85 text-lg leading-relaxed">
+            Liberty Footwear's roots reach back to a small family workshop in Czechoslovakia, where
+            Petr Kovarik learned the craft at his father's bench — a master shoemaker who built every
+            pair by hand. That old-world know-how is the foundation of every boot we build in Grand
+            Rapids today.
+          </p>
+        </div>
+      </section>
+
       {/* Store photo */}
       <section className="py-20 bg-cream">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -137,7 +212,7 @@ export default function AboutPage() {
             <div className="flex justify-center">
               <Image
                 src="/about-store.jpg"
-                alt="Liberty Footwear store – boots on display"
+                alt="Liberty Footwear factory outlet store – boots on display"
                 width={500}
                 height={420}
                 className="w-full max-w-sm rounded-2xl shadow-lg object-cover"
@@ -187,22 +262,6 @@ export default function AboutPage() {
                 <p className="text-gray-600 text-sm leading-relaxed">{v.body}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Custom fitting */}
-      <section className="bg-navy text-white py-16">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-black mb-4">Custom Fitting & Bulk Orders</h2>
-          <p className="text-white/70 text-lg mb-8">
-            In addition to work boots designed for safety, hiking, and everyday wear, we offer custom
-            fitting for local businesses and bulk order discounts — keeping with our mission to provide
-            comfort and safety to the workers who need it most.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact" className="btn-primary">Contact Us</Link>
-            <a href="tel:6169303060" className="btn-outline-white">Call 616.930.3060</a>
           </div>
         </div>
       </section>

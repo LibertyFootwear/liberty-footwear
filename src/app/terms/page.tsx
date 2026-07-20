@@ -22,7 +22,7 @@ export default function TermsPage() {
             <ul className="space-y-3 text-sm">
               <li className="flex gap-3">
                 <span className="text-red font-bold mt-0.5 flex-shrink-0">—</span>
-                <span>In-stock items normally leave our warehouse within <strong>1 business day</strong> of receiving your order.</span>
+                <span>In-stock items normally leave our factory within <strong>1 business day</strong> of receiving your order.</span>
               </li>
               <li className="flex gap-3">
                 <span className="text-red font-bold mt-0.5 flex-shrink-0">—</span>
@@ -40,7 +40,7 @@ export default function TermsPage() {
                 <span className="text-red font-bold mt-0.5 flex-shrink-0">—</span>
                 <span>
                   Shipping and processing charges include processing your orders and payments, receiving
-                  and storing goods at our warehouse, processing returns, packing and delivering our
+                  and storing goods at our factory, processing returns, packing and delivering our
                   products in a manner that assures a safe, secure and timely delivery, and replacing any
                   goods that are lost or damaged in transit. These charges are <strong>non-refundable</strong>.
                 </span>
