@@ -279,13 +279,13 @@ function CheckoutForm() {
                 <div className="space-y-3 mb-5">
                   {items.map((item) => (
                     <div key={`${item.product.stockNo}-${item.size}`} className="flex items-center gap-3">
-                      <div className="relative w-12 h-12 flex-shrink-0 bg-white rounded-lg overflow-hidden border border-gray-100">
+                      <Link href={`/shop/${item.product.slug}`} className="relative w-12 h-12 flex-shrink-0 bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-navy transition">
                         {item.product.image && (
                           <Image src={item.product.image} alt={item.product.name} fill className="object-contain p-1 mix-blend-multiply" sizes="48px" />
                         )}
-                      </div>
+                      </Link>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-navy truncate">{item.product.name}</p>
+                        <Link href={`/shop/${item.product.slug}`} className="text-xs font-bold text-navy hover:text-red transition truncate block">{item.product.name}</Link>
                         <p className="text-xs text-gray-500">{item.product.colorLeather} · {item.size} · ×{item.qty}</p>
                       </div>
                       <p className="text-xs font-black text-gray-900 flex-shrink-0">${item.product.price * item.qty}</p>
