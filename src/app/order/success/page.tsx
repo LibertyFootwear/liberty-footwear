@@ -36,6 +36,13 @@ export default async function SuccessPage({ searchParams }: Props) {
             };
           });
 
+          // Address: prefer collected shipping address, fall back to billing details
+          const s = session as unknown as {
+            shipping_details?: { address?: Record<string, string> };
+            customer_details?: { address?: Record<string, string>; phone?: string };
+          };
+          const addr = s.shipping_details?.address ?? s.customer_details?.address;
+
           await saveOrder({
             id: crypto.randomUUID(),
             stripeSessionId: session_id,
@@ -46,6 +53,14 @@ export default async function SuccessPage({ searchParams }: Props) {
             createdAt: new Date().toISOString(),
             shippingName: session.customer_details?.name ?? undefined,
             shippingEmail: session.customer_details?.email ?? undefined,
+            shippingPhone: session.metadata?.phone ?? s.customer_details?.phone ?? undefined,
+            shippingAddress: addr ? {
+              line1: addr.line1,
+              city: addr.city,
+              state: addr.state,
+              postalCode: addr.postal_code,
+              country: addr.country,
+            } : undefined,
           });
 
           // Deduct purchased quantities from finished-boot inventory (runs once per order)

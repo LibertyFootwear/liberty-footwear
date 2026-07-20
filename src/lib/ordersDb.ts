@@ -9,6 +9,14 @@ export interface OrderItem {
   size?: string;
 }
 
+export interface ShippingAddress {
+  line1?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+}
+
 export interface Order {
   id: string;
   stripeSessionId: string;
@@ -19,6 +27,8 @@ export interface Order {
   createdAt: string;
   shippingName?: string;
   shippingEmail?: string;
+  shippingPhone?: string;
+  shippingAddress?: ShippingAddress;
 }
 
 function mapRow(row: Record<string, unknown>): Order {
@@ -32,6 +42,8 @@ function mapRow(row: Record<string, unknown>): Order {
     createdAt: row.created_at as string,
     shippingName: (row.shipping_name as string) ?? undefined,
     shippingEmail: (row.shipping_email as string) ?? undefined,
+    shippingPhone: (row.phone as string) ?? undefined,
+    shippingAddress: (row.shipping_address as ShippingAddress) ?? undefined,
   };
 }
 
@@ -66,5 +78,7 @@ export async function saveOrder(order: Order): Promise<void> {
     created_at: order.createdAt,
     shipping_name: order.shippingName ?? null,
     shipping_email: order.shippingEmail ?? null,
+    phone: order.shippingPhone ?? null,
+    shipping_address: order.shippingAddress ?? null,
   });
 }

@@ -9,13 +9,18 @@ export default async function AdminCustomerDetail({ params }: { params: Promise<
 
   const [userRes, ordersRes] = await Promise.all([
     getSupabase().from("users").select("*").eq("id", id).single(),
-    getSupabase().from("orders").select("id, total, status, created_at, items").eq("user_id", id).order("created_at", { ascending: false }),
+    getSupabase().from("orders").select("id, total, status, created_at, items, shipping_address").eq("user_id", id).order("created_at", { ascending: false }),
   ]);
 
   if (!userRes.data) notFound();
   const u = userRes.data;
   const orders = ordersRes.data ?? [];
   const totalSpent = orders.reduce((s, o) => s + (o.total ?? 0), 0);
+
+  // Most recent order that carries an address
+  const addrOrder = orders.find((o) => o.shipping_address);
+  const addr = (addrOrder?.shipping_address ?? null) as { line1?: string; city?: string; state?: string; postalCode?: string; country?: string } | null;
+  const addrLine = addr ? [addr.line1, addr.city, [addr.state, addr.postalCode].filter(Boolean).join(" "), addr.country].filter(Boolean).join(", ") : null;
 
   return (
     <div className="p-8 max-w-3xl">
@@ -44,6 +49,10 @@ export default async function AdminCustomerDetail({ params }: { params: Promise<
           <div><p className="text-gray-400 text-xs">Phone</p><p className="font-semibold">{u.phone || "—"}</p></div>
           <div><p className="text-gray-400 text-xs">Joined</p><p className="font-semibold">{new Date(u.created_at).toLocaleDateString()}</p></div>
           <div><p className="text-gray-400 text-xs">Newsletter</p><p className="font-semibold">{u.newsletter ? "Yes" : "No"}</p></div>
+          <div className="col-span-2">
+            <p className="text-gray-400 text-xs">Address {addrLine ? <span className="text-gray-300">(from latest order)</span> : ""}</p>
+            <p className="font-semibold">{addrLine ?? "— (no shipped order yet)"}</p>
+          </div>
         </div>
       </div>
 
