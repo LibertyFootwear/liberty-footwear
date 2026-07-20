@@ -91,7 +91,9 @@ export default function ProductPageClient({ p, variants, related }: Props) {
 
             <ProductOptions product={p} variants={variants} />
 
-            <p className="text-xs text-gray-400 mt-4 text-center">{t.product.freeShipping}</p>
+            {!isApparel && (
+              <p className="text-xs text-gray-400 mt-4 text-center">{t.product.freeShipping}</p>
+            )}
           </div>
         </div>
 
