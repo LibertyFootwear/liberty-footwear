@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Product, parseSizes } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
@@ -78,7 +79,7 @@ export default function ProductOptions({ product, variants }: Props) {
     if (!selectedSize) return;
     addItem(product, `${selectedWidth} ${selectedSize}`);
     setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+    setTimeout(() => setAdded(false), 4000);
   }
 
   return (
@@ -211,15 +212,30 @@ export default function ProductOptions({ product, variants }: Props) {
         onClick={handleAdd}
         disabled={!selectedSize}
         className={`w-full py-4 rounded-lg font-bold text-base uppercase tracking-wide transition ${
-          added
-            ? "bg-green-600 text-white"
-            : selectedSize
+          selectedSize
             ? "bg-red hover:bg-red-dark text-white"
             : "bg-gray-200 text-gray-400 cursor-not-allowed"
         }`}
       >
-        {added ? "✓ Added to Cart!" : selectedSize ? `Add to Cart — ${selectedWidth} ${selectedSize}` : "Select a Size"}
+        {selectedSize ? `Add to Cart — ${selectedWidth} ${selectedSize}` : "Select a Size"}
       </button>
+
+      {/* Toast */}
+      <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${added ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}>
+        <div className="flex items-center gap-4 bg-navy text-white px-5 py-4 rounded-2xl shadow-2xl min-w-72">
+          <span className="text-green-400 text-xl">✓</span>
+          <div className="flex-1">
+            <p className="font-bold text-sm">Added to cart!</p>
+            <p className="text-xs text-white/60">{product.name} · {selectedWidth} {selectedSize}</p>
+          </div>
+          <Link
+            href="/cart"
+            className="bg-amber-500 hover:bg-amber-400 text-white text-xs font-black px-4 py-2 rounded-lg transition whitespace-nowrap"
+          >
+            Go to Cart →
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
