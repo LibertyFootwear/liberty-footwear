@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useReducer, ReactNode } from "react";
-import { Product } from "@/data/products";
+import { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
+import { Product, products as allProducts } from "@/data/products";
 
 export interface CartItem {
   product: Product;
@@ -18,12 +18,14 @@ type CartAction =
   | { type: "REMOVE"; stockNo: string; size: string }
   | { type: "INCREMENT"; stockNo: string; size: string }
   | { type: "DECREMENT"; stockNo: string; size: string }
-  | { type: "CLEAR" };
+  | { type: "CLEAR" }
+  | { type: "LOAD"; items: CartItem[] };
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
+    case "LOAD":
+      return { items: action.items };
     case "ADD": {
-      const key = `${action.product.stockNo}-${action.size}`;
       const existing = state.items.find(
         (i) => i.product.stockNo === action.product.stockNo && i.size === action.size
       );
@@ -61,6 +63,33 @@ function cartReducer(state: CartState, action: CartAction): CartState {
   }
 }
 
+const STORAGE_KEY = "lf_cart";
+
+// Persist only stockNo+size+qty, rehydrate full Product from catalog
+type PersistedItem = { stockNo: string; size: string; qty: number };
+
+function save(items: CartItem[]) {
+  try {
+    const slim: PersistedItem[] = items.map((i) => ({ stockNo: i.product.stockNo, size: i.size, qty: i.qty }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+  } catch {}
+}
+
+function load(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const slim: PersistedItem[] = JSON.parse(raw);
+    return slim.flatMap((i) => {
+      const product = allProducts.find((p) => p.stockNo === i.stockNo);
+      if (!product) return [];
+      return [{ product, size: i.size, qty: i.qty }];
+    });
+  } catch {
+    return [];
+  }
+}
+
 interface CartContextValue {
   items: CartItem[];
   itemCount: number;
@@ -76,6 +105,17 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, { items: [] });
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const saved = load();
+    if (saved.length > 0) dispatch({ type: "LOAD", items: saved });
+  }, []);
+
+  // Save to localStorage on every change
+  useEffect(() => {
+    save(state.items);
+  }, [state.items]);
 
   const itemCount = state.items.reduce((s, i) => s + i.qty, 0);
   const subtotal = state.items.reduce((s, i) => s + i.product.price * i.qty, 0);
