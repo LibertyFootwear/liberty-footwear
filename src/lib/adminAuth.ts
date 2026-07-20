@@ -1,11 +1,8 @@
-import { getAuthUserId } from "./authJwt";
-import { getUserById } from "./userDb";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function requireAdmin() {
-  const userId = await getAuthUserId();
-  if (!userId) redirect("/account/login?next=/admin");
-  const user = await getUserById(userId);
-  if (!user || !(user as unknown as Record<string, unknown>).is_admin) redirect("/");
-  return user;
+  const store = await cookies();
+  const token = store.get("lf_admin")?.value;
+  if (token !== "1") redirect("/admin/login");
 }

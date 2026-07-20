@@ -10,7 +10,7 @@ const NAV = [
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireAdmin();
+  await requireAdmin();
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -33,7 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           ))}
         </nav>
         <div className="px-5 py-4 border-t border-white/10">
-          <p className="text-xs text-white/40 truncate">{user.email}</p>
+          <p className="text-xs text-white/40">Admin</p>
           <Link href="/" className="text-xs text-white/60 hover:text-white transition mt-1 block">← Back to site</Link>
         </div>
       </aside>
