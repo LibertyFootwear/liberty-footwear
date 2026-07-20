@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Stripe from "stripe";
 import { saveOrder, getOrderByStripeSession } from "@/lib/ordersDb";
+import { decrementInventory } from "@/lib/inventoryDb";
 import { products } from "@/data/products";
 
 interface Props {
@@ -23,10 +24,12 @@ export default async function SuccessPage({ searchParams }: Props) {
           const items = (session.line_items?.data ?? []).map((li) => {
             const prod = li.price?.product as Stripe.Product | undefined;
             const stockNo = prod?.metadata?.stockNo ?? "";
+            const size = prod?.metadata?.size ?? "";
             const product = products.find((p) => p.stockNo === stockNo);
             return {
               stockNo,
               name: li.description ?? prod?.name ?? "",
+              size,
               price: (li.amount_total ?? 0) / 100 / (li.quantity ?? 1),
               qty: li.quantity ?? 1,
               slug: product?.slug,
@@ -44,6 +47,9 @@ export default async function SuccessPage({ searchParams }: Props) {
             shippingName: session.customer_details?.name ?? undefined,
             shippingEmail: session.customer_details?.email ?? undefined,
           });
+
+          // Deduct purchased quantities from finished-boot inventory (runs once per order)
+          await decrementInventory(items);
         }
       }
     } catch {

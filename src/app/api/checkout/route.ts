@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: NextRequest) {
   const { items, shippingMethod, billing } = await req.json() as {
-    items: { stockNo: string; name: string; price: number; qty: number }[];
+    items: { stockNo: string; name: string; size?: string; price: number; qty: number }[];
     shippingMethod?: "ship" | "pickup";
     billing?: { firstName: string; lastName: string; email: string; phone: string; address?: string; city?: string; state?: string; zip?: string; country?: string };
   };
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const product = await getCatalogPrice(item.stockNo);
     if (!product) throw new Error(`Unknown product: ${item.stockNo}`);
     if (item.qty < 1 || item.qty > 100) throw new Error("Invalid quantity");
-    return { stockNo: item.stockNo, name: item.name || product.name, price: product.price, qty: item.qty };
+    return { stockNo: item.stockNo, name: item.name || product.name, size: item.size ?? "", price: product.price, qty: item.qty };
   }));
 
   const session = await stripe.checkout.sessions.create({
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       price_data: {
         currency: "usd",
         unit_amount: item.price * 100,
-        product_data: { name: item.name, metadata: { stockNo: item.stockNo } },
+        product_data: { name: item.name, metadata: { stockNo: item.stockNo, size: item.size } },
       },
       quantity: item.qty,
     })),

@@ -81,6 +81,7 @@ function CheckoutForm() {
         items: items.map((i) => ({
           stockNo: i.product.stockNo,
           name: `${i.product.name} – ${i.product.colorLeather} (${i.size})`,
+          size: i.size,
           price: i.product.price,
           qty: i.qty,
         })),
