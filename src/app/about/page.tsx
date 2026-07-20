@@ -267,10 +267,10 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 text-center px-4">
-        <h2 className="text-3xl font-black text-navy mb-4">Ready to Find Your Boot?</h2>
-        <p className="text-gray-500 mb-8">Browse our full collection of American-made work boots.</p>
-        <Link href="/shop" className="btn-primary text-base px-10 py-4">Shop All Boots</Link>
+      <section className="bg-navy py-20 text-center px-4">
+        <h2 className="text-3xl font-black text-white mb-4">Ready to Find Your Boot?</h2>
+        <p className="text-white/70 mb-8">Browse our full collection of American-made work boots.</p>
+        <Link href="/shop" className="inline-block bg-red hover:bg-red-dark text-white font-black text-base px-10 py-4 rounded-xl transition">Shop All Boots</Link>
       </section>
     </div>
   );
