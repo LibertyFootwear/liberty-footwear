@@ -41,7 +41,7 @@ export default function ProductCard({ product: p }: { product: Product }) {
             </span>
           )}
         </div>
-        <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
+        <div className="absolute top-3 right-3 flex flex-row gap-1.5 items-center">
           {p.safetyToe && (
             <span className="bg-navy text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">
               CT EH
