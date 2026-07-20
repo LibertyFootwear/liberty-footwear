@@ -157,20 +157,17 @@ export default function HomePage() {
       {/* ── SOCIAL PROOF RIBBON ── */}
       <section className="bg-navy-dark border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center lg:justify-between gap-6 py-5 text-white/60 text-sm">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px py-5">
             {[
               { label: "★★★★★", sub: "4.9 rating on Google" },
               { label: "Family Owned", sub: "Grand Rapids, Michigan" },
-              { label: "Handcrafted in the USA", sub: "Every pair built by hand" },
+              { label: "Handcrafted in USA", sub: "Every pair built by hand" },
               { label: "Free Shipping", sub: "On all US orders" },
               { label: "Custom Fitting", sub: "No appointment needed" },
             ].map((item) => (
-              <div key={item.label} className="flex items-center gap-3">
-                <div className="w-px h-6 bg-white/10 hidden lg:block first:hidden" />
-                <div className="text-center lg:text-left">
-                  <p className="text-white font-black text-sm tracking-wide">{item.label}</p>
-                  <p className="text-white/50 text-xs">{item.sub}</p>
-                </div>
+              <div key={item.label} className="text-center px-3 py-2">
+                <p className="text-white font-black text-sm tracking-wide">{item.label}</p>
+                <p className="text-white/50 text-xs mt-0.5">{item.sub}</p>
               </div>
             ))}
           </div>

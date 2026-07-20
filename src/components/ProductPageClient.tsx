@@ -60,7 +60,10 @@ export default function ProductPageClient({ p, variants, related }: Props) {
               )}
             </div>
             <h1 className="text-4xl font-black text-navy mb-1">{p.name}</h1>
-            <p className="text-3xl font-black text-gray-900 mb-6">${p.price}</p>
+            <p className="text-3xl font-black text-gray-900 mb-2">${p.price}</p>
+            {p.shortDescription && (
+              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-6">{p.shortDescription}</p>
+            )}
             <p className="text-gray-700 leading-relaxed mb-8">{p.description}</p>
 
             {/* Specs */}
