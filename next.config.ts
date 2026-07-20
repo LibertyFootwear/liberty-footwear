@@ -16,7 +16,7 @@ const securityHeaders = [
       "img-src 'self' data: blob:",
       "font-src 'self'",
       "connect-src 'self' https://*.supabase.co https://api.stripe.com",
-      "frame-src https://js.stripe.com",
+      "frame-src https://js.stripe.com https://maps.google.com https://www.google.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -17,6 +18,7 @@ const COUPONS: Record<string, number> = {
 
 export default function CartPage() {
   const { items, subtotal, removeItem, increment, decrement } = useCart();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const [couponInput, setCouponInput] = useState("");
@@ -155,6 +157,21 @@ export default function CartPage() {
                 <p className="font-black text-lg text-gray-900 flex-shrink-0">${item.product.price * item.qty}</p>
               </div>
             ))}
+
+            {/* Account creation prompt for guests */}
+            {!user && (
+              <div className="flex items-start gap-4 bg-navy/5 border border-navy/20 rounded-xl p-5 mt-2">
+                <div className="text-2xl flex-shrink-0">👟</div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-navy text-sm mb-1">Checkout faster with a free account</p>
+                  <p className="text-xs text-gray-600 mb-3">Save your order history, reorder your favorite boots in one click, and skip re-entering your details next time.</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Link href="/register" className="px-4 py-2 bg-navy text-white text-xs font-bold rounded-lg hover:bg-navy/80 transition">Create account — it&apos;s free</Link>
+                    <Link href="/login" className="px-4 py-2 border border-navy text-navy text-xs font-bold rounded-lg hover:bg-navy/5 transition">Sign in</Link>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Coupon */}
             <div className="border border-gray-200 rounded-xl p-5 mt-2">
