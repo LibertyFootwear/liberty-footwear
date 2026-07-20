@@ -16,9 +16,15 @@ function CheckoutForm() {
 
   const COUPONS: Record<string, number> = { LIBERTY10: 10, LIBERTY15: 15, WELCOME20: 20 };
   const discount = coupon ? (COUPONS[coupon] ?? 0) : 0;
+
+  // Apparel-only orders pay $8 shipping; free if any boot is in the cart or on pickup.
+  const hasBoot = items.some((i) => i.product.category !== "Apparel");
+  const hasApparel = items.some((i) => i.product.category === "Apparel");
+  const shippingFee = shippingMethod !== "pickup" && hasApparel && !hasBoot ? 8 : 0;
+
   const taxableAmount = Math.max(0, subtotal - discount);
   const tax = Math.round(taxableAmount * 0.06 * 100) / 100;
-  const total = Math.round((taxableAmount + tax) * 100) / 100;
+  const total = Math.round((taxableAmount + tax + shippingFee) * 100) / 100;
 
   const [form, setForm] = useState({
     firstName: user?.name?.split(" ")[0] ?? "",
@@ -307,7 +313,9 @@ function CheckoutForm() {
                   )}
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
-                    <span className="font-semibold text-green-600">Free</span>
+                    {shippingFee > 0
+                      ? <span className="font-semibold">${shippingFee.toFixed(2)}</span>
+                      : <span className="font-semibold text-green-600">Free</span>}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tax (6% MI)</span>

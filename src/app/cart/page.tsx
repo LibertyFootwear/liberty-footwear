@@ -26,9 +26,15 @@ export default function CartPage() {
   const [couponError, setCouponError] = useState("");
 
   const discount = appliedCoupon ? COUPONS[appliedCoupon] : 0;
+
+  // Apparel-only orders pay $8 shipping; free if any boot is in the cart or on pickup.
+  const hasBoot = items.some((i) => i.product.category !== "Apparel");
+  const hasApparel = items.some((i) => i.product.category === "Apparel");
+  const shippingFee = shippingMethod !== "pickup" && hasApparel && !hasBoot ? 8 : 0;
+
   const taxableAmount = Math.max(0, subtotal - discount);
   const tax = Math.round(taxableAmount * 0.06 * 100) / 100;
-  const total = Math.round((taxableAmount + tax) * 100) / 100;
+  const total = Math.round((taxableAmount + tax + shippingFee) * 100) / 100;
 
   function applyCoupon() {
     const code = couponInput.trim().toUpperCase();
@@ -222,7 +228,7 @@ export default function CartPage() {
                   <span className="mt-0.5 text-xl">📦</span>
                   <div>
                     <p className="font-bold text-navy text-sm">Ship to me</p>
-                    <p className="text-xs text-gray-500 mt-0.5">Free · 3–7 business days</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{hasApparel && !hasBoot ? "$8" : "Free"} · 3–7 business days</p>
                   </div>
                   {shippingMethod === "ship" && (
                     <span className="ml-auto mt-0.5 w-4 h-4 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
@@ -267,6 +273,12 @@ export default function CartPage() {
                     <span className="font-semibold">−${discount.toFixed(2)}</span>
                   </div>
                 )}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Shipping</span>
+                  {shippingFee > 0
+                    ? <span className="font-semibold">${shippingFee.toFixed(2)}</span>
+                    : <span className="font-semibold text-green-600">Free</span>}
+                </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax (6% MI)</span>
                   <span className="font-semibold">${tax.toFixed(2)}</span>

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getCatalogPrice } from "@/lib/catalog";
+import { products } from "@/data/products";
 import { getAuthUserId } from "@/lib/authJwt";
+
+const APPAREL_SHIPPING_CENTS = 800; // $8 flat when the order is apparel-only
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-06-24.dahlia",
@@ -24,6 +27,11 @@ export async function POST(req: NextRequest) {
     if (item.qty < 1 || item.qty > 100) throw new Error("Invalid quantity");
     return { stockNo: item.stockNo, name: item.name || product.name, size: item.size ?? "", price: product.price, qty: item.qty };
   }));
+
+  // Shipping: apparel-only orders pay a flat fee when shipped; free if any boot is in the cart or on pickup.
+  const hasBoot = validatedItems.some((it) => products.find((p) => p.stockNo === it.stockNo)?.category !== "Apparel");
+  const hasApparel = validatedItems.some((it) => products.find((p) => p.stockNo === it.stockNo)?.category === "Apparel");
+  const chargeApparelShipping = shippingMethod !== "pickup" && hasApparel && !hasBoot;
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -52,8 +60,8 @@ export async function POST(req: NextRequest) {
         : {
             shipping_rate_data: {
               type: "fixed_amount" as const,
-              fixed_amount: { amount: 0, currency: "usd" },
-              display_name: "Standard Shipping — Free",
+              fixed_amount: { amount: chargeApparelShipping ? APPAREL_SHIPPING_CENTS : 0, currency: "usd" },
+              display_name: chargeApparelShipping ? "Standard Shipping" : "Standard Shipping — Free",
               delivery_estimate: {
                 minimum: { unit: "business_day" as const, value: 3 },
                 maximum: { unit: "business_day" as const, value: 7 },
