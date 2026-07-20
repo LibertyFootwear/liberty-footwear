@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { addSubscriber } from "@/lib/newsletterDb";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -7,6 +8,9 @@ export async function POST(req: NextRequest) {
   const { email } = await req.json() as { email: string };
   if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+
+  // Persist the subscriber (idempotent) — don't fail signup if this errors
+  try { await addSubscriber(email); } catch (err) { console.error("newsletter save failed", err); }
 
   try {
     await resend.emails.send({
