@@ -10,7 +10,7 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Image src="/logo/logo-white.png" alt="Liberty Footwear" width={160} height={80} className="h-14 w-auto mb-4" />
+            <Image src="/logo/logo-white.png" alt="Liberty Footwear" width={240} height={120} className="h-24 w-auto mb-4" />
             <p className="text-sm text-white/70 leading-relaxed">
               Handcrafted work boots built in America. Designed for the worker who demands the best.
             </p>
