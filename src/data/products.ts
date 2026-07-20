@@ -497,12 +497,13 @@ export function getVariantGroup(p: Product): Product[] {
 
 // Expands size string like "M: 6–12, 13 | EW: 6–12, 13"
 // into { M: [6,7,8,9,10,11,12,13], EW: [6,7,8,9,10,11,12,13] }
+// Also supports a shared-width label like "M & EW: 5–12, 13".
 export function parseSizes(sizes: string): Record<string, number[]> {
   const result: Record<string, number[]> = {};
   for (const part of sizes.split("|")) {
-    const m = part.trim().match(/^([A-Z]+(?:\s[A-Z]+)?)\s*:\s*(.+)/);
+    const m = part.trim().match(/^([A-Z\s&]+?)\s*:\s*(.+)/);
     if (!m) continue;
-    const width = m[1].trim();
+    const widths = m[1].split("&").map((w) => w.trim()).filter(Boolean);
     const nums: number[] = [];
     for (const chunk of m[2].split(",")) {
       const range = chunk.trim().match(/^(\d+(?:\.\d+)?)[–\-](\d+(?:\.\d+)?)$/);
@@ -524,7 +525,8 @@ export function parseSizes(sizes: string): Record<string, number[]> {
         set.add(n);
       }
     }
-    result[width] = [...set].sort((a, b) => a - b);
+    const sorted = [...set].sort((a, b) => a - b);
+    for (const width of widths) result[width] = sorted;
   }
   return result;
 }
