@@ -33,6 +33,7 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide uppercase">
             <Link href="/shop" className="hover:text-tan transition">{t.nav.shop}</Link>
             <Link href="/blog" className="hover:text-tan transition">{t.nav.blog}</Link>
+            <Link href="/gallery" className="hover:text-tan transition">Gallery</Link>
             <Link href="/about" className="hover:text-tan transition">{t.nav.about}</Link>
             <Link href="/contact" className="hover:text-tan transition">{t.nav.contact}</Link>
           </nav>
@@ -90,6 +91,7 @@ export default function Header() {
           <div className="md:hidden pb-4 flex flex-col gap-3 text-sm font-semibold tracking-wide uppercase border-t border-white/20 pt-4">
             <Link href="/shop" onClick={() => setMenuOpen(false)} className="hover:text-tan">{t.nav.shop}</Link>
             <Link href="/blog" onClick={() => setMenuOpen(false)} className="hover:text-tan">{t.nav.blog}</Link>
+            <Link href="/gallery" onClick={() => setMenuOpen(false)} className="hover:text-tan">Gallery</Link>
             <Link href="/about" onClick={() => setMenuOpen(false)} className="hover:text-tan">{t.nav.about}</Link>
             <Link href="/contact" onClick={() => setMenuOpen(false)} className="hover:text-tan">{t.nav.contact}</Link>
             <Link href={user ? "/account" : "/account/login"} onClick={() => setMenuOpen(false)} className="hover:text-tan">
