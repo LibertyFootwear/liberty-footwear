@@ -13,8 +13,14 @@ export default async function AdminCustomers() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-2">Customers</h1>
-      <p className="text-sm text-gray-400 mb-8">{users.length} registered accounts</p>
+      <h1 className="text-2xl font-black text-navy mb-4">Customers</h1>
+
+      <div className="flex gap-2 border-b border-gray-200 mb-6">
+        <a href="/admin/customers" className="px-4 py-2 text-sm font-bold text-navy border-b-2 border-navy -mb-px">Registered</a>
+        <a href="/admin/customers/old" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">From Old Website</a>
+      </div>
+
+      <p className="text-sm text-gray-400 mb-6">{users.length} registered accounts</p>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <table className="w-full text-sm">
