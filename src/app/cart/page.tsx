@@ -232,9 +232,9 @@ export default function CartPage() {
               <button
                 onClick={checkout}
                 disabled={loading}
-                className="w-full btn-primary py-4 text-base"
+                className="w-full py-4 text-base font-bold rounded-lg uppercase tracking-wide transition bg-amber-500 hover:bg-amber-400 text-white shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {loading ? "Redirecting…" : "Proceed to Checkout"}
+                {loading ? "Redirecting…" : "Proceed to Checkout →"}
               </button>
             </div>
           </div>
