@@ -67,7 +67,7 @@ const IMG_EXT: Record<string, string> = {
   "KS0172HG":"png","KS0272HG":"png",
   "KS0572":"png","KS0672":"png",
   // Apparel
-  "TEE-BLACK":"png","TEE-BLUE":"png",
+  "TEE-BLUE":"png",
 };
 
 function img(stockNo: string, ext?: string): string | null {
@@ -451,16 +451,6 @@ const _raw: RawProduct[] = [
   },
 
   // ── Apparel ─────────────────────────────────────────────────────────────────
-  {
-    stockNo: "TEE-BLACK", slug: slug("TEE-BLACK","liberty-tee-black"),
-    name: "Liberty Footwear Tee", family: "Apparel", safetyToe: false,
-    colorLeather: "Black", outsoleType: "", colorOutsole: "",
-    categoryOverride: "Apparel",
-    shortDescription: "Built in America logo tee",
-    description: "Soft, durable cotton t-shirt with the classic Liberty Footwear “Built in America” logo printed across the chest. A comfortable everyday fit that shows your support for American-made craftsmanship.",
-    apparelSizes: ["S", "M", "L", "XL", "XXL"],
-    sizes: "", price: 25, isNew: true, image: img("TEE-BLACK"),
-  },
   {
     stockNo: "TEE-BLUE", slug: slug("TEE-BLUE","liberty-tee-blue"),
     name: "Liberty Footwear Tee", family: "Apparel", safetyToe: false,
