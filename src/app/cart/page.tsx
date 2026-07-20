@@ -94,11 +94,36 @@ export default function CartPage() {
     );
   }
 
+  const cartStockNos = new Set(items.map((i) => i.product.stockNo));
+  const crossSell = products.filter((p) => p.image && !cartStockNos.has(p.stockNo)).slice(0, 4);
+
   return (
     <div className="bg-white min-h-screen">
-      <div className="bg-cream border-b border-cream-dark py-6">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-sm text-gray-500">
-          <Link href="/" className="hover:text-navy">Home</Link> / <span className="text-navy font-medium">Cart</span>
+      {/* Step indicator */}
+      <div className="bg-cream border-b border-cream-dark py-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center gap-0">
+            {[
+              { label: "Cart", step: 1, href: "/cart", active: true },
+              { label: "Details", step: 2, href: null, active: false },
+              { label: "Payment", step: 3, href: null, active: false },
+            ].map((s, i) => (
+              <div key={s.step} className="flex items-center">
+                {i > 0 && <div className="w-12 sm:w-20 h-px bg-gray-300 mx-1" />}
+                {s.href ? (
+                  <Link href={s.href} className="flex items-center gap-2">
+                    <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${s.active ? "bg-navy text-white" : "bg-gray-200 text-gray-500"}`}>{s.step}</span>
+                    <span className={`text-sm font-semibold hidden sm:block ${s.active ? "text-navy" : "text-gray-400"}`}>{s.label}</span>
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-2 cursor-default">
+                    <span className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black bg-gray-200 text-gray-400">{s.step}</span>
+                    <span className="text-sm font-semibold hidden sm:block text-gray-400">{s.label}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -260,6 +285,21 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+
+        {/* Cross-sell */}
+        {crossSell.length > 0 && (
+          <div className="mt-16 border-t border-gray-100 pt-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-black text-navy">You Might Also Like</h2>
+              <Link href="/shop" className="text-sm font-bold text-navy hover:text-red transition">View all →</Link>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {crossSell.map((p) => (
+                <ProductCard key={p.stockNo} product={p} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

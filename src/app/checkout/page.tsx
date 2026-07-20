@@ -30,11 +30,19 @@ function CheckoutForm() {
     state: "",
     zip: "",
     country: "US",
+    billingSame: true,
+    billingAddress: "",
+    billingCity: "",
+    billingState: "",
+    billingZip: "",
+    billingCountry: "US",
+    createAccount: false,
+    password: "",
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  function set(field: string, value: string) {
+  function set(field: string, value: string | boolean) {
     setForm((f) => ({ ...f, [field]: value }));
     setErrors((e) => ({ ...e, [field]: "" }));
   }
@@ -50,7 +58,14 @@ function CheckoutForm() {
       if (!form.city.trim()) e.city = "Required";
       if (!form.state.trim()) e.state = "Required";
       if (!form.zip.trim()) e.zip = "Required";
+      if (!form.billingSame) {
+        if (!form.billingAddress.trim()) e.billingAddress = "Required";
+        if (!form.billingCity.trim()) e.billingCity = "Required";
+        if (!form.billingState.trim()) e.billingState = "Required";
+        if (!form.billingZip.trim()) e.billingZip = "Required";
+      }
     }
+    if (form.createAccount && form.password.length < 8) e.password = "Minimum 8 characters";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -96,7 +111,7 @@ function CheckoutForm() {
       <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">{label}</label>
       <input
         type={type}
-        value={(form as Record<string, string>)[name]}
+        value={(form as Record<string, string | boolean>)[name] as string}
         onChange={(e) => set(name, e.target.value)}
         placeholder={placeholder}
         className={`w-full border-2 rounded-lg px-4 py-3 text-sm focus:outline-none transition ${
@@ -109,14 +124,31 @@ function CheckoutForm() {
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Breadcrumb */}
-      <div className="bg-cream border-b border-cream-dark py-6">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-sm text-gray-500 flex items-center gap-2">
-          <Link href="/" className="hover:text-navy">Home</Link>
-          <span>/</span>
-          <Link href="/cart" className="hover:text-navy">Cart</Link>
-          <span>/</span>
-          <span className="text-navy font-medium">Checkout</span>
+      {/* Step indicator */}
+      <div className="bg-cream border-b border-cream-dark py-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center gap-0">
+            {[
+              { label: "Cart", step: 1, href: "/cart", done: true, active: false },
+              { label: "Details", step: 2, href: null, done: false, active: true },
+              { label: "Payment", step: 3, href: null, done: false, active: false },
+            ].map((s, i) => (
+              <div key={s.step} className="flex items-center">
+                {i > 0 && <div className="w-12 sm:w-20 h-px bg-gray-300 mx-1" />}
+                {s.href ? (
+                  <Link href={s.href} className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black bg-green-500 text-white">✓</span>
+                    <span className="text-sm font-semibold hidden sm:block text-green-600">{s.label}</span>
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${s.active ? "bg-navy text-white" : "bg-gray-200 text-gray-400"}`}>{s.step}</span>
+                    <span className={`text-sm font-semibold hidden sm:block ${s.active ? "text-navy" : "text-gray-400"}`}>{s.label}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -180,9 +212,63 @@ function CheckoutForm() {
                         </select>
                       </div>
                     </div>
+
+                    {/* Billing address toggle */}
+                    <div className="mt-5 pt-5 border-t border-gray-100">
+                      <label className="flex items-center gap-3 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={form.billingSame}
+                          onChange={(e) => set("billingSame", e.target.checked)}
+                          className="w-4 h-4 accent-navy"
+                        />
+                        <span className="text-sm font-semibold text-navy">Billing address same as shipping</span>
+                      </label>
+                      {!form.billingSame && (
+                        <div className="mt-4 grid grid-cols-2 gap-4">
+                          <Field label="Billing Street Address" name="billingAddress" />
+                          <Field label="City" name="billingCity" half />
+                          <Field label="State" name="billingState" half placeholder="MI" />
+                          <Field label="ZIP Code" name="billingZip" half placeholder="49501" />
+                          <div className="col-span-1">
+                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">Country</label>
+                            <select
+                              value={form.billingCountry}
+                              onChange={(e) => set("billingCountry", e.target.value)}
+                              className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-navy transition"
+                            >
+                              <option value="US">United States</option>
+                              <option value="CA">Canada</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
+            {/* Create account */}
+            {!user && (
+              <div className="bg-white border border-gray-200 rounded-2xl p-6">
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={form.createAccount}
+                    onChange={(e) => set("createAccount", e.target.checked)}
+                    className="w-4 h-4 accent-navy"
+                  />
+                  <div>
+                    <p className="font-bold text-navy text-sm">Create a free account</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Save your order history and check out faster next time.</p>
+                  </div>
+                </label>
+                {form.createAccount && (
+                  <div className="mt-4">
+                    <Field label="Password" name="password" type="password" />
+                  </div>
+                )}
+              </div>
+            )}
             </div>
 
             {/* Order summary */}
