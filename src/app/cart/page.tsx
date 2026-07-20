@@ -19,7 +19,6 @@ const COUPONS: Record<string, number> = {
 export default function CartPage() {
   const { items, subtotal, removeItem, increment, decrement } = useCart();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
   const [shippingMethod, setShippingMethod] = useState<"ship" | "pickup">("ship");
 
   const [couponInput, setCouponInput] = useState("");
@@ -48,27 +47,6 @@ export default function CartPage() {
     setCouponError("");
   }
 
-  async function checkout() {
-    setLoading(true);
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: items.map((i) => ({
-          stockNo: i.product.stockNo,
-          name: `${i.product.name} – ${i.product.colorLeather} (${i.size})`,
-          price: i.product.price,
-          qty: i.qty,
-        })),
-        coupon: appliedCoupon,
-        discount,
-        shippingMethod,
-      }),
-    });
-    const data = await res.json();
-    if (data.url) window.location.href = data.url;
-    else { alert("Checkout error. Please try again."); setLoading(false); }
-  }
 
   if (items.length === 0) {
     return (
@@ -273,13 +251,12 @@ export default function CartPage() {
                   <span>${total.toFixed(2)}</span>
                 </div>
               </div>
-              <button
-                onClick={checkout}
-                disabled={loading}
-                className="w-full py-4 text-base font-bold rounded-lg uppercase tracking-wide transition bg-amber-500 hover:bg-amber-400 text-white shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+              <Link
+                href={`/checkout?shipping=${shippingMethod}${appliedCoupon ? `&coupon=${appliedCoupon}` : ""}`}
+                className="w-full py-4 text-base font-bold rounded-lg uppercase tracking-wide transition bg-amber-500 hover:bg-amber-400 text-white shadow-lg text-center block"
               >
-                {loading ? "Redirecting…" : "Proceed to Checkout →"}
-              </button>
+                Proceed to Checkout →
+              </Link>
             </div>
           </div>
         </div>

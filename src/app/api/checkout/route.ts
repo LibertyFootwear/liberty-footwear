@@ -8,9 +8,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 export async function POST(req: NextRequest) {
-  const { items, shippingMethod } = await req.json() as {
+  const { items, shippingMethod, billing } = await req.json() as {
     items: { stockNo: string; name: string; price: number; qty: number }[];
     shippingMethod?: "ship" | "pickup";
+    billing?: { firstName: string; lastName: string; email: string; phone: string; address?: string; city?: string; state?: string; zip?: string; country?: string };
   };
 
   if (!items?.length) return NextResponse.json({ error: "No items" }, { status: 400 });
@@ -63,7 +64,11 @@ export async function POST(req: NextRequest) {
     ...(shippingMethod !== "pickup" && {
       shipping_address_collection: { allowed_countries: ["US", "CA"] as ["US", "CA"] },
     }),
-    metadata: userId ? { userId } : {},
+    ...(billing?.email && { customer_email: billing.email }),
+    metadata: {
+      ...(userId ? { userId } : {}),
+      ...(billing ? { name: `${billing.firstName} ${billing.lastName}`, phone: billing.phone, shippingMethod: shippingMethod ?? "ship" } : {}),
+    },
     success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
   });
