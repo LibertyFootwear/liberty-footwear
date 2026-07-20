@@ -12,6 +12,7 @@ export interface Product {
   outsoleType: string;
   colorOutsole: string;
   description: string;
+  shortDescription?: string;
   sizes: string;
   price: number;
   isNew: boolean;
