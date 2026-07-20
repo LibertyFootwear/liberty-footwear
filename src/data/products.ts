@@ -22,6 +22,8 @@ export interface Product {
   oneOfAKind?: boolean;
   /** Force-show the "Popular" badge regardless of sales (manual override). */
   popular?: boolean;
+  /** Admin override: hide this product from the shop. */
+  hidden?: boolean;
 }
 
 function categoryOf(name: string, family: ProductFamily, safetyToe: boolean): ProductCategory {

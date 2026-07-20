@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { products } from "@/data/products";
+import { getCatalogPrice } from "@/lib/catalog";
 import { getAuthUserId } from "@/lib/authJwt";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -17,13 +17,13 @@ export async function POST(req: NextRequest) {
   if (!items?.length) return NextResponse.json({ error: "No items" }, { status: 400 });
   const userId = await getAuthUserId();
 
-  // Validate prices server-side — never trust client price
-  const validatedItems = items.map((item) => {
-    const product = products.find((p) => p.stockNo === item.stockNo);
+  // Validate prices server-side — never trust client price (uses admin-edited catalog price)
+  const validatedItems = await Promise.all(items.map(async (item) => {
+    const product = await getCatalogPrice(item.stockNo);
     if (!product) throw new Error(`Unknown product: ${item.stockNo}`);
     if (item.qty < 1 || item.qty > 100) throw new Error("Invalid quantity");
-    return { stockNo: item.stockNo, name: product.name, price: product.price, qty: item.qty };
-  });
+    return { stockNo: item.stockNo, name: item.name || product.name, price: product.price, qty: item.qty };
+  }));
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
