@@ -18,6 +18,7 @@ export default async function AdminCustomers() {
       <div className="flex gap-2 border-b border-gray-200 mb-6">
         <a href="/admin/customers" className="px-4 py-2 text-sm font-bold text-navy border-b-2 border-navy -mb-px">Registered</a>
         <a href="/admin/customers/old" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">From Old Website</a>
+        <a href="/admin/customers/contacts" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">Email Contacts</a>
       </div>
 
       <p className="text-sm text-gray-400 mb-6">{users.length} registered accounts</p>
