@@ -60,8 +60,8 @@ export default function ProductReviews({ stockNo }: { stockNo: string }) {
       body: JSON.stringify({ stockNo, ...form }),
     });
     if (res.ok) {
-      const newReview = await res.json();
-      setReviews((prev) => [...prev, newReview]);
+      await res.json();
+      // Not shown until an admin approves it — don't add to the visible list.
       setDone(true);
       setShowForm(false);
       setForm({ author: "", rating: 0, text: "" });
