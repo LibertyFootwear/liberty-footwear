@@ -76,9 +76,13 @@ export default async function AdminAnalytics() {
   if (orders.length === 0) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-black text-navy mb-8">Analytics</h1>
+        <h1 className="text-2xl font-black text-navy mb-4">Analytics</h1>
+        <div className="flex gap-2 border-b border-gray-200 mb-8">
+          <a href="/admin/analytics" className="px-4 py-2 text-sm font-bold text-navy border-b-2 border-navy -mb-px">Web (live)</a>
+          <a href="/admin/analytics/store" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">Store (2017–2026)</a>
+        </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center text-gray-400">
-          No sales data yet. Charts will appear here automatically as orders come in.
+          No web sales data yet. Charts will appear here automatically as orders come in. See the Store tab for historical retail sales.
         </div>
       </div>
     );
@@ -87,8 +91,12 @@ export default async function AdminAnalytics() {
   return (
     <div className="p-8 space-y-8">
       <div>
-        <h1 className="text-2xl font-black text-navy mb-1">Analytics</h1>
-        <p className="text-sm text-gray-400">Based on {orders.length} orders · {totalUnits} units sold · ${totalRevenue.toFixed(0)} revenue · updates with every sale</p>
+        <h1 className="text-2xl font-black text-navy mb-4">Analytics</h1>
+        <div className="flex gap-2 border-b border-gray-200 mb-4">
+          <a href="/admin/analytics" className="px-4 py-2 text-sm font-bold text-navy border-b-2 border-navy -mb-px">Web (live)</a>
+          <a href="/admin/analytics/store" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">Store (2017–2026)</a>
+        </div>
+        <p className="text-sm text-gray-400">Based on {orders.length} web orders · {totalUnits} units sold · ${totalRevenue.toFixed(0)} revenue · updates with every sale</p>
       </div>
 
       {/* Top products */}
