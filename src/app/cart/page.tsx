@@ -239,7 +239,7 @@ export default function CartPage() {
                 <span className="mt-0.5 text-xl">🏪</span>
                 <div>
                   <p className="font-bold text-navy text-sm">Pick up in store</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Free · Grand Rapids, MI · Ready in 1–2 days</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Free · Grand Rapids, MI · You'll be notified when ready</p>
                 </div>
                 {shippingMethod === "pickup" && (
                   <span className="ml-auto mt-0.5 w-4 h-4 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
