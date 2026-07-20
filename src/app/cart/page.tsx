@@ -147,7 +147,7 @@ export default function CartPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-navy">{item.product.name}</h3>
+                  <Link href={`/shop/${item.product.slug}`} className="font-bold text-navy hover:text-red transition">{item.product.name}</Link>
                   <p className="text-sm text-gray-500">{item.product.colorLeather} · Size {item.size}</p>
                   <div className="flex items-center gap-3 mt-3">
                     <button onClick={() => decrement(item.product.stockNo, item.size)} className="w-8 h-8 rounded-full border border-gray-300 font-bold hover:border-navy transition">−</button>
@@ -205,48 +205,47 @@ export default function CartPage() {
               )}
               {couponError && <p className="text-xs text-red mt-2">{couponError}</p>}
             </div>
-          </div>
-
-          {/* Shipping method */}
-          <div className="border border-gray-200 rounded-xl p-5 mt-2">
-            <p className="text-sm font-bold text-navy mb-3">Delivery method</p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                type="button"
-                onClick={() => setShippingMethod("ship")}
-                className={`flex-1 flex items-start gap-3 rounded-xl border-2 p-4 text-left transition ${
-                  shippingMethod === "ship" ? "border-navy bg-navy/5" : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                <span className="mt-0.5 text-xl">📦</span>
-                <div>
-                  <p className="font-bold text-navy text-sm">Ship to me</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Free · 3–7 business days</p>
-                </div>
-                {shippingMethod === "ship" && (
-                  <span className="ml-auto mt-0.5 w-4 h-4 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
-                    <span className="w-2 h-2 rounded-full bg-white" />
-                  </span>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShippingMethod("pickup")}
-                className={`flex-1 flex items-start gap-3 rounded-xl border-2 p-4 text-left transition ${
-                  shippingMethod === "pickup" ? "border-navy bg-navy/5" : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                <span className="mt-0.5 text-xl">🏪</span>
-                <div>
-                  <p className="font-bold text-navy text-sm">Pick up in store</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Free · Grand Rapids, MI · You'll be notified when ready</p>
-                </div>
-                {shippingMethod === "pickup" && (
-                  <span className="ml-auto mt-0.5 w-4 h-4 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
-                    <span className="w-2 h-2 rounded-full bg-white" />
-                  </span>
-                )}
-              </button>
+            {/* Shipping method */}
+            <div className="border border-gray-200 rounded-xl p-5">
+              <p className="text-sm font-bold text-navy mb-3">Delivery method</p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShippingMethod("ship")}
+                  className={`flex-1 flex items-start gap-3 rounded-xl border-2 p-4 text-left transition ${
+                    shippingMethod === "ship" ? "border-navy bg-navy/5" : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <span className="mt-0.5 text-xl">📦</span>
+                  <div>
+                    <p className="font-bold text-navy text-sm">Ship to me</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Free · 3–7 business days</p>
+                  </div>
+                  {shippingMethod === "ship" && (
+                    <span className="ml-auto mt-0.5 w-4 h-4 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
+                      <span className="w-2 h-2 rounded-full bg-white" />
+                    </span>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShippingMethod("pickup")}
+                  className={`flex-1 flex items-start gap-3 rounded-xl border-2 p-4 text-left transition ${
+                    shippingMethod === "pickup" ? "border-navy bg-navy/5" : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <span className="mt-0.5 text-xl">🏪</span>
+                  <div>
+                    <p className="font-bold text-navy text-sm">Pick up in store</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Free · Grand Rapids, MI · You&apos;ll be notified when ready</p>
+                  </div>
+                  {shippingMethod === "pickup" && (
+                    <span className="ml-auto mt-0.5 w-4 h-4 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
+                      <span className="w-2 h-2 rounded-full bg-white" />
+                    </span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
