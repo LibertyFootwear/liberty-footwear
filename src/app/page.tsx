@@ -7,7 +7,8 @@ import NewsletterForm from "@/components/NewsletterForm";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import { useLang } from "@/context/LanguageContext";
 
-const featured = products.filter((p) => p.image).slice(0, 4);
+const featured = products.filter((p) => p.image && p.category !== "Apparel").slice(0, 4);
+const apparel = products.filter((p) => p.category === "Apparel" && p.image);
 const CATEGORY_IDS = ["Work", "Casual", "Outdoors", "Safety"];
 const CATEGORY_IMAGES = [
   "/products/KS0121.jpg",   // Work – Gary Black Cream
@@ -252,6 +253,35 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── APPAREL ── */}
+      {apparel.length > 0 && (
+        <section className="py-20 bg-cream">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-end justify-between mb-12">
+              <div>
+                <p className="text-red text-xs font-black tracking-widest uppercase mb-2">Wear the Brand</p>
+                <h2 className="text-3xl lg:text-4xl font-black text-navy">Liberty Footwear Apparel</h2>
+                <div className="w-16 h-1 bg-red mt-4" />
+              </div>
+              <Link href="/shop?category=Apparel" className="hidden sm:inline-flex items-center gap-1.5 text-navy font-bold text-sm hover:text-red transition group">
+                Shop Apparel
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {apparel.map((p) => (
+                <ProductCard key={p.stockNo} product={p} />
+              ))}
+            </div>
+            <div className="text-center mt-10 sm:hidden">
+              <Link href="/shop?category=Apparel" className="btn-secondary">Shop Apparel</Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── BUILT IN AMERICA ── */}
       <section className="bg-navy text-white py-20 lg:py-28">

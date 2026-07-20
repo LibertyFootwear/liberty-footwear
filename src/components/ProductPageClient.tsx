@@ -17,6 +17,7 @@ interface Props {
 
 export default function ProductPageClient({ p, variants, related }: Props) {
   const { t } = useLang();
+  const isApparel = p.category === "Apparel";
   useEffect(() => { trackProduct(p.slug); }, [p.slug]);
 
   return (
@@ -54,7 +55,7 @@ export default function ProductPageClient({ p, variants, related }: Props) {
           {/* Details */}
           <div className="flex flex-col">
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-xs font-bold text-red uppercase tracking-widest">{p.family} Family</span>
+              <span className="text-xs font-bold text-red uppercase tracking-widest">{isApparel ? "Apparel" : `${p.family} Family`}</span>
               {p.safetyToe && (
                 <span className="text-xs font-bold bg-navy text-white px-2 py-0.5 rounded uppercase">Safety Toe EH</span>
               )}
@@ -66,25 +67,27 @@ export default function ProductPageClient({ p, variants, related }: Props) {
             )}
             <p className="text-gray-700 leading-relaxed mb-8">{p.description}</p>
 
-            {/* Specs */}
-            <div className="grid grid-cols-2 gap-3 mb-8 text-sm">
-              <div className="bg-cream rounded-lg p-4">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{t.product.leatherColor}</p>
-                <p className="font-semibold text-navy">{p.colorLeather}</p>
+            {/* Specs — boots only */}
+            {!isApparel && (
+              <div className="grid grid-cols-2 gap-3 mb-8 text-sm">
+                <div className="bg-cream rounded-lg p-4">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{t.product.leatherColor}</p>
+                  <p className="font-semibold text-navy">{p.colorLeather}</p>
+                </div>
+                <div className="bg-cream rounded-lg p-4">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{t.product.outsole}</p>
+                  <p className="font-semibold text-navy">{p.outsoleType}</p>
+                </div>
+                <div className="bg-cream rounded-lg p-4">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{t.product.outsoleColor}</p>
+                  <p className="font-semibold text-navy">{p.colorOutsole}</p>
+                </div>
+                <div className="bg-cream rounded-lg p-4">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{t.product.safetyToe}</p>
+                  <p className="font-semibold text-navy">{p.safetyToe ? t.product.safetyToeYes : t.product.safetyToeNo}</p>
+                </div>
               </div>
-              <div className="bg-cream rounded-lg p-4">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{t.product.outsole}</p>
-                <p className="font-semibold text-navy">{p.outsoleType}</p>
-              </div>
-              <div className="bg-cream rounded-lg p-4">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{t.product.outsoleColor}</p>
-                <p className="font-semibold text-navy">{p.colorOutsole}</p>
-              </div>
-              <div className="bg-cream rounded-lg p-4">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{t.product.safetyToe}</p>
-                <p className="font-semibold text-navy">{p.safetyToe ? t.product.safetyToeYes : t.product.safetyToeNo}</p>
-              </div>
-            </div>
+            )}
 
             <ProductOptions product={p} variants={variants} />
 
@@ -98,7 +101,7 @@ export default function ProductPageClient({ p, variants, related }: Props) {
         {/* Related */}
         {related.length > 0 && (
           <div className="mt-20">
-            <h2 className="text-2xl font-black text-navy mb-8">{t.product.moreFrom} {p.family} {t.product.family}</h2>
+            <h2 className="text-2xl font-black text-navy mb-8">{isApparel ? "More Apparel" : `${t.product.moreFrom} ${p.family} ${t.product.family}`}</h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {related.map((r) => (
                 <Link key={r.stockNo} href={`/shop/${r.slug}`} className="group bg-cream rounded-xl overflow-hidden hover:shadow-md transition">

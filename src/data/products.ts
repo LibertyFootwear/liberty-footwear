@@ -1,5 +1,5 @@
-export type ProductFamily = "Gary" | "Terry" | "Larry" | "Kenny";
-export type ProductCategory = "Work" | "Casual" | "Outdoors" | "Safety" | "One of a Kind";
+export type ProductFamily = "Gary" | "Terry" | "Larry" | "Kenny" | "Apparel";
+export type ProductCategory = "Work" | "Casual" | "Outdoors" | "Safety" | "One of a Kind" | "Apparel";
 
 export interface Product {
   stockNo: string;
@@ -24,6 +24,10 @@ export interface Product {
   popular?: boolean;
   /** Admin override: hide this product from the shop. */
   hidden?: boolean;
+  /** Force a specific category (e.g. Apparel) instead of auto-categorization. */
+  categoryOverride?: ProductCategory;
+  /** Apparel sizing (S/M/L/…) — presence marks this as a non-boot apparel item. */
+  apparelSizes?: string[];
 }
 
 function categoryOf(name: string, family: ProductFamily, safetyToe: boolean): ProductCategory {
@@ -62,6 +66,8 @@ const IMG_EXT: Record<string, string> = {
   "KS0172C":"png","KS0272C":"png",
   "KS0172HG":"png","KS0272HG":"png",
   "KS0572":"png","KS0672":"png",
+  // Apparel
+  "TEE-BLACK":"png","TEE-BLUE":"png",
 };
 
 function img(stockNo: string, ext?: string): string | null {
@@ -443,11 +449,33 @@ const _raw: RawProduct[] = [
     description: '10" Pull-on Wellington water resistant – Safety Toe EH hiker',
     sizes: "M: 6–12, 16 | EW: 6–12, 16", price: 255, isNew: true, image: img("KS0672"),
   },
+
+  // ── Apparel ─────────────────────────────────────────────────────────────────
+  {
+    stockNo: "TEE-BLACK", slug: slug("TEE-BLACK","liberty-tee-black"),
+    name: "Liberty Footwear Tee", family: "Apparel", safetyToe: false,
+    colorLeather: "Black", outsoleType: "", colorOutsole: "",
+    categoryOverride: "Apparel",
+    shortDescription: "Built in America logo tee",
+    description: "Soft, durable cotton t-shirt with the classic Liberty Footwear “Built in America” logo printed across the chest. A comfortable everyday fit that shows your support for American-made craftsmanship.",
+    apparelSizes: ["S", "M", "L", "XL", "XXL"],
+    sizes: "", price: 25, isNew: true, image: img("TEE-BLACK"),
+  },
+  {
+    stockNo: "TEE-BLUE", slug: slug("TEE-BLUE","liberty-tee-blue"),
+    name: "Liberty Footwear Tee", family: "Apparel", safetyToe: false,
+    colorLeather: "Blue", outsoleType: "", colorOutsole: "",
+    categoryOverride: "Apparel",
+    shortDescription: "Built in America logo tee",
+    description: "Soft, durable cotton t-shirt with the classic Liberty Footwear “Built in America” logo printed across the chest. A comfortable everyday fit that shows your support for American-made craftsmanship.",
+    apparelSizes: ["S", "M", "L", "XL", "XXL"],
+    sizes: "", price: 25, isNew: true, image: img("TEE-BLUE"),
+  },
 ];
 
 export const products: Product[] = _raw.map((p) => ({
   ...p,
-  category: p.oneOfAKind ? "One of a Kind" : categoryOf(p.name, p.family, p.safetyToe),
+  category: p.oneOfAKind ? "One of a Kind" : (p.categoryOverride ?? categoryOf(p.name, p.family, p.safetyToe)),
 }));
 
 export function getProductBySlug(s: string) {

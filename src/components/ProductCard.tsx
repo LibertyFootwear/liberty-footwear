@@ -54,7 +54,7 @@ export default function ProductCard({ product: p }: { product: Product }) {
       {/* Info */}
       <div className="p-4 flex flex-col flex-1">
         <h3 className="font-bold text-navy text-base group-hover:text-red transition">{p.name}</h3>
-        <p className="text-xs text-gray-500 mt-0.5 mb-auto">{p.colorLeather} · {p.colorOutsole} sole</p>
+        <p className="text-xs text-gray-500 mt-0.5 mb-auto">{p.colorOutsole ? `${p.colorLeather} · ${p.colorOutsole} sole` : p.colorLeather}</p>
         <div className="flex items-center justify-between mt-3">
           <span className="text-lg font-black text-gray-900">${p.price}</span>
         </div>

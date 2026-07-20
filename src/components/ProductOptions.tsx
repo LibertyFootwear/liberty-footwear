@@ -17,6 +17,7 @@ const LEATHER_COLORS: Record<string, string> = {
   "Dark Brown": "#4A2C17",
   "Russet":     "#8B3A1A",
   "Mocha":      "#6B4226",
+  "Blue":       "#1e3a5f",
 };
 
 const OUTSOLE_COLOR_HEX: Record<string, string> = {
@@ -47,11 +48,16 @@ export default function ProductOptions({ product, variants }: Props) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
 
+  const isApparel = !!product.apparelSizes?.length;
+
   const sizeMap = parseSizes(product.sizes);
   const widths = Object.keys(sizeMap);
   const [selectedWidth, setSelectedWidth] = useState(widths[0] ?? "M");
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
+  const [apparelSize, setApparelSize] = useState<string | null>(null);
   const sizes = sizeMap[selectedWidth] ?? [];
+
+  const sizeLabel = isApparel ? apparelSize : (selectedSize ? `${selectedWidth} ${selectedSize}` : null);
 
   // Leather colors — pick first variant per color as representative
   const leatherColors = [...new Map(variants.map((v) => [v.colorLeather, v])).values()];
@@ -76,8 +82,8 @@ export default function ProductOptions({ product, variants }: Props) {
   }
 
   function handleAdd() {
-    if (!selectedSize) return;
-    addItem(product, `${selectedWidth} ${selectedSize}`);
+    if (!sizeLabel) return;
+    addItem(product, sizeLabel);
     setAdded(true);
     setTimeout(() => setAdded(false), 4000);
   }
@@ -89,7 +95,7 @@ export default function ProductOptions({ product, variants }: Props) {
       {leatherColors.length > 1 && (
         <div>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">
-            Leather Color — <span className="text-navy normal-case font-semibold">{product.colorLeather}</span>
+            {isApparel ? "Color" : "Leather Color"} — <span className="text-navy normal-case font-semibold">{product.colorLeather}</span>
           </p>
           <div className="flex gap-2 flex-wrap">
             {leatherColors.map((v) => {
@@ -188,21 +194,34 @@ export default function ProductOptions({ product, variants }: Props) {
       {/* Size */}
       <div>
         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">
-          Size{selectedSize ? ` — ${selectedWidth} ${selectedSize}` : ""}
+          Size{sizeLabel ? ` — ${sizeLabel}` : ""}
         </p>
         <div className="flex flex-wrap gap-2">
-          {sizes.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setSelectedSize(s)}
-              className={`w-12 h-12 rounded-lg text-sm font-semibold border-2 transition ${
-                selectedSize === s ? "border-navy bg-navy text-white" : "border-gray-200 text-gray-700 hover:border-navy"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
+          {isApparel
+            ? product.apparelSizes!.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setApparelSize(s)}
+                  className={`min-w-12 h-12 px-3 rounded-lg text-sm font-semibold border-2 transition ${
+                    apparelSize === s ? "border-navy bg-navy text-white" : "border-gray-200 text-gray-700 hover:border-navy"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))
+            : sizes.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSelectedSize(s)}
+                  className={`w-12 h-12 rounded-lg text-sm font-semibold border-2 transition ${
+                    selectedSize === s ? "border-navy bg-navy text-white" : "border-gray-200 text-gray-700 hover:border-navy"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
         </div>
       </div>
 
@@ -210,14 +229,14 @@ export default function ProductOptions({ product, variants }: Props) {
       <button
         type="button"
         onClick={handleAdd}
-        disabled={!selectedSize}
+        disabled={!sizeLabel}
         className={`w-full py-4 rounded-lg font-bold text-base uppercase tracking-wide transition ${
-          selectedSize
+          sizeLabel
             ? "bg-red hover:bg-red-dark text-white"
             : "bg-gray-200 text-gray-400 cursor-not-allowed"
         }`}
       >
-        {selectedSize ? `Add to Cart — ${selectedWidth} ${selectedSize}` : "Select a Size"}
+        {sizeLabel ? `Add to Cart — ${sizeLabel}` : "Select a Size"}
       </button>
 
       {/* Toast */}
@@ -226,7 +245,7 @@ export default function ProductOptions({ product, variants }: Props) {
           <span className="text-green-400 text-xl">✓</span>
           <div className="flex-1">
             <p className="font-bold text-sm">Added to cart!</p>
-            <p className="text-xs text-white/60">{product.name} · {selectedWidth} {selectedSize}</p>
+            <p className="text-xs text-white/60">{product.name} · {sizeLabel}</p>
           </div>
           <Link
             href="/cart"

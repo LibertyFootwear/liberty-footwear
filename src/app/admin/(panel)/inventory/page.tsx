@@ -12,8 +12,8 @@ export default async function AdminInventory() {
     stockMap[`${row.stock_no}::${row.size}`] = row.qty;
   }
 
-  // Build full size list per product
-  const rows = products.map((p) => {
+  // Build full size list per product (boots only — apparel has its own sizing)
+  const rows = products.filter((p) => p.category !== "Apparel").map((p) => {
     const sizeMap = parseSizes(p.sizes);
     const sizes: { size: string; qty: number }[] = [];
     for (const [width, nums] of Object.entries(sizeMap)) {

@@ -12,6 +12,7 @@ const CATEGORIES: { id: ProductCategory; label: string }[] = [
   { id: "Outdoors",     label: "Outdoors" },
   { id: "Safety",       label: "Safety" },
   { id: "One of a Kind", label: "One of a Kind" },
+  { id: "Apparel",      label: "Apparel" },
 ];
 
 const PRICE_RANGES = [
@@ -354,6 +355,7 @@ function ShopContent({ products }: { products: Product[] }) {
                   Outdoors:       "bg-[#2D5016]",
                   Safety:         "bg-[#8B1A1A]",
                   "One of a Kind": "bg-[#8A6D3B]",
+                  Apparel:        "bg-[#1e3a5f]",
                 };
                 return (
                   <button
