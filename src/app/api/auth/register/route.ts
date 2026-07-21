@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Too many attempts. Try again in a minute." }, { status: 429 });
   }
 
-  const { name, email, password, phone } = await req.json();
+  const { name, email, password, phone, address } = await req.json();
 
   if (!name || !email || !password) {
     return NextResponse.json({ error: "Please fill in all required fields." }, { status: 400 });
@@ -21,12 +21,24 @@ export async function POST(req: NextRequest) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
   }
+  if (!address || !address.line1?.trim() || !address.city?.trim() || !address.state?.trim() || !address.zip?.trim()) {
+    return NextResponse.json({ error: "Please enter your full address." }, { status: 400 });
+  }
   if (await getUserByEmail(email)) {
     return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = await createUser({ name, email, phone: phone ?? "", passwordHash, newsletter: false });
+  const user = await createUser({
+    name, email, phone: phone ?? "", passwordHash, newsletter: false,
+    address: {
+      line1: address.line1.trim(),
+      city: address.city.trim(),
+      state: address.state.trim(),
+      zip: address.zip.trim(),
+      country: (address.country || "US").trim(),
+    },
+  });
 
   const token = await signToken({ userId: user.id });
   const res = NextResponse.json({ ok: true, name: user.name });

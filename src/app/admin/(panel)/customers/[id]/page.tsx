@@ -17,10 +17,20 @@ export default async function AdminCustomerDetail({ params }: { params: Promise<
   const orders = ordersRes.data ?? [];
   const totalSpent = orders.reduce((s, o) => s + (o.total ?? 0), 0);
 
-  // Most recent order that carries an address
+  // Prefer the account address (collected at registration); fall back to latest order's address
+  const acct = (u.address ?? null) as { line1?: string; city?: string; state?: string; zip?: string; country?: string } | null;
   const addrOrder = orders.find((o) => o.shipping_address);
-  const addr = (addrOrder?.shipping_address ?? null) as { line1?: string; city?: string; state?: string; postalCode?: string; country?: string } | null;
-  const addrLine = addr ? [addr.line1, addr.city, [addr.state, addr.postalCode].filter(Boolean).join(" "), addr.country].filter(Boolean).join(", ") : null;
+  const ord = (addrOrder?.shipping_address ?? null) as { line1?: string; city?: string; state?: string; postalCode?: string; country?: string } | null;
+
+  let addrLine: string | null = null;
+  let addrSource = "";
+  if (acct?.line1) {
+    addrLine = [acct.line1, acct.city, [acct.state, acct.zip].filter(Boolean).join(" "), acct.country].filter(Boolean).join(", ");
+    addrSource = "account";
+  } else if (ord?.line1) {
+    addrLine = [ord.line1, ord.city, [ord.state, ord.postalCode].filter(Boolean).join(" "), ord.country].filter(Boolean).join(", ");
+    addrSource = "latest order";
+  }
 
   return (
     <div className="p-8 max-w-3xl">
@@ -50,8 +60,8 @@ export default async function AdminCustomerDetail({ params }: { params: Promise<
           <div><p className="text-gray-400 text-xs">Joined</p><p className="font-semibold">{new Date(u.created_at).toLocaleDateString()}</p></div>
           <div><p className="text-gray-400 text-xs">Newsletter</p><p className="font-semibold">{u.newsletter ? "Yes" : "No"}</p></div>
           <div className="col-span-2">
-            <p className="text-gray-400 text-xs">Address {addrLine ? <span className="text-gray-300">(from latest order)</span> : ""}</p>
-            <p className="font-semibold">{addrLine ?? "— (no shipped order yet)"}</p>
+            <p className="text-gray-400 text-xs">Address {addrLine ? <span className="text-gray-300">(from {addrSource})</span> : ""}</p>
+            <p className="font-semibold">{addrLine ?? "— (none on file)"}</p>
           </div>
         </div>
       </div>
