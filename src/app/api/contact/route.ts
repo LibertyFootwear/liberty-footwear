@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { checkRateLimit, clientIp } from "@/lib/rateLimit";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -8,6 +9,10 @@ function esc(s: string) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!checkRateLimit(`contact:${clientIp(req)}`, 5, 60_000)) {
+    return NextResponse.json({ error: "Too many messages. Please try again in a minute." }, { status: 429 });
+  }
+
   const { name, email, subject, message } = await req.json() as {
     name: string; email: string; subject: string; message: string;
   };

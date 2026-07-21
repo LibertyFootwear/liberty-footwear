@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { getAuthUserId } from "@/lib/authJwt";
+import { getAuthUserId, clearAuthCookie } from "@/lib/authJwt";
 import { getUserById, getUserByEmail, updateUser, deleteUser } from "@/lib/userDb";
 
 export async function PATCH(req: NextRequest) {
@@ -66,6 +66,6 @@ export async function DELETE(req: NextRequest) {
   await deleteUser(userId);
 
   const res = NextResponse.json({ ok: true });
-  res.cookies.set("lf_auth", "", { maxAge: 0, path: "/" });
+  res.cookies.set(clearAuthCookie());
   return res;
 }

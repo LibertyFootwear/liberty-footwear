@@ -42,10 +42,13 @@ function mapRow(row: Record<string, unknown>): User {
 }
 
 export async function getUserByEmail(email: string): Promise<User | undefined> {
+  // Escape LIKE wildcards so user input can't act as a search pattern
+  // (e.g. "%" matching every account, or "a_b" matching "axb").
+  const safe = email.replace(/[\\%_]/g, "\\$&");
   const { data } = await getSupabase()
     .from("users")
     .select("*")
-    .ilike("email", email)
+    .ilike("email", safe)
     .single();
   return data ? mapRow(data) : undefined;
 }

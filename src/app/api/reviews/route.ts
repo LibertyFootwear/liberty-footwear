@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getReviews, getReviewsByUser, addReview } from "@/lib/reviewsDb";
 import { getAuthUserId } from "@/lib/authJwt";
 import { getUserById } from "@/lib/userDb";
+import { checkRateLimit, clientIp } from "@/lib/rateLimit";
 
 function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -22,6 +23,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!checkRateLimit(`review:${clientIp(req)}`, 5, 60_000)) {
+    return NextResponse.json({ error: "Too many reviews. Please try again in a minute." }, { status: 429 });
+  }
+
   const userId = await getAuthUserId();
   const { stockNo, author, rating, text } = await req.json();
 
