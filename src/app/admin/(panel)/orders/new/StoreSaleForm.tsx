@@ -11,6 +11,7 @@ export default function StoreSaleForm({ catalog }: { catalog: CatalogItem[] }) {
   const router = useRouter();
   const [lines, setLines] = useState<Line[]>([{ stockNo: "", size: "", qty: 1, price: 0 }]);
   const [paymentMethod, setPaymentMethod] = useState("Card");
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [saving, setSaving] = useState(false);
@@ -37,7 +38,7 @@ export default function StoreSaleForm({ catalog }: { catalog: CatalogItem[] }) {
     const res = await fetch("/api/admin/store-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: valid, paymentMethod, customerName, customerPhone }),
+      body: JSON.stringify({ items: valid, paymentMethod, customerName, customerPhone, date }),
     });
     if (res.ok) {
       router.push("/admin/orders");
@@ -105,7 +106,12 @@ export default function StoreSaleForm({ catalog }: { catalog: CatalogItem[] }) {
       </div>
 
       {/* Details */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div>
+          <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1">Date of sale</label>
+          <input type="date" value={date} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setDate(e.target.value)}
+            className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-navy" />
+        </div>
         <div>
           <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1">Payment</label>
           <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
