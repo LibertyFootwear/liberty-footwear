@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     payment: b.payment ? String(b.payment).trim() : null,
     customer_name: b.customerName ? String(b.customerName).trim() : null,
     phone: b.phone ? String(b.phone).trim() : null,
+    notes: b.notes ? String(b.notes).trim() : null,
   }).select("id").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true, id: data?.id });
