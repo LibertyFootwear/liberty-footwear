@@ -31,6 +31,7 @@ const SIZES = [
 ];
 
 // Non-boot line items sold at the counter
+const LACES = "Laces";
 const SERVICES = [
   "Repair",
   "Resole",
@@ -40,6 +41,7 @@ const SERVICES = [
   "Mink oil",
   "KG's bootguard Blk",
   "Adhesive heel wedge",
+  LACES,
 ];
 
 function parts(dateStr: string) {
@@ -67,16 +69,20 @@ export default function SalesTable({ rows, stockOptions }: { rows: SaleRow[]; st
     setForm((f) => ({ ...f, [k]: v }));
   }
 
-  const isService = SERVICES.includes(form.stockNo);
+  const isLaces = form.stockNo === LACES;
+  const isService = SERVICES.includes(form.stockNo) && !isLaces;
 
   async function add() {
     setError("");
     if (!form.saleDate || !form.stockNo.trim()) { setError("Date and Stock # are required."); return; }
     setSaving(true);
+    // Laces record a length in inches instead of a shoe size, and have no width
+    const size = isLaces ? (form.size ? `${form.size}"` : "") : form.size;
+    const width = isLaces || isService ? "" : form.width;
     const res = await fetch("/api/admin/sales", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, total: form.total === "" ? null : parseFloat(form.total) }),
+      body: JSON.stringify({ ...form, size, width, total: form.total === "" ? null : parseFloat(form.total) }),
     });
     setSaving(false);
     if (res.ok) {
@@ -120,7 +126,9 @@ export default function SalesTable({ rows, stockOptions }: { rows: SaleRow[]; st
           </div>
           <div>
             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Stock # / Item</label>
-            <select value={form.stockNo} onChange={(e) => set("stockNo", e.target.value)} className={cls}>
+            <select value={form.stockNo}
+              onChange={(e) => setForm((f) => ({ ...f, stockNo: e.target.value, size: "", width: "" }))}
+              className={cls}>
               <option value="">Select…</option>
               <optgroup label="Boots & Apparel">
                 {stockOptions.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -130,20 +138,30 @@ export default function SalesTable({ rows, stockOptions }: { rows: SaleRow[]; st
               </optgroup>
             </select>
           </div>
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Size</label>
-            <select value={form.size} onChange={(e) => set("size", e.target.value)} disabled={isService} className={`${cls} disabled:bg-gray-50`}>
-              <option value="">—</option>
-              {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Width</label>
-            <select value={form.width} onChange={(e) => set("width", e.target.value)} disabled={isService} className={`${cls} disabled:bg-gray-50`}>
-              <option value="">—</option>
-              {WIDTHS.map((w) => <option key={w} value={w}>{w}</option>)}
-            </select>
-          </div>
+          {isLaces ? (
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Length (in)</label>
+              <input type="number" min="0" step="1" value={form.size} onChange={(e) => set("size", e.target.value)}
+                placeholder='60' className={cls} />
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Size</label>
+                <select value={form.size} onChange={(e) => set("size", e.target.value)} disabled={isService} className={`${cls} disabled:bg-gray-50`}>
+                  <option value="">—</option>
+                  {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Width</label>
+                <select value={form.width} onChange={(e) => set("width", e.target.value)} disabled={isService} className={`${cls} disabled:bg-gray-50`}>
+                  <option value="">—</option>
+                  {WIDTHS.map((w) => <option key={w} value={w}>{w}</option>)}
+                </select>
+              </div>
+            </>
+          )}
           <div>
             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Paid</label>
             <select value={form.paid ? "Yes" : "No"} onChange={(e) => set("paid", e.target.value === "Yes")} className={cls}>
