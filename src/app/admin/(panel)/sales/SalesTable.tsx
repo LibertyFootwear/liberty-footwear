@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export interface SaleRow {
@@ -75,6 +75,15 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  function toggleRow(id: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
 
   function set<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -314,49 +323,78 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
         <table className="w-full text-xs whitespace-nowrap">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {["Date", "Year", "Month", "Day", "Item", "Size", "Width", "Qty", "Paid", "Total $", "Payment",
-                "Customer", "Phone", "Email", "Address", "Employer", "Heard From", "Notes", ""].map((h) => (
+              {["Date", "Day", "Item", "Size", "Width", "Qty", "Paid", "Total $", "Payment", "Customer", ""].map((h) => (
                 <th key={h} className="text-left px-3 py-2 font-bold text-gray-400 uppercase tracking-wide">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {filtered.length === 0 && (
-              <tr><td colSpan={19} className="px-3 py-10 text-center text-gray-400">No sales recorded yet.</td></tr>
+              <tr><td colSpan={11} className="px-3 py-10 text-center text-gray-400">No sales recorded yet.</td></tr>
             )}
             {filtered.map((r) => {
               const p = parts(r.sale_date);
+              const isOpen = expanded.has(r.id);
+              const extras: [string, string | null][] = [
+                ["Phone", r.phone],
+                ["Email", r.customer_email],
+                ["Address", r.customer_address],
+                ["Employer / trade", r.customer_employer],
+                ["Heard about us", r.referral_source],
+                ["Notes", r.notes],
+              ];
+              const hasExtras = extras.some(([, v]) => v);
               return (
-                <tr key={r.id} className="hover:bg-gray-50 transition">
-                  <td className="px-3 py-2 text-gray-600">{r.sale_date}</td>
-                  <td className="px-3 py-2 text-gray-400">{p.year}</td>
-                  <td className="px-3 py-2 text-gray-400">{p.month}</td>
-                  <td className="px-3 py-2 text-gray-400">{p.day}</td>
-                  <td className="px-3 py-2 font-mono font-bold text-navy">{r.stock_no}</td>
-                  <td className="px-3 py-2 text-gray-600">{r.size || "—"}</td>
-                  <td className="px-3 py-2 text-gray-600">{r.width || "—"}</td>
-                  <td className="px-3 py-2 text-gray-600">{r.qty ?? 1}</td>
-                  <td className="px-3 py-2">
-                    <span className={`font-bold px-1.5 py-0.5 rounded ${r.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                      {r.paid ? "Yes" : "No"}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2 font-black text-gray-900">{r.total != null ? `$${r.total.toFixed(2)}` : "—"}</td>
-                  <td className="px-3 py-2 text-gray-600">{r.payment || "—"}</td>
-                  <td className="px-3 py-2 text-gray-600">{r.customer_name || "—"}</td>
-                  <td className="px-3 py-2 text-gray-500">{r.phone || "—"}</td>
-                  <td className="px-3 py-2 text-gray-500">{r.customer_email || "—"}</td>
-                  <td className="px-3 py-2 text-gray-500 max-w-[200px] truncate" title={r.customer_address ?? ""}>{r.customer_address || "—"}</td>
-                  <td className="px-3 py-2 text-gray-500">{r.customer_employer || "—"}</td>
-                  <td className="px-3 py-2 text-gray-500">{r.referral_source || "—"}</td>
-                  <td className="px-3 py-2 text-gray-500 max-w-[200px] truncate" title={r.notes ?? ""}>{r.notes || "—"}</td>
-                  <td className="px-3 py-2">
-                    <button onClick={() => remove(r.id)} disabled={busy === r.id}
-                      className="text-red hover:underline font-bold disabled:opacity-40">
-                      {busy === r.id ? "…" : "Delete"}
-                    </button>
-                  </td>
-                </tr>
+                <Fragment key={r.id}>
+                  <tr className={`hover:bg-gray-50 transition ${isOpen ? "bg-navy/5" : ""}`}>
+                    <td className="px-3 py-2 text-gray-600">{r.sale_date}</td>
+                    <td className="px-3 py-2 text-gray-400">{p.day}</td>
+                    <td className="px-3 py-2 font-mono font-bold text-navy">{r.stock_no}</td>
+                    <td className="px-3 py-2 text-gray-600">{r.size || "—"}</td>
+                    <td className="px-3 py-2 text-gray-600">{r.width || "—"}</td>
+                    <td className="px-3 py-2 text-gray-600">{r.qty ?? 1}</td>
+                    <td className="px-3 py-2">
+                      <span className={`font-bold px-1.5 py-0.5 rounded ${r.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                        {r.paid ? "Yes" : "No"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 font-black text-gray-900">{r.total != null ? `$${r.total.toFixed(2)}` : "—"}</td>
+                    <td className="px-3 py-2 text-gray-600">{r.payment || "—"}</td>
+                    <td className="px-3 py-2">
+                      <button type="button" onClick={() => toggleRow(r.id)}
+                        className="inline-flex items-center gap-1 font-semibold text-navy hover:text-red transition">
+                        {r.customer_name || "—"}
+                        {hasExtras && (
+                          <span className={`text-[9px] transition-transform ${isOpen ? "rotate-90" : ""}`}>▶</span>
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-3 py-2">
+                      <button onClick={() => remove(r.id)} disabled={busy === r.id}
+                        className="text-red hover:underline font-bold disabled:opacity-40">
+                        {busy === r.id ? "…" : "Delete"}
+                      </button>
+                    </td>
+                  </tr>
+                  {isOpen && (
+                    <tr className="bg-navy/5">
+                      <td colSpan={11} className="px-6 py-3">
+                        {hasExtras ? (
+                          <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-2 whitespace-normal">
+                            {extras.filter(([, v]) => v).map(([label, v]) => (
+                              <div key={label}>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</p>
+                                <p className="text-gray-700">{v}</p>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-400">No extra details recorded for this sale.</p>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               );
             })}
           </tbody>
