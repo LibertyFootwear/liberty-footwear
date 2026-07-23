@@ -5,6 +5,7 @@ const NAV = [
   { href: "/admin",            label: "Dashboard",   icon: "📊" },
   { href: "/admin/analytics",  label: "Analytics",   icon: "📈" },
   { href: "/admin/orders",     label: "Orders",      icon: "📦" },
+  { href: "/admin/sales",      label: "Retail Sales", icon: "🏪" },
   { href: "/admin/customers",  label: "Customers",   icon: "👤" },
   { href: "/admin/products",   label: "Products",    icon: "👢" },
   { href: "/admin/inventory",  label: "Inventory",   icon: "🗃️" },
