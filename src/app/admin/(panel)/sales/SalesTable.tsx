@@ -30,19 +30,29 @@ const SIZES = [
   "12", "13", "14", "15", "16", "17",
 ];
 
-// Non-boot line items sold at the counter
+// Non-boot line items sold at the counter.
+// Laces take a length in inches; insoles/footbeds take a size; the rest take neither.
 const LACES = "Laces";
-const SERVICES = [
+
+const SIZED_ITEMS = [
+  "PS Pinnacle",
+  "PS Pinnacle +Met",
+  "Green footbeds",
+  "Blue footbeds",
+];
+
+const PLAIN_ITEMS = [
   "Repair",
   "Resole",
   "Arch pads",
-  "Green footbeds",
-  "Blue footbeds",
   "Mink oil",
   "KG's bootguard Blk",
   "Adhesive heel wedge",
-  LACES,
+  "32 Degree socks Heat",
+  "32 Degree socks Cool",
 ];
+
+const NON_BOOT = [...SIZED_ITEMS, ...PLAIN_ITEMS, LACES];
 
 function parts(dateStr: string) {
   if (!dateStr) return { year: "", month: "", day: "" };
@@ -70,15 +80,17 @@ export default function SalesTable({ rows, stockOptions }: { rows: SaleRow[]; st
   }
 
   const isLaces = form.stockNo === LACES;
-  const isService = SERVICES.includes(form.stockNo) && !isLaces;
+  const isSizedItem = SIZED_ITEMS.includes(form.stockNo);   // size, but no width
+  const isPlainItem = PLAIN_ITEMS.includes(form.stockNo);   // neither size nor width
+  const isBoot = !!form.stockNo && !NON_BOOT.includes(form.stockNo);
 
   async function add() {
     setError("");
     if (!form.saleDate || !form.stockNo.trim()) { setError("Date and Stock # are required."); return; }
     setSaving(true);
-    // Laces record a length in inches instead of a shoe size, and have no width
-    const size = isLaces ? (form.size ? `${form.size}"` : "") : form.size;
-    const width = isLaces || isService ? "" : form.width;
+    // Laces record a length in inches; plain items carry neither size nor width
+    const size = isPlainItem ? "" : isLaces ? (form.size ? `${form.size}"` : "") : form.size;
+    const width = isBoot ? form.width : "";
     const res = await fetch("/api/admin/sales", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -133,32 +145,49 @@ export default function SalesTable({ rows, stockOptions }: { rows: SaleRow[]; st
               <optgroup label="Boots & Apparel">
                 {stockOptions.map((s) => <option key={s} value={s}>{s}</option>)}
               </optgroup>
+              <optgroup label="Insoles & Footbeds">
+                {SIZED_ITEMS.map((s) => <option key={s} value={s}>{s}</option>)}
+              </optgroup>
               <optgroup label="Services & Accessories">
-                {SERVICES.map((s) => <option key={s} value={s}>{s}</option>)}
+                {[...PLAIN_ITEMS, LACES].map((s) => <option key={s} value={s}>{s}</option>)}
               </optgroup>
             </select>
           </div>
-          {isLaces ? (
+          {/* Laces → length in inches; sized items → size only; plain items → neither */}
+          {isLaces && (
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Length (in)</label>
               <input type="number" min="0" step="1" value={form.size} onChange={(e) => set("size", e.target.value)}
-                placeholder='60' className={cls} />
+                placeholder="60" className={cls} />
             </div>
-          ) : (
+          )}
+          {(isBoot || isSizedItem) && (
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Size</label>
+              <select value={form.size} onChange={(e) => set("size", e.target.value)} className={cls}>
+                <option value="">—</option>
+                {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          )}
+          {isBoot && (
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Width</label>
+              <select value={form.width} onChange={(e) => set("width", e.target.value)} className={cls}>
+                <option value="">—</option>
+                {WIDTHS.map((w) => <option key={w} value={w}>{w}</option>)}
+              </select>
+            </div>
+          )}
+          {!form.stockNo && (
             <>
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Size</label>
-                <select value={form.size} onChange={(e) => set("size", e.target.value)} disabled={isService} className={`${cls} disabled:bg-gray-50`}>
-                  <option value="">—</option>
-                  {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
+                <select disabled className={`${cls} disabled:bg-gray-50`}><option>—</option></select>
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Width</label>
-                <select value={form.width} onChange={(e) => set("width", e.target.value)} disabled={isService} className={`${cls} disabled:bg-gray-50`}>
-                  <option value="">—</option>
-                  {WIDTHS.map((w) => <option key={w} value={w}>{w}</option>)}
-                </select>
+                <select disabled className={`${cls} disabled:bg-gray-50`}><option>—</option></select>
               </div>
             </>
           )}
