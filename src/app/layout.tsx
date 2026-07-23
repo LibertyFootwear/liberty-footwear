@@ -7,6 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import NewsletterPopup from "@/components/NewsletterPopup";
+import PublicChrome from "@/components/PublicChrome";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,10 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LanguageProvider>
         <AuthProvider>
           <CartProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <NewsletterPopup />
+            <PublicChrome header={<Header />} footer={<Footer />} popup={<NewsletterPopup />}>
+              {children}
+            </PublicChrome>
           </CartProvider>
         </AuthProvider>
         </LanguageProvider>
