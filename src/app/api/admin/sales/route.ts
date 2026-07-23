@@ -13,11 +13,16 @@ export async function POST(req: NextRequest) {
     stock_no: String(b.stockNo).trim(),
     size: b.size ? String(b.size).trim() : null,
     width: b.width ? String(b.width).trim() : null,
+    qty: Math.max(1, parseInt(b.qty) || 1),
     paid: b.paid === false ? false : true,
     total: typeof b.total === "number" ? b.total : (parseFloat(b.total) || null),
     payment: b.payment ? String(b.payment).trim() : null,
     customer_name: b.customerName ? String(b.customerName).trim() : null,
     phone: b.phone ? String(b.phone).trim() : null,
+    customer_email: b.customerEmail ? String(b.customerEmail).trim() : null,
+    customer_address: b.customerAddress ? String(b.customerAddress).trim() : null,
+    customer_employer: b.customerEmployer ? String(b.customerEmployer).trim() : null,
+    referral_source: b.referralSource ? String(b.referralSource).trim() : null,
     notes: b.notes ? String(b.notes).trim() : null,
   }).select("id").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
