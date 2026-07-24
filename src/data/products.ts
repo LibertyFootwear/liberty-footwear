@@ -67,7 +67,7 @@ const IMG_EXT: Record<string, string> = {
   "KS0172HG":"png","KS0272HG":"png",
   "KS0572":"png","KS0672":"png",
   // Apparel
-  "KS0010":"png",
+  "KS0010":"png","KS0011":"png",
 };
 
 function img(stockNo: string, ext?: string): string | null {
@@ -460,6 +460,16 @@ const _raw: RawProduct[] = [
     description: "Soft, durable cotton t-shirt with the classic Liberty Footwear “Built in America” logo printed across the chest. A comfortable everyday fit that shows your support for American-made craftsmanship.",
     apparelSizes: ["S", "M", "L", "XL", "XXL"],
     sizes: "", price: 20, isNew: true, image: img("KS0010"),
+  },
+  {
+    stockNo: "KS0011", slug: slug("KS0011","liberty-cap"),
+    name: "Liberty Footwear Cap", family: "Apparel", safetyToe: false,
+    colorLeather: "Black", outsoleType: "", colorOutsole: "",
+    categoryOverride: "Apparel",
+    shortDescription: "Built in America logo cap",
+    description: "Classic adjustable cap with the embroidered Liberty Footwear logo. One size fits most with a snap-back closure — a comfortable everyday cap that shows your support for American-made craftsmanship.",
+    apparelSizes: ["One Size"],
+    sizes: "", price: 25, isNew: true, image: img("KS0011"),
   },
 ];
 
