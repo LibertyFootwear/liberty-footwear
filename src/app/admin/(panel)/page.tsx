@@ -27,6 +27,10 @@ export default async function AdminDashboard() {
   const totalRevenue = webRevenue + retailRevenue;            // combined (with web)
   const paidOrders = live.length;
 
+  // Orders needing action (new + in-progress web orders)
+  const newOrders = live.filter((o) => o.source !== "store" && o.status === "paid").length;
+  const inProgress = live.filter((o) => o.source !== "store" && o.status === "processing").length;
+
   // Today / this-month split by channel (store local time)
   const detroit = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Detroit", year: "numeric", month: "2-digit", day: "2-digit" });
   const todayKey = detroit.format(new Date());       // YYYY-MM-DD
@@ -80,7 +84,23 @@ export default async function AdminDashboard() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-8">Dashboard</h1>
+      <h1 className="text-2xl font-black text-navy mb-6">Dashboard</h1>
+
+      {/* New-orders alert */}
+      {(newOrders > 0 || inProgress > 0) && (
+        <Link href="/admin/orders" className="flex items-center gap-4 bg-red/10 border-2 border-red/30 rounded-xl p-4 mb-8 hover:bg-red/15 transition">
+          <span className="text-3xl">🔔</span>
+          <div className="flex-1">
+            <p className="font-black text-red">
+              {newOrders > 0 ? `${newOrders} new order${newOrders !== 1 ? "s" : ""} waiting` : "Orders in progress"}
+            </p>
+            <p className="text-sm text-gray-600">
+              {newOrders > 0 && `${newOrders} to start`}{newOrders > 0 && inProgress > 0 && " · "}{inProgress > 0 && `${inProgress} being processed`} — go to the board to fulfil them.
+            </p>
+          </div>
+          <span className="px-4 py-2 bg-red text-white text-sm font-black rounded-lg whitespace-nowrap">Open Orders →</span>
+        </Link>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

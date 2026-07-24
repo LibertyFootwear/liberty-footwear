@@ -64,7 +64,10 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
       </div>
 
       {view === "board" ? (
-        <OrdersBoard initial={boardOrders} />
+        <>
+          <p className="text-xs text-gray-400 mb-3">Drag a card to another column, or use the button — moving works both ways.</p>
+          <OrdersBoard initial={boardOrders} />
+        </>
       ) : (
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
         <table className="w-full text-sm whitespace-nowrap">

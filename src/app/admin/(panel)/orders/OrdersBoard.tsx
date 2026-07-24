@@ -28,9 +28,13 @@ const NEXT_LABEL: Record<string, string> = { paid: "Start processing", processin
 export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
   const [orders, setOrders] = useState<BoardOrder[]>(initial);
   const [busy, setBusy] = useState<string | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overCol, setOverCol] = useState<string | null>(null);
   const router = useRouter();
 
   async function setStatus(id: string, status: string) {
+    const current = orders.find((o) => o.id === id);
+    if (!current || current.status === status) return;
     setBusy(id);
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
     await fetch(`/api/admin/orders/${id}`, {
@@ -42,12 +46,24 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
     router.refresh();
   }
 
+  function onDrop(colKey: string) {
+    if (dragId) setStatus(dragId, colKey);
+    setDragId(null);
+    setOverCol(null);
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       {COLUMNS.map((col) => {
         const items = orders.filter((o) => o.status === col.key);
         return (
-          <div key={col.key} className="bg-gray-50 rounded-xl border border-gray-100 flex flex-col min-h-[200px]">
+          <div
+            key={col.key}
+            onDragOver={(e) => { e.preventDefault(); setOverCol(col.key); }}
+            onDragLeave={() => setOverCol((c) => (c === col.key ? null : c))}
+            onDrop={() => onDrop(col.key)}
+            className={`rounded-xl border flex flex-col min-h-[200px] transition ${overCol === col.key ? "bg-navy/5 border-navy border-dashed" : "bg-gray-50 border-gray-100"}`}
+          >
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
               <div className="flex items-center gap-2">
                 <span className={`w-2.5 h-2.5 rounded-full ${col.head}`} />
@@ -61,7 +77,13 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
               {items.map((o) => {
                 const next = NEXT[o.status];
                 return (
-                  <div key={o.id} className="bg-white rounded-lg border border-gray-100 shadow-sm p-3">
+                  <div
+                    key={o.id}
+                    draggable
+                    onDragStart={() => setDragId(o.id)}
+                    onDragEnd={() => { setDragId(null); setOverCol(null); }}
+                    className={`bg-white rounded-lg border border-gray-100 shadow-sm p-3 cursor-grab active:cursor-grabbing ${dragId === o.id ? "opacity-40" : ""}`}
+                  >
                     <div className="flex items-center justify-between mb-1">
                       <Link href={`/admin/orders/${o.id}`} className="font-mono text-xs font-bold text-navy hover:text-red transition">#{o.id.slice(0, 8)}</Link>
                       <span className="text-xs font-black text-gray-900">${o.total?.toFixed(2)}</span>

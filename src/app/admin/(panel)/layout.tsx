@@ -1,6 +1,22 @@
 import { requireAdmin } from "@/lib/adminAuth";
+import { getSupabase } from "@/lib/supabase";
 import AdminLogoutButton from "./AdminLogoutButton";
 import Link from "next/link";
+
+export const dynamic = "force-dynamic";
+
+/** Count web orders still needing action (new + in-progress). */
+async function pendingOrderCount(): Promise<number> {
+  try {
+    const { data } = await getSupabase()
+      .from("orders")
+      .select("source, shipping_method")
+      .in("status", ["paid", "processing"]);
+    return (data ?? []).filter((o) => o.source !== "store" && o.shipping_method !== "store").length;
+  } catch {
+    return 0;
+  }
+}
 
 const NAV = [
   { href: "/admin",            label: "Dashboard",   icon: "📊" },
@@ -16,6 +32,7 @@ const NAV = [
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
+  const pending = await pendingOrderCount();
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -34,6 +51,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             >
               <span>{n.icon}</span>
               {n.label}
+              {n.href === "/admin/orders" && pending > 0 && (
+                <span className="ml-auto bg-red text-white text-xs font-black rounded-full min-w-5 h-5 px-1.5 flex items-center justify-center animate-pulse">
+                  {pending}
+                </span>
+              )}
             </Link>
           ))}
         </nav>
