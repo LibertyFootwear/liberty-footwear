@@ -29,9 +29,25 @@ export default async function AdminDashboard() {
   const totalRevenue = webRevenue + retailRevenue;            // combined (with web)
   const paidOrders = live.length;
 
-  const today = new Date().toISOString().slice(0, 10);
-  const todayOrders = orders.filter((o) => o.created_at?.slice(0, 10) === today);
-  const todayRevenue = todayOrders.reduce((s, o) => s + (o.total ?? 0), 0);
+  // Today / this-month split by channel (store local time)
+  const detroit = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Detroit", year: "numeric", month: "2-digit", day: "2-digit" });
+  const todayKey = detroit.format(new Date());       // YYYY-MM-DD
+  const monthKey = todayKey.slice(0, 7);             // YYYY-MM
+
+  const P = { webT: { n: 0, r: 0 }, webM: { n: 0, r: 0 }, stT: { n: 0, r: 0 }, stM: { n: 0, r: 0 } };
+  for (const o of live) {
+    const d = detroit.format(new Date(o.created_at));
+    const bucketT = o.source === "store" ? P.stT : P.webT;
+    const bucketM = o.source === "store" ? P.stM : P.webM;
+    if (d === todayKey) { bucketT.n++; bucketT.r += o.total ?? 0; }
+    if (d.slice(0, 7) === monthKey) { bucketM.n++; bucketM.r += o.total ?? 0; }
+  }
+  for (const r of retail) {
+    const d = r.sale_date ?? "";
+    if (d === todayKey) { P.stT.n++; P.stT.r += r.total ?? 0; }
+    if (d.slice(0, 7) === monthKey) { P.stM.n++; P.stM.r += r.total ?? 0; }
+  }
+  const money = (n: number) => `$${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
   // Monthly breakdown — last 6 months
   const now = new Date();
@@ -79,9 +95,40 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      {/* Today's snapshot */}
-      <div className="flex flex-wrap gap-6 mb-10 text-sm">
-        <span className="text-gray-500">Today ({today}): <span className="font-black text-navy">${todayRevenue.toFixed(0)}</span> revenue · <span className="font-black text-navy">{todayOrders.length}</span> orders</span>
+      {/* Today / This month — split by channel */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        {[
+          { title: "Today", sub: todayKey, web: P.webT, store: P.stT },
+          { title: "This Month", sub: monthKey, web: P.webM, store: P.stM },
+        ].map((p) => {
+          const combinedR = p.web.r + p.store.r;
+          const combinedN = p.web.n + p.store.n;
+          return (
+            <div key={p.title} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+              <div className="flex items-baseline justify-between mb-4">
+                <h2 className="font-black text-navy">{p.title}</h2>
+                <span className="text-xs text-gray-400">{p.sub}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="bg-blue-50 rounded-lg py-3">
+                  <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wide mb-1">🌐 Web</p>
+                  <p className="text-xl font-black text-navy">{money(p.web.r)}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{p.web.n} order{p.web.n !== 1 ? "s" : ""}</p>
+                </div>
+                <div className="bg-amber-50 rounded-lg py-3">
+                  <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wide mb-1">🏪 Store</p>
+                  <p className="text-xl font-black text-navy">{money(p.store.r)}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{p.store.n} sale{p.store.n !== 1 ? "s" : ""}</p>
+                </div>
+                <div className="bg-navy/5 rounded-lg py-3">
+                  <p className="text-[10px] font-bold text-navy uppercase tracking-wide mb-1">Σ Combined</p>
+                  <p className="text-xl font-black text-navy">{money(combinedR)}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{combinedN} total</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Monthly chart */}
