@@ -1,6 +1,5 @@
 import { getSupabase } from "./supabase";
 import { products } from "@/data/products";
-import storeJson from "@/data/storeSales.json";
 
 export interface OrderItem { stockNo: string; name: string; size?: string; price: number; qty: number }
 export interface OrderRow { items: OrderItem[]; total: number; status: string; created_at: string; source?: string | null }
@@ -81,37 +80,6 @@ export function aggFromOrders(rows: OrderRow[]): Agg {
       a.byYear[year].units += it.qty;
       a.byYear[year].revenue += (it.price ?? prod?.price ?? 0) * it.qty;
     }
-  }
-  return a;
-}
-
-interface StoreJson {
-  totalUnits: number; totalRevenue: number;
-  byStock: Record<string, number>; bySize: Record<string, number>; byWidth: Record<string, number>;
-  byPay: Record<string, number>; byDay: Record<string, number>; byMonth: Record<string, number>;
-  byYear: Record<string, { units: number; revenue: number }>;
-}
-
-/** Map the historical 2017–2026 retail export into the unified aggregate shape. */
-export function historicalAgg(): Agg {
-  const d = storeJson as unknown as StoreJson;
-  const a = emptyAgg();
-  a.hasYear = true;
-  a.units = d.totalUnits ?? 0;
-  a.revenue = d.totalRevenue ?? 0;
-  a.byStock = { ...(d.byStock ?? {}) };
-  a.bySize = { ...(d.bySize ?? {}) };
-  for (const [k, v] of Object.entries(d.byWidth ?? {})) {
-    const key = k === "M" || k === "EW" ? k : "Other";
-    a.byWidth[key] = (a.byWidth[key] ?? 0) + v;
-  }
-  a.byPay = { ...(d.byPay ?? {}) };
-  a.byDay = { ...(d.byDay ?? {}) };
-  a.byMonth = { ...(d.byMonth ?? {}) };
-  a.byYear = { ...(d.byYear ?? {}) };
-  for (const [stockNo, units] of Object.entries(d.byStock ?? {})) {
-    const p = products.find((x) => x.stockNo === stockNo);
-    if (p) a.byColor[p.colorLeather] = (a.byColor[p.colorLeather] ?? 0) + units;
   }
   return a;
 }

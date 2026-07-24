@@ -1,10 +1,12 @@
-import { requireAdmin } from "@/lib/adminAuth";
+import { requireAdmin, hasAnalyticsAccess } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import { getRetailSales, retailAgg } from "@/lib/analytics";
+import AnalyticsLock from "./AnalyticsLock";
 import Link from "next/link";
 
 export default async function AdminDashboard() {
   await requireAdmin();
+  if (!(await hasAnalyticsAccess())) return <AnalyticsLock title="Dashboard" />;
   const sb = getSupabase();
 
   const [ordersRes, usersRes, revenueRes, retail] = await Promise.all([
