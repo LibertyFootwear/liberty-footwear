@@ -15,5 +15,6 @@ export async function GET() {
     newsletter: user.newsletter ?? false,
     favorites: user.favorites,
     address: user.address ?? null,
+    addresses: user.addresses ?? [],
   });
 }

@@ -23,6 +23,12 @@ export interface Address {
   country: string;
 }
 
+export interface SavedAddress extends Address {
+  id: string;
+  label: string;
+  isDefault?: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -33,10 +39,17 @@ export interface User {
   newsletter: boolean;
   notifications: Notifications;
   address?: Address;
+  addresses: SavedAddress[];
   createdAt: string;
 }
 
 function mapRow(row: Record<string, unknown>): User {
+  const address = (row.address as Address) ?? undefined;
+  let addresses = (row.addresses as SavedAddress[]) ?? [];
+  // Seed the list from the legacy single address for accounts created before multi-address.
+  if (addresses.length === 0 && address?.line1) {
+    addresses = [{ id: "primary", label: "Home", isDefault: true, ...address }];
+  }
   return {
     id: row.id as string,
     name: row.name as string,
@@ -46,7 +59,8 @@ function mapRow(row: Record<string, unknown>): User {
     favorites: (row.favorites as string[]) ?? [],
     newsletter: (row.newsletter as boolean) ?? false,
     notifications: (row.notifications as Notifications) ?? defaultNotifications,
-    address: (row.address as Address) ?? undefined,
+    address,
+    addresses,
     createdAt: row.created_at as string,
   };
 }
@@ -68,7 +82,7 @@ export async function getUserById(id: string): Promise<User | undefined> {
   return data ? mapRow(data) : undefined;
 }
 
-export async function createUser(data: Omit<User, "id" | "favorites" | "createdAt" | "notifications">): Promise<User> {
+export async function createUser(data: Omit<User, "id" | "favorites" | "createdAt" | "notifications" | "addresses">): Promise<User> {
   const id = crypto.randomUUID();
   const row = {
     id,
@@ -80,6 +94,9 @@ export async function createUser(data: Omit<User, "id" | "favorites" | "createdA
     newsletter: data.newsletter ?? false,
     notifications: defaultNotifications,
     address: data.address ?? null,
+    addresses: data.address?.line1
+      ? [{ id: crypto.randomUUID(), label: "Home", isDefault: true, ...data.address }]
+      : [],
     created_at: new Date().toISOString(),
   };
   const { data: inserted, error } = await getSupabase().from("users").insert(row).select().single();
@@ -89,7 +106,7 @@ export async function createUser(data: Omit<User, "id" | "favorites" | "createdA
 
 export async function updateUser(
   userId: string,
-  fields: Partial<Pick<User, "name" | "email" | "phone" | "newsletter" | "passwordHash" | "notifications" | "address">>
+  fields: Partial<Pick<User, "name" | "email" | "phone" | "newsletter" | "passwordHash" | "notifications" | "address" | "addresses">>
 ): Promise<void> {
   const update: Record<string, unknown> = {};
   if (fields.name !== undefined) update.name = fields.name;
@@ -99,6 +116,7 @@ export async function updateUser(
   if (fields.passwordHash !== undefined) update.password_hash = fields.passwordHash;
   if (fields.notifications !== undefined) update.notifications = fields.notifications;
   if (fields.address !== undefined) update.address = fields.address;
+  if (fields.addresses !== undefined) update.addresses = fields.addresses;
   await getSupabase().from("users").update(update).eq("id", userId);
 }
 

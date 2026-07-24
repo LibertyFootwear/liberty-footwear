@@ -89,17 +89,18 @@ function CheckoutForm() {
   // Prefill from the logged-in account once it loads (only empty fields, don't clobber typing).
   useEffect(() => {
     if (!user) return;
+    const def = user.addresses?.find((a) => a.isDefault) ?? user.addresses?.[0] ?? user.address ?? undefined;
     setForm((f) => ({
       ...f,
       firstName: f.firstName || (user.name?.split(" ")[0] ?? ""),
       lastName: f.lastName || (user.name?.split(" ").slice(1).join(" ") ?? ""),
       email: f.email || user.email || "",
       phone: f.phone || user.phone || "",
-      address: f.address || user.address?.line1 || "",
-      city: f.city || user.address?.city || "",
-      state: f.state || user.address?.state || "",
-      zip: f.zip || user.address?.zip || "",
-      country: f.country && f.country !== "US" ? f.country : (user.address?.country || "US"),
+      address: f.address || def?.line1 || "",
+      city: f.city || def?.city || "",
+      state: f.state || def?.state || "",
+      zip: f.zip || def?.zip || "",
+      country: f.country && f.country !== "US" ? f.country : (def?.country || "US"),
     }));
   }, [user]);
 
@@ -280,6 +281,24 @@ function CheckoutForm() {
                         <p className="text-xs text-gray-500">Free · 3–7 business days</p>
                       </div>
                     </div>
+                    {user?.addresses && user.addresses.length > 0 && (
+                      <div className="mb-4">
+                        <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">Saved addresses</label>
+                        <select
+                          onChange={(e) => {
+                            const a = user.addresses?.find((x) => x.id === e.target.value);
+                            if (a) setForm((f) => ({ ...f, address: a.line1, city: a.city, state: a.state, zip: a.zip, country: a.country }));
+                          }}
+                          defaultValue={user.addresses.find((a) => a.isDefault)?.id ?? ""}
+                          className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-navy transition"
+                        >
+                          {user.addresses.map((a) => (
+                            <option key={a.id} value={a.id}>{a.label || "Address"} — {a.line1}, {a.city}, {a.state} {a.zip}</option>
+                          ))}
+                          <option value="">＋ Use a new address</option>
+                        </select>
+                      </div>
+                    )}
                     <h3 className="font-bold text-navy text-sm mb-4">Shipping Address</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <Field label="Street Address" name="address" inputId="checkout-street" />

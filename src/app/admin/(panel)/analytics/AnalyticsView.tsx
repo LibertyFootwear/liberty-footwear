@@ -93,7 +93,7 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
             <h2 className="font-black text-navy mb-5">Top Selling Products</h2>
             <div className="space-y-2.5">
               {topProducts.map((p) => (
-                <Bar key={p.stockNo} label={`${p.name} (${p.stockNo})`} value={p.units} max={maxProduct} sub="pairs" />
+                <Bar key={p.stockNo} label={p.stockNo} value={p.units} max={maxProduct} sub="pairs" />
               ))}
             </div>
           </div>

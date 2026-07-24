@@ -6,13 +6,14 @@ import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
+import AddressManager from "@/components/AddressManager";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import type { Order } from "@/lib/ordersDb";
 import type { Review } from "@/lib/reviewsDb";
 import type { Notifications } from "@/lib/userDb";
 import { defaultNotifications } from "@/lib/userDb";
 
-type Tab = "overview" | "orders" | "favorites" | "settings" | "password";
+type Tab = "overview" | "orders" | "favorites" | "addresses" | "settings" | "password";
 
 const StarRating = ({ rating }: { rating: number }) => (
   <div className="flex gap-0.5">
@@ -184,6 +185,11 @@ export default function AccountPage() {
       id: "favorites",
       label: "Saved Boots",
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>,
+    },
+    {
+      id: "addresses",
+      label: "Addresses",
+      icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>,
     },
     {
       id: "settings",
@@ -425,6 +431,13 @@ export default function AccountPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── ADDRESSES ── */}
+        {tab === "addresses" && (
+          <div className="bg-white rounded-2xl shadow-sm p-8 max-w-2xl">
+            <AddressManager />
           </div>
         )}
 

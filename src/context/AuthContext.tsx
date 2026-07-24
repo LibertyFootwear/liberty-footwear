@@ -15,6 +15,7 @@ interface AuthUser {
   };
   favorites: string[];
   address?: { line1: string; city: string; state: string; zip: string; country: string } | null;
+  addresses?: { id: string; label: string; line1: string; city: string; state: string; zip: string; country: string; isDefault?: boolean }[];
   createdAt?: string;
 }
 
