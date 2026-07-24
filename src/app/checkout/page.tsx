@@ -5,7 +5,35 @@ import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, Suspense } from "react";
+import { useState, Suspense, createContext, useContext } from "react";
+
+interface FieldCtx {
+  form: Record<string, string | boolean>;
+  errors: Record<string, string>;
+  set: (k: string, v: string | boolean) => void;
+}
+const FieldContext = createContext<FieldCtx | null>(null);
+
+function Field({ label, name, type = "text", half = false, placeholder = "" }: {
+  label: string; name: string; type?: string; half?: boolean; placeholder?: string;
+}) {
+  const ctx = useContext(FieldContext)!;
+  return (
+    <div className={half ? "col-span-1" : "col-span-2"}>
+      <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">{label}</label>
+      <input
+        type={type}
+        value={ctx.form[name] as string}
+        onChange={(e) => ctx.set(name, e.target.value)}
+        placeholder={placeholder}
+        className={`w-full border-2 rounded-lg px-4 py-3 text-sm focus:outline-none transition ${
+          ctx.errors[name] ? "border-red" : "border-gray-200 focus:border-navy"
+        }`}
+      />
+      {ctx.errors[name] && <p className="text-xs text-red mt-1">{ctx.errors[name]}</p>}
+    </div>
+  );
+}
 
 function CheckoutForm() {
   const { items, subtotal } = useCart();
@@ -111,25 +139,8 @@ function CheckoutForm() {
     );
   }
 
-  const Field = ({ label, name, type = "text", half = false, placeholder = "" }: {
-    label: string; name: string; type?: string; half?: boolean; placeholder?: string;
-  }) => (
-    <div className={half ? "col-span-1" : "col-span-2"}>
-      <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">{label}</label>
-      <input
-        type={type}
-        value={(form as Record<string, string | boolean>)[name] as string}
-        onChange={(e) => set(name, e.target.value)}
-        placeholder={placeholder}
-        className={`w-full border-2 rounded-lg px-4 py-3 text-sm focus:outline-none transition ${
-          errors[name] ? "border-red" : "border-gray-200 focus:border-navy"
-        }`}
-      />
-      {errors[name] && <p className="text-xs text-red mt-1">{errors[name]}</p>}
-    </div>
-  );
-
   return (
+    <FieldContext.Provider value={{ form, errors, set }}>
     <div className="bg-white min-h-screen">
       {/* Step indicator */}
       <div className="bg-cream border-b border-cream-dark py-4">
@@ -341,6 +352,7 @@ function CheckoutForm() {
         </form>
       </div>
     </div>
+    </FieldContext.Provider>
   );
 }
 
