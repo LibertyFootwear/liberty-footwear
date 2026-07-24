@@ -103,7 +103,7 @@ const CUSTOM = "Custom";
 
 const SIZED_ITEMS = ["PS Pinnacle", "PS Pinnacle +Met", "Green footbeds", "Blue footbeds"];
 const PLAIN_ITEMS = [
-  "Repair", "Resole", "Arch pads", "Mink oil",
+  "Repair", "Resole", "Stretching", "Arch pads", "Mink oil",
   "KG's bootguard Blk", "Adhesive heel wedge",
   "32 Degree socks Heat", "32 Degree socks Cool",
 ];
@@ -135,6 +135,41 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Load a record into the entry form for editing.
+  function startEdit(r: SaleRow) {
+    const known = [...SIZED_ITEMS, ...PLAIN_ITEMS, LACES, SHOE_HORN].includes(r.stock_no)
+      || catalog.some((c) => c.stockNo === r.stock_no);
+    setEditingId(r.id);
+    setForm({
+      saleDate: r.sale_date ?? new Date().toISOString().slice(0, 10),
+      stockNo: known ? r.stock_no : CUSTOM,
+      customDesc: known ? "" : r.stock_no,
+      size: (r.size ?? "").replace(/"$/, ""),
+      width: r.width ?? "",
+      qty: String(r.qty ?? 1),
+      paid: r.paid,
+      total: r.total != null ? String(r.total) : "",
+      payment: r.payment ?? "Card",
+      customerName: r.customer_name ?? "",
+      phone: r.phone ?? "",
+      notes: r.notes ?? "",
+      customerEmail: r.customer_email ?? "",
+      customerAddress: r.customer_address ?? "",
+      customerEmployer: r.customer_employer ?? "",
+      referralSource: r.referral_source ?? "",
+    });
+    setShowCustomer(!!(r.customer_email || r.customer_address || r.customer_employer || r.referral_source));
+    setError("");
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  function cancelEdit() {
+    setEditingId(null);
+    setForm({ ...emptyRow });
+    setShowCustomer(false);
+    setError("");
+  }
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [openYears, setOpenYears] = useState<Set<string>>(() => {
     const newest = rows[0]?.sale_date?.slice(0, 4);
@@ -181,21 +216,24 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
     if (isCustom && !form.customDesc.trim()) { setError("Describe the custom item."); return; }
     setSaving(true);
     const size = isLaces ? (form.size ? `${form.size}"` : "") : showSize ? form.size : "";
+    const payload = {
+      ...form,
+      ...(editingId ? { id: editingId } : {}),
+      stockNo: isCustom ? form.customDesc.trim() : sn,
+      size,
+      width: showWidth ? form.width : "",
+      qty: showQty ? (parseInt(form.qty) || 1) : 1,
+      total: form.total === "" ? null : parseFloat(form.total),
+    };
     const res = await fetch("/api/admin/sales", {
-      method: "POST",
+      method: editingId ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        stockNo: isCustom ? form.customDesc.trim() : sn,
-        size,
-        width: showWidth ? form.width : "",
-        qty: showQty ? (parseInt(form.qty) || 1) : 1,
-        total: form.total === "" ? null : parseFloat(form.total),
-      }),
+      body: JSON.stringify(payload),
     });
     setSaving(false);
     if (res.ok) {
-      setForm({ ...emptyRow, saleDate: form.saleDate, payment: form.payment });
+      if (editingId) { setEditingId(null); setForm({ ...emptyRow }); }
+      else setForm({ ...emptyRow, saleDate: form.saleDate, payment: form.payment });
       setShowCustomer(false);
       router.refresh();
     } else {
@@ -277,10 +315,13 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
             </button>
           </td>
           <td className="px-3 py-2">
-            <button onClick={() => remove(r.id)} disabled={busy === r.id}
-              className="text-red hover:underline font-bold disabled:opacity-40">
-              {busy === r.id ? "…" : "Delete"}
-            </button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => startEdit(r)} className="text-navy hover:underline font-bold">Edit</button>
+              <button onClick={() => remove(r.id)} disabled={busy === r.id}
+                className="text-red hover:underline font-bold disabled:opacity-40">
+                {busy === r.id ? "…" : "Delete"}
+              </button>
+            </div>
           </td>
         </tr>
         {isOpen && (
@@ -308,8 +349,10 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
   return (
     <div>
       {/* Entry row */}
-      <div className="bg-white rounded-xl border-2 border-navy/20 shadow-sm p-4 mb-6">
-        <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">New sale</p>
+      <div className={`bg-white rounded-xl border-2 shadow-sm p-4 mb-6 ${editingId ? "border-amber-400" : "border-navy/20"}`}>
+        <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
+          {editingId ? "✎ Editing sale" : "New sale"}
+        </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-2 items-end">
           <div>
@@ -448,10 +491,15 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
         <div className="flex items-center gap-3 mt-3">
           <button onClick={add} disabled={saving}
             className="px-6 py-2 bg-navy text-white text-sm font-bold rounded-lg hover:bg-navy/80 transition disabled:opacity-50">
-            {saving ? "Adding…" : "+ Add Sale"}
+            {saving ? "Saving…" : editingId ? "Save changes" : "+ Add Sale"}
           </button>
+          {editingId && (
+            <button onClick={cancelEdit} className="px-5 py-2 border-2 border-gray-200 text-gray-600 text-sm font-bold rounded-lg hover:border-navy transition">
+              Cancel
+            </button>
+          )}
           {error && <p className="text-xs text-red font-semibold">{error}</p>}
-          <p className="text-xs text-gray-400 ml-auto">Date &amp; payment stay filled in for the next entry.</p>
+          {!editingId && <p className="text-xs text-gray-400 ml-auto">Date &amp; payment stay filled in for the next entry.</p>}
         </div>
       </div>
 
