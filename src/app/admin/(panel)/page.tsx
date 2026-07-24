@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
+import { historicalAgg } from "@/lib/analytics";
 import Link from "next/link";
 
 export default async function AdminDashboard() {
@@ -9,15 +10,21 @@ export default async function AdminDashboard() {
   const [ordersRes, usersRes, revenueRes] = await Promise.all([
     sb.from("orders").select("id, status, total, created_at").order("created_at", { ascending: false }).limit(8),
     sb.from("users").select("id, name, email, created_at").order("created_at", { ascending: false }).limit(5),
-    sb.from("orders").select("total, status, created_at"),
+    sb.from("orders").select("total, status, created_at, source"),
   ]);
 
   const orders = ordersRes.data ?? [];
   const recentUsers = usersRes.data ?? [];
   const allOrders = revenueRes.data ?? [];
 
-  const totalRevenue = allOrders.reduce((s, o) => s + (o.total ?? 0), 0);
-  const paidOrders = allOrders.filter((o) => o.status !== "cancelled").length;
+  // Split live revenue by channel, and fold in the historical retail export.
+  const live = allOrders.filter((o) => o.status !== "cancelled");
+  const webRevenue = live.filter((o) => o.source !== "store").reduce((s, o) => s + (o.total ?? 0), 0);
+  const storeLiveRevenue = live.filter((o) => o.source === "store").reduce((s, o) => s + (o.total ?? 0), 0);
+  const hist = historicalAgg();
+  const retailRevenue = storeLiveRevenue + hist.revenue; // in-store = live store + historical
+  const totalRevenue = webRevenue + retailRevenue;       // combined (with web)
+  const paidOrders = live.length;
 
   const today = new Date().toISOString().slice(0, 10);
   const todayOrders = orders.filter((o) => o.created_at?.slice(0, 10) === today);
@@ -56,10 +63,10 @@ export default async function AdminDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: "This Month Revenue", value: `$${thisMonth.revenue.toFixed(0)}`, sub: thisMonth.label },
-          { label: "This Month Orders", value: thisMonth.orders, sub: thisMonth.label },
-          { label: "Total Revenue", value: `$${totalRevenue.toFixed(0)}`, sub: "all time" },
-          { label: "Total Orders", value: paidOrders, sub: "all time" },
+          { label: "Total Revenue", value: `$${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, sub: "web + in-store, all time" },
+          { label: "Web Revenue", value: `$${webRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, sub: "online store" },
+          { label: "In-Store Revenue", value: `$${retailRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, sub: "retail · historical + live" },
+          { label: "This Month (web + store)", value: `$${thisMonth.revenue.toFixed(0)}`, sub: `${thisMonth.label} · ${paidOrders} live orders total` },
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{s.label}</p>
