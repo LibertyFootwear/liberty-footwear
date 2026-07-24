@@ -1,8 +1,10 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
+import { trackingUrl } from "@/lib/ordersDb";
 import { notFound } from "next/navigation";
 import Stripe from "stripe";
 import OrderStatusForm from "./OrderStatusForm";
+import TrackingForm from "./TrackingForm";
 
 export const dynamic = "force-dynamic";
 
@@ -108,10 +110,27 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
       )}
 
       {/* Status */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Order Status</p>
         <OrderStatusForm orderId={o.id} currentStatus={o.status} />
       </div>
+
+      {/* Tracking */}
+      {o.shipping_method !== "pickup" && (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Shipment Tracking</p>
+            {o.tracking_number && (
+              <a href={trackingUrl(o.carrier as string, o.tracking_number as string)} target="_blank" rel="noopener noreferrer"
+                className="text-xs font-bold text-navy hover:text-red transition">
+                Track {o.carrier ?? "package"} →
+              </a>
+            )}
+          </div>
+          <TrackingForm orderId={o.id} carrier={o.carrier as string | undefined} trackingNumber={o.tracking_number as string | undefined} />
+          <p className="text-xs text-gray-400 mt-3">Enter the tracking number from FedEx / PirateShip — the customer sees a tracking link in their account.</p>
+        </div>
+      )}
     </div>
   );
 }

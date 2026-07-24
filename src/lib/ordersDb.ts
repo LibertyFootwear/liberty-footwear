@@ -29,6 +29,8 @@ export interface Order {
   shippingEmail?: string;
   shippingPhone?: string;
   shippingAddress?: ShippingAddress;
+  carrier?: string;
+  trackingNumber?: string;
 }
 
 function mapRow(row: Record<string, unknown>): Order {
@@ -44,7 +46,18 @@ function mapRow(row: Record<string, unknown>): Order {
     shippingEmail: (row.shipping_email as string) ?? undefined,
     shippingPhone: (row.phone as string) ?? undefined,
     shippingAddress: (row.shipping_address as ShippingAddress) ?? undefined,
+    carrier: (row.carrier as string) ?? undefined,
+    trackingNumber: (row.tracking_number as string) ?? undefined,
   };
+}
+
+/** Build a carrier tracking URL from a tracking number. */
+export function trackingUrl(carrier: string | undefined, tracking: string): string {
+  const c = (carrier ?? "").toLowerCase();
+  if (c.includes("ups")) return `https://www.ups.com/track?tracknum=${encodeURIComponent(tracking)}`;
+  if (c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(tracking)}`;
+  // Default to FedEx
+  return `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(tracking)}`;
 }
 
 export async function getOrdersByUser(userId: string): Promise<Order[]> {

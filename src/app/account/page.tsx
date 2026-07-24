@@ -15,6 +15,13 @@ import { defaultNotifications } from "@/lib/userDb";
 
 type Tab = "overview" | "orders" | "favorites" | "addresses" | "settings" | "password";
 
+function trackUrl(carrier: string | undefined, tracking: string): string {
+  const c = (carrier ?? "").toLowerCase();
+  if (c.includes("ups")) return `https://www.ups.com/track?tracknum=${encodeURIComponent(tracking)}`;
+  if (c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(tracking)}`;
+  return `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(tracking)}`;
+}
+
 const StarRating = ({ rating }: { rating: number }) => (
   <div className="flex gap-0.5">
     {[1, 2, 3, 4, 5].map((s) => (
@@ -407,6 +414,18 @@ export default function AccountPage() {
                         );
                       })}
                     </div>
+                    {order.trackingNumber && (
+                      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-xs text-gray-400">{order.carrier ?? "Carrier"} tracking</p>
+                          <p className="text-sm font-mono font-semibold text-navy">{order.trackingNumber}</p>
+                        </div>
+                        <a href={trackUrl(order.carrier, order.trackingNumber)} target="_blank" rel="noopener noreferrer"
+                          className="px-4 py-2 bg-navy text-white text-xs font-black rounded-lg uppercase tracking-wide hover:bg-navy/80 transition whitespace-nowrap">
+                          Track package →
+                        </a>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
