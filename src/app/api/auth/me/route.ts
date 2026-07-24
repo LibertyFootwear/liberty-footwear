@@ -14,5 +14,6 @@ export async function GET() {
     phone: user.phone,
     newsletter: user.newsletter ?? false,
     favorites: user.favorites,
+    address: user.address ?? null,
   });
 }

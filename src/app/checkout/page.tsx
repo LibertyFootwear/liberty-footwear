@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, Suspense, createContext, useContext } from "react";
+import { useState, useEffect, Suspense, createContext, useContext } from "react";
 
 interface FieldCtx {
   form: Record<string, string | boolean>;
@@ -14,15 +14,25 @@ interface FieldCtx {
 }
 const FieldContext = createContext<FieldCtx | null>(null);
 
-function Field({ label, name, type = "text", half = false, placeholder = "" }: {
-  label: string; name: string; type?: string; half?: boolean; placeholder?: string;
+// Browser autofill hints so the browser can suggest the customer's saved details.
+const AUTOCOMPLETE: Record<string, string> = {
+  firstName: "given-name", lastName: "family-name", email: "email", phone: "tel",
+  address: "street-address", city: "address-level2", state: "address-level1", zip: "postal-code",
+  billingAddress: "billing street-address", billingCity: "billing address-level2",
+  billingState: "billing address-level1", billingZip: "billing postal-code",
+};
+
+function Field({ label, name, type = "text", half = false, placeholder = "", inputId }: {
+  label: string; name: string; type?: string; half?: boolean; placeholder?: string; inputId?: string;
 }) {
   const ctx = useContext(FieldContext)!;
   return (
     <div className={half ? "col-span-1" : "col-span-2"}>
       <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">{label}</label>
       <input
+        id={inputId}
         type={type}
+        autoComplete={AUTOCOMPLETE[name] ?? "on"}
         value={ctx.form[name] as string}
         onChange={(e) => ctx.set(name, e.target.value)}
         placeholder={placeholder}
@@ -58,12 +68,12 @@ function CheckoutForm() {
     firstName: user?.name?.split(" ")[0] ?? "",
     lastName: user?.name?.split(" ").slice(1).join(" ") ?? "",
     email: user?.email ?? "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zip: "",
-    country: "US",
+    phone: user?.phone ?? "",
+    address: user?.address?.line1 ?? "",
+    city: user?.address?.city ?? "",
+    state: user?.address?.state ?? "",
+    zip: user?.address?.zip ?? "",
+    country: user?.address?.country ?? "US",
     billingSame: true,
     billingAddress: "",
     billingCity: "",
@@ -75,6 +85,64 @@ function CheckoutForm() {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Prefill from the logged-in account once it loads (only empty fields, don't clobber typing).
+  useEffect(() => {
+    if (!user) return;
+    setForm((f) => ({
+      ...f,
+      firstName: f.firstName || (user.name?.split(" ")[0] ?? ""),
+      lastName: f.lastName || (user.name?.split(" ").slice(1).join(" ") ?? ""),
+      email: f.email || user.email || "",
+      phone: f.phone || user.phone || "",
+      address: f.address || user.address?.line1 || "",
+      city: f.city || user.address?.city || "",
+      state: f.state || user.address?.state || "",
+      zip: f.zip || user.address?.zip || "",
+      country: f.country && f.country !== "US" ? f.country : (user.address?.country || "US"),
+    }));
+  }, [user]);
+
+  // Google Places address autocomplete — activates only when an API key is set.
+  useEffect(() => {
+    const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!key || shippingMethod === "pickup") return;
+    let cancelled = false;
+
+    function attach() {
+      const input = document.getElementById("checkout-street") as HTMLInputElement | null;
+      const g = (window as unknown as { google?: { maps?: { places?: { Autocomplete: new (el: HTMLInputElement, opts: object) => { addListener: (e: string, cb: () => void) => void; getPlace: () => { address_components?: { types: string[]; long_name: string; short_name: string }[] } } } } } }).google;
+      if (!input || cancelled || !g?.maps?.places) return;
+      const ac = new g.maps.places.Autocomplete(input, {
+        types: ["address"],
+        componentRestrictions: { country: ["us", "ca"] },
+        fields: ["address_components"],
+      });
+      ac.addListener("place_changed", () => {
+        const c = ac.getPlace().address_components ?? [];
+        const find = (t: string) => c.find((x) => x.types.includes(t));
+        const line1 = [find("street_number")?.long_name, find("route")?.long_name].filter(Boolean).join(" ");
+        const city = (find("locality") ?? find("postal_town") ?? find("sublocality"))?.long_name ?? "";
+        const state = find("administrative_area_level_1")?.short_name ?? "";
+        const zip = find("postal_code")?.long_name ?? "";
+        const country = find("country")?.short_name ?? "";
+        setForm((f) => ({ ...f, address: line1 || f.address, city: city || f.city, state: state || f.state, zip: zip || f.zip, country: country || f.country }));
+      });
+    }
+
+    const w = window as unknown as { google?: { maps?: { places?: unknown } } };
+    if (w.google?.maps?.places) { attach(); return; }
+    let script = document.getElementById("gmaps-script") as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement("script");
+      script.id = "gmaps-script";
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
+      script.async = true;
+      document.head.appendChild(script);
+    }
+    script.addEventListener("load", attach);
+    return () => { cancelled = true; script?.removeEventListener("load", attach); };
+  }, [shippingMethod]);
 
   function set(field: string, value: string | boolean) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -214,7 +282,7 @@ function CheckoutForm() {
                     </div>
                     <h3 className="font-bold text-navy text-sm mb-4">Shipping Address</h3>
                     <div className="grid grid-cols-2 gap-4">
-                      <Field label="Street Address" name="address" />
+                      <Field label="Street Address" name="address" inputId="checkout-street" />
                       <Field label="City" name="city" half />
                       <Field label="State" name="state" half placeholder="MI" />
                       <Field label="ZIP Code" name="zip" half placeholder="49501" />
