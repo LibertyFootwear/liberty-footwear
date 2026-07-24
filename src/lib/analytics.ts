@@ -96,13 +96,24 @@ export interface RetailSaleRow {
   payment: string | null;
 }
 
-/** Fetch every in-store retail sale (the spreadsheet-style log). [] if Supabase is unavailable. */
+/** Fetch every in-store retail sale (the spreadsheet-style log). [] if Supabase is unavailable.
+ *  Paginates because Supabase caps a single response at 1000 rows. */
 export async function getRetailSales(): Promise<RetailSaleRow[]> {
   try {
-    const { data } = await getSupabase()
-      .from("retail_sales")
-      .select("sale_date, stock_no, size, width, qty, total, payment");
-    return (data ?? []) as RetailSaleRow[];
+    const sb = getSupabase();
+    const all: RetailSaleRow[] = [];
+    const PAGE = 1000;
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await sb
+        .from("retail_sales")
+        .select("sale_date, stock_no, size, width, qty, total, payment")
+        .order("sale_date", { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error || !data || data.length === 0) break;
+      all.push(...(data as RetailSaleRow[]));
+      if (data.length < PAGE) break;
+    }
+    return all;
   } catch {
     return [];
   }

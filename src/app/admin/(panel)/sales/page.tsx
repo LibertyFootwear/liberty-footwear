@@ -8,13 +8,21 @@ export const dynamic = "force-dynamic";
 export default async function AdminSales() {
   await requireAdmin();
 
-  const { data } = await getSupabase()
-    .from("retail_sales")
-    .select("*")
-    .order("sale_date", { ascending: false })
-    .order("created_at", { ascending: false });
-
-  const rows = (data ?? []) as SaleRow[];
+  // Paginate — Supabase caps a single response at 1000 rows.
+  const sb = getSupabase();
+  const rows: SaleRow[] = [];
+  const PAGE = 1000;
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await sb
+      .from("retail_sales")
+      .select("*")
+      .order("sale_date", { ascending: false })
+      .order("created_at", { ascending: false })
+      .range(from, from + PAGE - 1);
+    if (error || !data || data.length === 0) break;
+    rows.push(...(data as SaleRow[]));
+    if (data.length < PAGE) break;
+  }
   const catalog: CatalogItem[] = products.map((p) => ({
     stockNo: p.stockNo,
     ...(p.apparelSizes?.length ? { apparelSizes: p.apparelSizes } : {}),
