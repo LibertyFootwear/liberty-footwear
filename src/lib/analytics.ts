@@ -86,6 +86,22 @@ export function aggFromOrders(rows: OrderRow[]): Agg {
 
 const DAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+// Non-boot keywords for historical SKUs that aren't in the catalog (footbeds, services, accessories).
+const NON_BOOT_KEYWORDS = [
+  "footbed", "pinnacle", "insole", "repair", "resole", "arch pad", "mink",
+  "bootguard", "heel wedge", "sock", "lace", "shoe horn", "fd100", "brush",
+  "spray", "cleaner", "cleaning", "kit", "polish", "custom",
+];
+
+/** Is this stock number / item a boot? Catalog category is the source of truth;
+ *  historical items not in the catalog fall back to a name check. */
+function isBootItem(stockNo: string): boolean {
+  const p = products.find((x) => x.stockNo === stockNo);
+  if (p) return p.category !== "Apparel";
+  const s = stockNo.toLowerCase();
+  return !NON_BOOT_KEYWORDS.some((kw) => s.includes(kw));
+}
+
 export interface RetailSaleRow {
   sale_date: string;
   stock_no: string;
@@ -133,8 +149,8 @@ export function retailAgg(rows: RetailSaleRow[]): Agg {
     const p = products.find((x) => x.stockNo === stock);
     if (p) a.byColor[p.colorLeather] = (a.byColor[p.colorLeather] ?? 0) + qty;
 
-    // Sizes: boots only (KS#### SKUs) — skip footbeds/insoles/accessories.
-    if (r.size && /^KS\d/i.test(stock)) {
+    // Sizes: boots only — skip footbeds/insoles/accessories (catalog + name fallback).
+    if (r.size && isBootItem(stock)) {
       const n = parseFloat(r.size);
       if (!isNaN(n)) a.bySize[String(n)] = (a.bySize[String(n)] ?? 0) + qty;
     }
