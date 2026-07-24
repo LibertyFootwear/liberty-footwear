@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Stripe skills (local reference only)
+.agents/
+.claude/skills/
+skills-lock.json

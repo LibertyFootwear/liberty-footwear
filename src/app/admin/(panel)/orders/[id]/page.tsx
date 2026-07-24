@@ -1,7 +1,10 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
+import Stripe from "stripe";
 import OrderStatusForm from "./OrderStatusForm";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminOrderDetail({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -10,6 +13,24 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
   if (!o) notFound();
 
   const items = (o.items ?? []) as { stockNo: string; name: string; price: number; qty: number }[];
+
+  // Pull the Stripe-generated invoice for web orders (created automatically at checkout).
+  let invoiceUrl: string | null = null;
+  let invoicePdf: string | null = null;
+  const sessionId = o.stripe_session_id as string | null;
+  if (sessionId && !sessionId.startsWith("store-") && process.env.STRIPE_SECRET_KEY) {
+    try {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
+      const session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ["invoice"] });
+      const inv = session.invoice as Stripe.Invoice | null;
+      if (inv) {
+        invoiceUrl = inv.hosted_invoice_url ?? null;
+        invoicePdf = inv.invoice_pdf ?? null;
+      }
+    } catch {
+      // Stripe unavailable or session too old — just hide the invoice links
+    }
+  }
 
   return (
     <div className="p-8 max-w-3xl">
@@ -64,6 +85,27 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
           <p className="font-black text-lg text-navy">Total: ${o.total?.toFixed(2)}</p>
         </div>
       </div>
+
+      {/* Invoice */}
+      {(invoiceUrl || invoicePdf) && (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Invoice</p>
+          <div className="flex flex-wrap gap-3">
+            {invoiceUrl && (
+              <a href={invoiceUrl} target="_blank" rel="noopener noreferrer"
+                className="px-4 py-2 bg-navy text-white text-sm font-bold rounded-lg hover:bg-navy/80 transition">
+                View invoice →
+              </a>
+            )}
+            {invoicePdf && (
+              <a href={invoicePdf} target="_blank" rel="noopener noreferrer"
+                className="px-4 py-2 border-2 border-gray-200 text-navy text-sm font-bold rounded-lg hover:border-navy transition">
+                Download PDF
+              </a>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Status */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
