@@ -53,7 +53,8 @@ export async function POST(req: NextRequest) {
   const taxRateId = await getMiTaxRateId();
 
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
+    // Omit payment_method_types so Stripe enables every method turned on in the
+    // Dashboard (card, Apple Pay, Google Pay, Link) — improves conversion.
     mode: "payment",
     line_items: validatedItems.map((item) => ({
       price_data: {
