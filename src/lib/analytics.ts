@@ -116,6 +116,69 @@ export function historicalAgg(): Agg {
   return a;
 }
 
+const DAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+export interface RetailSaleRow {
+  sale_date: string;
+  stock_no: string;
+  size: string | null;
+  width: string | null;
+  qty: number | null;
+  total: number | null;
+  payment: string | null;
+}
+
+/** Fetch every in-store retail sale (the spreadsheet-style log). [] if Supabase is unavailable. */
+export async function getRetailSales(): Promise<RetailSaleRow[]> {
+  try {
+    const { data } = await getSupabase()
+      .from("retail_sales")
+      .select("sale_date, stock_no, size, width, qty, total, payment");
+    return (data ?? []) as RetailSaleRow[];
+  } catch {
+    return [];
+  }
+}
+
+/** Aggregate the live retail_sales table into the unified shape (replaces the static export). */
+export function retailAgg(rows: RetailSaleRow[]): Agg {
+  const a = emptyAgg();
+  a.hasYear = true;
+  for (const r of rows) {
+    const qty = r.qty ?? 1;
+    a.units += qty;
+    a.revenue += r.total ?? 0;
+
+    const stock = r.stock_no || "Unknown";
+    a.byStock[stock] = (a.byStock[stock] ?? 0) + qty;
+    const p = products.find((x) => x.stockNo === stock);
+    if (p) a.byColor[p.colorLeather] = (a.byColor[p.colorLeather] ?? 0) + qty;
+
+    if (r.size) {
+      const n = parseFloat(r.size);
+      if (!isNaN(n)) a.bySize[String(n)] = (a.bySize[String(n)] ?? 0) + qty;
+    }
+    if (r.width) {
+      const key = r.width === "M" || r.width === "EW" ? r.width : "Other";
+      a.byWidth[key] = (a.byWidth[key] ?? 0) + qty;
+    }
+    if (r.payment) a.byPay[r.payment] = (a.byPay[r.payment] ?? 0) + qty;
+
+    const parts = (r.sale_date ?? "").split("-").map(Number);
+    if (parts.length === 3 && parts.every((n) => !isNaN(n))) {
+      const [y, m, d] = parts;
+      const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+      a.byDay[DAYS_SHORT[dow]] = (a.byDay[DAYS_SHORT[dow]] ?? 0) + qty;
+      a.byMonth[MONTHS[m - 1]] = (a.byMonth[MONTHS[m - 1]] ?? 0) + qty;
+      const yk = String(y);
+      if (!a.byYear[yk]) a.byYear[yk] = { units: 0, revenue: 0 };
+      a.byYear[yk].units += qty;
+      a.byYear[yk].revenue += r.total ?? 0;
+    }
+  }
+  return a;
+}
+
 /** Sum any number of aggregates bucket-by-bucket. */
 export function mergeAgg(...aggs: Agg[]): Agg {
   const out = emptyAgg();

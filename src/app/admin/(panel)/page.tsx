@@ -1,29 +1,30 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
-import { historicalAgg } from "@/lib/analytics";
+import { getRetailSales, retailAgg } from "@/lib/analytics";
 import Link from "next/link";
 
 export default async function AdminDashboard() {
   await requireAdmin();
   const sb = getSupabase();
 
-  const [ordersRes, usersRes, revenueRes] = await Promise.all([
+  const [ordersRes, usersRes, revenueRes, retail] = await Promise.all([
     sb.from("orders").select("id, status, total, created_at").order("created_at", { ascending: false }).limit(8),
     sb.from("users").select("id, name, email, created_at").order("created_at", { ascending: false }).limit(5),
     sb.from("orders").select("total, status, created_at, source"),
+    getRetailSales(),
   ]);
 
   const orders = ordersRes.data ?? [];
   const recentUsers = usersRes.data ?? [];
   const allOrders = revenueRes.data ?? [];
 
-  // Split live revenue by channel, and fold in the historical retail export.
+  // Split live revenue by channel, and fold in the live retail-sales log.
   const live = allOrders.filter((o) => o.status !== "cancelled");
   const webRevenue = live.filter((o) => o.source !== "store").reduce((s, o) => s + (o.total ?? 0), 0);
   const storeLiveRevenue = live.filter((o) => o.source === "store").reduce((s, o) => s + (o.total ?? 0), 0);
-  const hist = historicalAgg();
-  const retailRevenue = storeLiveRevenue + hist.revenue; // in-store = live store + historical
-  const totalRevenue = webRevenue + retailRevenue;       // combined (with web)
+  const retailLog = retailAgg(retail);
+  const retailRevenue = storeLiveRevenue + retailLog.revenue; // in-store = store orders + retail-sales log
+  const totalRevenue = webRevenue + retailRevenue;            // combined (with web)
   const paidOrders = live.length;
 
   const today = new Date().toISOString().slice(0, 10);
