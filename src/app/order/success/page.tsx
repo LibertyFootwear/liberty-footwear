@@ -1,8 +1,6 @@
 import Link from "next/link";
 import Stripe from "stripe";
-import { saveOrder, getOrderByStripeSession } from "@/lib/ordersDb";
-import { decrementInventory } from "@/lib/inventoryDb";
-import { products } from "@/data/products";
+import { fulfillCheckoutSession } from "@/lib/fulfillOrder";
 
 interface Props {
   searchParams: Promise<{ session_id?: string }>;
@@ -13,60 +11,12 @@ export default async function SuccessPage({ searchParams }: Props) {
 
   if (session_id && process.env.STRIPE_SECRET_KEY) {
     try {
-      const existing = await getOrderByStripeSession(session_id);
-      if (!existing) {
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
-        const session = await stripe.checkout.sessions.retrieve(session_id, {
-          expand: ["line_items.data.price.product"],
-        });
-
-        if (session.payment_status === "paid") {
-          const items = (session.line_items?.data ?? []).map((li) => {
-            const prod = li.price?.product as Stripe.Product | undefined;
-            const stockNo = prod?.metadata?.stockNo ?? "";
-            const size = prod?.metadata?.size ?? "";
-            const product = products.find((p) => p.stockNo === stockNo);
-            return {
-              stockNo,
-              name: li.description ?? prod?.name ?? "",
-              size,
-              price: (li.amount_total ?? 0) / 100 / (li.quantity ?? 1),
-              qty: li.quantity ?? 1,
-              slug: product?.slug,
-            };
-          });
-
-          // Address: prefer collected shipping address, fall back to billing details
-          const s = session as unknown as {
-            shipping_details?: { address?: Record<string, string> };
-            customer_details?: { address?: Record<string, string>; phone?: string };
-          };
-          const addr = s.shipping_details?.address ?? s.customer_details?.address;
-
-          await saveOrder({
-            id: crypto.randomUUID(),
-            stripeSessionId: session_id,
-            userId: session.metadata?.userId || undefined,
-            items,
-            total: (session.amount_total ?? 0) / 100,
-            status: "paid",
-            createdAt: new Date().toISOString(),
-            shippingName: session.customer_details?.name ?? undefined,
-            shippingEmail: session.customer_details?.email ?? undefined,
-            shippingPhone: session.metadata?.phone ?? s.customer_details?.phone ?? undefined,
-            shippingAddress: addr ? {
-              line1: addr.line1,
-              city: addr.city,
-              state: addr.state,
-              postalCode: addr.postal_code,
-              country: addr.country,
-            } : undefined,
-          });
-
-          // Deduct purchased quantities from finished-boot inventory (runs once per order)
-          await decrementInventory(items);
-        }
-      }
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
+      const session = await stripe.checkout.sessions.retrieve(session_id, {
+        expand: ["line_items.data.price.product"],
+      });
+      // Idempotent — the webhook may have already recorded this order.
+      await fulfillCheckoutSession(session);
     } catch {
       // Stripe not configured or session invalid — still show success
     }
