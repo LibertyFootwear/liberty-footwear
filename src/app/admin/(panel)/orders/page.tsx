@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import Link from "next/link";
+import OrdersBoard, { BoardOrder } from "./OrdersBoard";
 
 export const dynamic = "force-dynamic";
 
@@ -17,14 +18,24 @@ function ordinal(n: number) {
   return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
 }
 
-export default async function AdminOrders() {
+export default async function AdminOrders({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
   await requireAdmin();
+  const view = (await searchParams).view === "list" ? "list" : "board";
   const { data } = await getSupabase()
     .from("orders")
     .select("*")
     .order("created_at", { ascending: false });
 
   const orders = data ?? [];
+
+  // Board = web orders that need fulfilment (store point-of-sale sales are already complete).
+  const boardOrders: BoardOrder[] = orders
+    .filter((o) => o.source !== "store" && o.shipping_method !== "store" && o.status !== "cancelled")
+    .map((o) => ({
+      id: o.id, created_at: o.created_at, total: o.total, status: o.status,
+      source: o.source, shipping_name: o.shipping_name, shipping_method: o.shipping_method,
+      tracking_number: o.tracking_number, itemCount: (o.items as unknown[])?.length ?? 0,
+    }));
 
   // Per-registered-customer order sequence numbers
   const seq: Record<string, { n: number; total: number }> = {};
@@ -39,13 +50,22 @@ export default async function AdminOrders() {
 
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-black text-navy">Orders</h1>
         <Link href="/admin/orders/new" className="px-4 py-2 bg-navy text-white text-sm font-bold rounded-lg hover:bg-navy/80 transition">
           + Record Store Sale
         </Link>
       </div>
 
+      {/* View toggle */}
+      <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden mb-8 text-sm font-bold">
+        <Link href="/admin/orders" className={`px-4 py-2 ${view === "board" ? "bg-navy text-white" : "bg-white text-gray-500 hover:text-navy"}`}>Board</Link>
+        <Link href="/admin/orders?view=list" className={`px-4 py-2 ${view === "list" ? "bg-navy text-white" : "bg-white text-gray-500 hover:text-navy"}`}>List</Link>
+      </div>
+
+      {view === "board" ? (
+        <OrdersBoard initial={boardOrders} />
+      ) : (
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
         <table className="w-full text-sm whitespace-nowrap">
           <thead className="bg-gray-50 border-b border-gray-100">
@@ -94,6 +114,7 @@ export default async function AdminOrders() {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }
