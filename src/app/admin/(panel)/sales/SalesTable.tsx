@@ -76,11 +76,22 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [openYears, setOpenYears] = useState<Set<string>>(() => {
+    const newest = rows[0]?.sale_date?.slice(0, 4);
+    return new Set(newest ? [newest] : []);
+  });
 
   function toggleRow(id: string) {
     setExpanded((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+  function toggleYear(y: string) {
+    setOpenYears((prev) => {
+      const next = new Set(prev);
+      if (next.has(y)) next.delete(y); else next.add(y);
       return next;
     });
   }
@@ -149,6 +160,81 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
 
   const totalSum = filtered.reduce((s, r) => s + (r.total ?? 0), 0);
   const cls = "w-full border-2 border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-navy";
+
+  // Group by year, newest first (filtered is already sorted newest → oldest)
+  const searching = !!search;
+  const yearGroups: { year: string; rows: SaleRow[]; total: number }[] = [];
+  for (const r of filtered) {
+    const y = (r.sale_date ?? "").slice(0, 4) || "—";
+    let g = yearGroups.find((x) => x.year === y);
+    if (!g) { g = { year: y, rows: [], total: 0 }; yearGroups.push(g); }
+    g.rows.push(r);
+    g.total += r.total ?? 0;
+  }
+
+  function renderRow(r: SaleRow) {
+    const p = parts(r.sale_date);
+    const isOpen = expanded.has(r.id);
+    const extras: [string, string | null][] = [
+      ["Phone", r.phone],
+      ["Email", r.customer_email],
+      ["Address", r.customer_address],
+      ["Employer / trade", r.customer_employer],
+      ["Heard about us", r.referral_source],
+      ["Notes", r.notes],
+    ];
+    const hasExtras = extras.some(([, v]) => v);
+    return (
+      <Fragment key={r.id}>
+        <tr className={`hover:bg-gray-50 transition ${isOpen ? "bg-navy/5" : ""}`}>
+          <td className="px-3 py-2 text-gray-600">{r.sale_date}</td>
+          <td className="px-3 py-2 text-gray-400">{p.day}</td>
+          <td className="px-3 py-2 font-mono font-bold text-navy">{r.stock_no}</td>
+          <td className="px-3 py-2 text-gray-600">{r.size || "—"}</td>
+          <td className="px-3 py-2 text-gray-600">{r.width || "—"}</td>
+          <td className="px-3 py-2 text-gray-600">{r.qty ?? 1}</td>
+          <td className="px-3 py-2">
+            <span className={`font-bold px-1.5 py-0.5 rounded ${r.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+              {r.paid ? "Yes" : "No"}
+            </span>
+          </td>
+          <td className="px-3 py-2 font-black text-gray-900">{r.total != null ? `$${r.total.toFixed(2)}` : "—"}</td>
+          <td className="px-3 py-2 text-gray-600">{r.payment || "—"}</td>
+          <td className="px-3 py-2">
+            <button type="button" onClick={() => toggleRow(r.id)}
+              className="inline-flex items-center gap-1 font-semibold text-navy hover:text-red transition">
+              {r.customer_name || "—"}
+              {hasExtras && <span className={`text-[9px] transition-transform ${isOpen ? "rotate-90" : ""}`}>▶</span>}
+            </button>
+          </td>
+          <td className="px-3 py-2">
+            <button onClick={() => remove(r.id)} disabled={busy === r.id}
+              className="text-red hover:underline font-bold disabled:opacity-40">
+              {busy === r.id ? "…" : "Delete"}
+            </button>
+          </td>
+        </tr>
+        {isOpen && (
+          <tr className="bg-navy/5">
+            <td colSpan={11} className="px-6 py-3">
+              {hasExtras ? (
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-2 whitespace-normal">
+                  {extras.filter(([, v]) => v).map(([label, v]) => (
+                    <div key={label}>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</p>
+                      <p className="text-gray-700">{v}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400">No extra details recorded for this sale.</p>
+              )}
+            </td>
+          </tr>
+        )}
+      </Fragment>
+    );
+  }
 
   return (
     <div>
@@ -332,68 +418,20 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
             {filtered.length === 0 && (
               <tr><td colSpan={11} className="px-3 py-10 text-center text-gray-400">No sales recorded yet.</td></tr>
             )}
-            {filtered.map((r) => {
-              const p = parts(r.sale_date);
-              const isOpen = expanded.has(r.id);
-              const extras: [string, string | null][] = [
-                ["Phone", r.phone],
-                ["Email", r.customer_email],
-                ["Address", r.customer_address],
-                ["Employer / trade", r.customer_employer],
-                ["Heard about us", r.referral_source],
-                ["Notes", r.notes],
-              ];
-              const hasExtras = extras.some(([, v]) => v);
+            {yearGroups.map((g) => {
+              const open = searching || openYears.has(g.year);
               return (
-                <Fragment key={r.id}>
-                  <tr className={`hover:bg-gray-50 transition ${isOpen ? "bg-navy/5" : ""}`}>
-                    <td className="px-3 py-2 text-gray-600">{r.sale_date}</td>
-                    <td className="px-3 py-2 text-gray-400">{p.day}</td>
-                    <td className="px-3 py-2 font-mono font-bold text-navy">{r.stock_no}</td>
-                    <td className="px-3 py-2 text-gray-600">{r.size || "—"}</td>
-                    <td className="px-3 py-2 text-gray-600">{r.width || "—"}</td>
-                    <td className="px-3 py-2 text-gray-600">{r.qty ?? 1}</td>
-                    <td className="px-3 py-2">
-                      <span className={`font-bold px-1.5 py-0.5 rounded ${r.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                        {r.paid ? "Yes" : "No"}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 font-black text-gray-900">{r.total != null ? `$${r.total.toFixed(2)}` : "—"}</td>
-                    <td className="px-3 py-2 text-gray-600">{r.payment || "—"}</td>
-                    <td className="px-3 py-2">
-                      <button type="button" onClick={() => toggleRow(r.id)}
-                        className="inline-flex items-center gap-1 font-semibold text-navy hover:text-red transition">
-                        {r.customer_name || "—"}
-                        {hasExtras && (
-                          <span className={`text-[9px] transition-transform ${isOpen ? "rotate-90" : ""}`}>▶</span>
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-3 py-2">
-                      <button onClick={() => remove(r.id)} disabled={busy === r.id}
-                        className="text-red hover:underline font-bold disabled:opacity-40">
-                        {busy === r.id ? "…" : "Delete"}
+                <Fragment key={g.year}>
+                  <tr className="bg-gray-100/80 border-y border-gray-200 cursor-pointer" onClick={() => toggleYear(g.year)}>
+                    <td colSpan={11} className="px-3 py-2">
+                      <button type="button" className="inline-flex items-center gap-2 font-black text-navy">
+                        <span className={`text-[10px] transition-transform ${open ? "rotate-90" : ""}`}>▶</span>
+                        {g.year}
+                        <span className="font-semibold text-gray-500 text-xs">· {g.rows.length} sales · ${g.total.toFixed(2)}</span>
                       </button>
                     </td>
                   </tr>
-                  {isOpen && (
-                    <tr className="bg-navy/5">
-                      <td colSpan={11} className="px-6 py-3">
-                        {hasExtras ? (
-                          <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-2 whitespace-normal">
-                            {extras.filter(([, v]) => v).map(([label, v]) => (
-                              <div key={label}>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{label}</p>
-                                <p className="text-gray-700">{v}</p>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-gray-400">No extra details recorded for this sale.</p>
-                        )}
-                      </td>
-                    </tr>
-                  )}
+                  {open && g.rows.map((r) => renderRow(r))}
                 </Fragment>
               );
             })}
