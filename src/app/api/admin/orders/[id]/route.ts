@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
-import { requireAdmin } from "@/lib/adminAuth";
+import { assertAdmin } from "@/lib/adminAuth";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try { await requireAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
+  try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const { id } = await params;
   const body = await req.json();
   const update: Record<string, unknown> = {};

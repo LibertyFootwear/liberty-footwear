@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
-import { requireAdmin } from "@/lib/adminAuth";
+import { assertAdmin } from "@/lib/adminAuth";
 import { getCatalogPrice } from "@/lib/catalog";
 import { decrementInventory } from "@/lib/inventoryDb";
 
 interface InItem { stockNo: string; size: string; qty: number; price: number }
 
 export async function POST(req: NextRequest) {
-  try { await requireAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
+  try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
 
   const { items, paymentMethod, customerName, customerPhone, date } = await req.json() as {
     items: InItem[]; paymentMethod?: string; customerName?: string; customerPhone?: string; date?: string;

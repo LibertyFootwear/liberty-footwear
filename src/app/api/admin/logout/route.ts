@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { clearAdminCookie } from "@/lib/adminJwt";
 
 export async function POST() {
   const res = NextResponse.json({ ok: true });
-  res.cookies.set({ name: "lf_admin", value: "", httpOnly: true, path: "/", maxAge: 0 });
+  res.cookies.set(clearAdminCookie());
   return res;
 }

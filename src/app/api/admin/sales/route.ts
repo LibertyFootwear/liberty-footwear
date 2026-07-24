@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
-import { requireAdmin } from "@/lib/adminAuth";
+import { assertAdmin } from "@/lib/adminAuth";
 
 export async function POST(req: NextRequest) {
-  try { await requireAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
+  try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const b = await req.json();
   if (!b.saleDate || !b.stockNo?.trim()) {
     return NextResponse.json({ error: "Date and Stock # are required" }, { status: 400 });
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  try { await requireAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
+  try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
   await getSupabase().from("retail_sales").delete().eq("id", id);

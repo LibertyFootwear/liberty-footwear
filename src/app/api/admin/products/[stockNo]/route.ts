@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
-import { requireAdmin } from "@/lib/adminAuth";
+import { assertAdmin } from "@/lib/adminAuth";
 import { products as baseProducts } from "@/data/products";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ stockNo: string }> }) {
-  try { await requireAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
+  try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const { stockNo } = await params;
   if (!baseProducts.some((p) => p.stockNo === stockNo)) {
     return NextResponse.json({ error: "Unknown product" }, { status: 404 });
@@ -24,7 +24,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ stoc
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ stockNo: string }> }) {
-  try { await requireAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
+  try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const { stockNo } = await params;
   await getSupabase().from("product_overrides").delete().eq("stock_no", stockNo);
   return NextResponse.json({ ok: true });

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/adminAuth";
+import { assertAdmin } from "@/lib/adminAuth";
 
 export async function POST(req: NextRequest) {
-  try { await requireAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
+  try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const { password } = await req.json();
   if (!process.env.ANALYTICS_PASSWORD || password !== process.env.ANALYTICS_PASSWORD) {
     return NextResponse.json({ error: "Incorrect password" }, { status: 401 });
