@@ -1,5 +1,4 @@
-import { requireAdmin, hasAnalyticsAccess } from "@/lib/adminAuth";
-import LockAnalyticsButton from "./LockAnalyticsButton";
+import { requireAdmin } from "@/lib/adminAuth";
 import AdminLogoutButton from "./AdminLogoutButton";
 import Link from "next/link";
 
@@ -17,7 +16,6 @@ const NAV = [
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
-  const hasAnalytics = await hasAnalyticsAccess();
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -41,7 +39,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </nav>
         <div className="px-5 py-4 border-t border-white/10">
           <p className="text-xs text-white/40">Admin</p>
-          {hasAnalytics && <LockAnalyticsButton />}
           <AdminLogoutButton />
           <Link href="/" className="text-xs text-white/60 hover:text-white transition mt-1 block">← Back to site</Link>
         </div>

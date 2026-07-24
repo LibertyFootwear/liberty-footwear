@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getAdminIdFromCookie } from "./adminJwt";
 
@@ -19,10 +18,4 @@ export async function requireAdmin() {
 export async function assertAdmin() {
   const adminId = await getAdminIdFromCookie();
   if (!adminId) throw new AdminUnauthorizedError();
-}
-
-/** Extra gate for revenue-sensitive pages (Dashboard, Analytics). */
-export async function hasAnalyticsAccess(): Promise<boolean> {
-  const store = await cookies();
-  return store.get("lf_analytics")?.value === "1";
 }
