@@ -25,6 +25,7 @@ export default async function AdminSales() {
   }
   const catalog: CatalogItem[] = products.map((p) => ({
     stockNo: p.stockNo,
+    name: `${p.name}${p.colorLeather ? ` — ${p.colorLeather}` : ""}`,
     ...(p.apparelSizes?.length ? { apparelSizes: p.apparelSizes } : {}),
   }));
 

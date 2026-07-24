@@ -149,10 +149,13 @@ export function retailAgg(rows: RetailSaleRow[]): Agg {
     const p = products.find((x) => x.stockNo === stock);
     if (p) a.byColor[p.colorLeather] = (a.byColor[p.colorLeather] ?? 0) + qty;
 
-    // Sizes: boots only — skip footbeds/insoles/accessories (catalog + name fallback).
+    // Sizes: boots only, and only real boot sizes (5–17 incl. halves) — skip
+    // footbeds/accessories and any junk values in the source data.
     if (r.size && isBootItem(stock)) {
       const n = parseFloat(r.size);
-      if (!isNaN(n)) a.bySize[String(n)] = (a.bySize[String(n)] ?? 0) + qty;
+      if (!isNaN(n) && n >= 5 && n <= 17 && Number.isInteger(n * 2)) {
+        a.bySize[String(n)] = (a.bySize[String(n)] ?? 0) + qty;
+      }
     }
     if (r.width) {
       const key = r.width === "M" || r.width === "EW" ? r.width : "Other";

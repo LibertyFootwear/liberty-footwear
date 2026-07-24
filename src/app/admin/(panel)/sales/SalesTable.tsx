@@ -22,7 +22,67 @@ export interface SaleRow {
   notes: string | null;
 }
 
-export interface CatalogItem { stockNo: string; apparelSizes?: string[] }
+export interface CatalogItem { stockNo: string; name?: string; apparelSizes?: string[] }
+
+interface ComboOption { value: string; label: string; group: string }
+
+function ItemCombobox({ value, options, onSelect }: {
+  value: string;
+  options: ComboOption[];
+  onSelect: (v: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const cls = "w-full border-2 border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-navy";
+
+  const q = query.toLowerCase();
+  const filtered = q
+    ? options.filter((o) => o.label.toLowerCase().includes(q))
+    : options;
+
+  // Group filtered options for display
+  const groups: { group: string; items: ComboOption[] }[] = [];
+  for (const o of filtered.slice(0, 60)) {
+    let g = groups.find((x) => x.group === o.group);
+    if (!g) { g = { group: o.group, items: [] }; groups.push(g); }
+    g.items.push(o);
+  }
+
+  const display = open ? query : value;
+
+  return (
+    <div className="relative">
+      <input
+        value={display}
+        placeholder="Type to search…"
+        onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
+        onFocus={() => { setQuery(""); setOpen(true); }}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className={cls}
+      />
+      {open && (
+        <div className="absolute z-30 mt-1 w-72 max-h-64 overflow-y-auto bg-white border-2 border-gray-200 rounded-lg shadow-xl">
+          {groups.length === 0 && <p className="px-3 py-2 text-xs text-gray-400">No matches</p>}
+          {groups.map((g) => (
+            <div key={g.group}>
+              <p className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wide bg-gray-50 sticky top-0">{g.group}</p>
+              {g.items.map((o) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  onMouseDown={(e) => { e.preventDefault(); onSelect(o.value); setQuery(""); setOpen(false); }}
+                  className="block w-full text-left px-3 py-1.5 text-xs hover:bg-navy/5"
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -161,6 +221,15 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
   const totalSum = filtered.reduce((s, r) => s + (r.total ?? 0), 0);
   const cls = "w-full border-2 border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-navy";
 
+  // Searchable item options for the entry combobox
+  const itemOptions: ComboOption[] = [
+    ...catalog.map((c) => ({ value: c.stockNo, label: c.name ? `${c.stockNo} — ${c.name}` : c.stockNo, group: "Boots & Apparel" })),
+    ...Object.keys(EXTRA_APPAREL).filter((k) => !catalog.some((c) => c.stockNo === k))
+      .map((k) => ({ value: k, label: k, group: "Boots & Apparel" })),
+    ...SIZED_ITEMS.map((s) => ({ value: s, label: s, group: "Insoles & Footbeds" })),
+    ...[...PLAIN_ITEMS, LACES, SHOE_HORN, CUSTOM].map((s) => ({ value: s, label: s, group: "Services & Accessories" })),
+  ];
+
   // Group by year, newest first (filtered is already sorted newest → oldest)
   const searching = !!search;
   const yearGroups: { year: string; rows: SaleRow[]; total: number }[] = [];
@@ -250,22 +319,11 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
 
           <div>
             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Stock # / Item</label>
-            <select value={sn}
-              onChange={(e) => setForm((f) => ({ ...f, stockNo: e.target.value, size: "", width: "", qty: "1", customDesc: "" }))}
-              className={cls}>
-              <option value="">Select…</option>
-              <optgroup label="Boots & Apparel">
-                {catalog.map((c) => <option key={c.stockNo} value={c.stockNo}>{c.stockNo}</option>)}
-                {Object.keys(EXTRA_APPAREL).filter((k) => !catalog.some((c) => c.stockNo === k))
-                  .map((k) => <option key={k} value={k}>{k}</option>)}
-              </optgroup>
-              <optgroup label="Insoles & Footbeds">
-                {SIZED_ITEMS.map((s) => <option key={s} value={s}>{s}</option>)}
-              </optgroup>
-              <optgroup label="Services & Accessories">
-                {[...PLAIN_ITEMS, LACES, SHOE_HORN, CUSTOM].map((s) => <option key={s} value={s}>{s}</option>)}
-              </optgroup>
-            </select>
+            <ItemCombobox
+              value={sn}
+              options={itemOptions}
+              onSelect={(v) => setForm((f) => ({ ...f, stockNo: v, size: "", width: "", qty: "1", customDesc: "" }))}
+            />
           </div>
 
           {isCustom && (
