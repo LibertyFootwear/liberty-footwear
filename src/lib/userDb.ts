@@ -66,14 +66,12 @@ function mapRow(row: Record<string, unknown>): User {
 }
 
 export async function getUserByEmail(email: string): Promise<User | undefined> {
-  // Escape LIKE wildcards so user input can't act as a search pattern
-  // (e.g. "%" matching every account, or "a_b" matching "axb").
-  const safe = email.replace(/[\\%_]/g, "\\$&");
+  const normalized = email.toLowerCase().trim();
   const { data } = await getSupabase()
     .from("users")
     .select("*")
-    .ilike("email", safe)
-    .single();
+    .eq("email", normalized)
+    .maybeSingle();
   return data ? mapRow(data) : undefined;
 }
 
@@ -87,7 +85,7 @@ export async function createUser(data: Omit<User, "id" | "favorites" | "createdA
   const row = {
     id,
     name: data.name,
-    email: data.email,
+    email: data.email.toLowerCase().trim(),
     phone: data.phone,
     password_hash: data.passwordHash,
     favorites: [],
@@ -110,7 +108,7 @@ export async function updateUser(
 ): Promise<void> {
   const update: Record<string, unknown> = {};
   if (fields.name !== undefined) update.name = fields.name;
-  if (fields.email !== undefined) update.email = fields.email;
+  if (fields.email !== undefined) update.email = fields.email.toLowerCase().trim();
   if (fields.phone !== undefined) update.phone = fields.phone;
   if (fields.newsletter !== undefined) update.newsletter = fields.newsletter;
   if (fields.passwordHash !== undefined) update.password_hash = fields.passwordHash;

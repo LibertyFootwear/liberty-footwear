@@ -20,12 +20,12 @@ function mapRow(row: Record<string, unknown>): Admin {
 }
 
 export async function getAdminByEmail(email: string): Promise<Admin | undefined> {
-  const safe = email.replace(/[\\%_]/g, "\\$&");
+  const normalized = email.toLowerCase().trim();
   const { data } = await getSupabase()
     .from("admins")
     .select("*")
-    .ilike("email", safe)
-    .single();
+    .eq("email", normalized)
+    .maybeSingle();
   return data ? mapRow(data) : undefined;
 }
 
