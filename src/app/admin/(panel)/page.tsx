@@ -58,11 +58,16 @@ export default async function AdminDashboard() {
     const label = d.toLocaleString("en-US", { month: "short", year: "2-digit" });
     monthly.push({ key, label, revenue: 0, orders: 0 });
   }
-  for (const o of allOrders) {
-    if (o.status === "cancelled") continue;
+  for (const o of live) {
     const key = (o.created_at ?? "").slice(0, 7);
     const m = monthly.find((x) => x.key === key);
     if (m) { m.revenue += o.total ?? 0; m.orders += 1; }
+  }
+  // Fold in the in-store retail-sales log (dated rows, the bulk of store revenue).
+  for (const r of retail) {
+    const key = (r.sale_date ?? "").slice(0, 7);
+    const m = monthly.find((x) => x.key === key);
+    if (m) { m.revenue += r.total ?? 0; m.orders += 1; }
   }
   const maxRevenue = Math.max(1, ...monthly.map((m) => m.revenue));
   const thisMonth = monthly[monthly.length - 1];
@@ -133,7 +138,7 @@ export default async function AdminDashboard() {
 
       {/* Monthly chart */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-8">
-        <h2 className="font-black text-navy mb-6">Revenue — Last 6 Months</h2>
+        <h2 className="font-black text-navy mb-6">Revenue — Last 6 Months <span className="text-gray-400 font-semibold text-sm">· web + store</span></h2>
         <div className="flex items-end justify-between gap-3 h-48">
           {monthly.map((m) => (
             <div key={m.key} className="flex-1 flex flex-col items-center justify-end h-full">
