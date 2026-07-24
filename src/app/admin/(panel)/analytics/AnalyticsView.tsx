@@ -46,7 +46,9 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
 
   const hasWidth = widths.some(([, v]) => v > 0);
   const hasMonth = MONTHS.some((m) => (agg.byMonth[m] ?? 0) > 0);
-  const hasHour = agg.hasHour && Object.keys(agg.byHour).length > 0;
+  // Hour-of-day is only meaningful where records carry a timestamp (web orders).
+  // In-store retail sales are dated only, so hide it on the retail tab.
+  const hasHour = agg.hasHour && Object.keys(agg.byHour).length > 0 && active !== "retail";
 
   return (
     <div className="p-8 space-y-8">
