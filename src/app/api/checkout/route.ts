@@ -10,6 +10,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-06-24.dahlia",
 });
 
+// 6% Michigan sales tax — created once per Stripe mode, then reused.
+let cachedTaxRateId: string | null = null;
+async function getMiTaxRateId(): Promise<string> {
+  if (cachedTaxRateId) return cachedTaxRateId;
+  const existing = await stripe.taxRates.list({ active: true, limit: 100 });
+  const found = existing.data.find((r) => r.metadata?.lf === "mi6");
+  if (found) return (cachedTaxRateId = found.id);
+  const created = await stripe.taxRates.create({
+    display_name: "Sales Tax",
+    description: "Michigan Sales Tax",
+    percentage: 6,
+    inclusive: false,
+    metadata: { lf: "mi6" },
+  });
+  return (cachedTaxRateId = created.id);
+}
+
 export async function POST(req: NextRequest) {
   const { items, shippingMethod, billing } = await req.json() as {
     items: { stockNo: string; name: string; size?: string; price: number; qty: number }[];
@@ -33,6 +50,8 @@ export async function POST(req: NextRequest) {
   const hasApparel = validatedItems.some((it) => products.find((p) => p.stockNo === it.stockNo)?.category === "Apparel");
   const chargeApparelShipping = shippingMethod !== "pickup" && hasApparel && !hasBoot;
 
+  const taxRateId = await getMiTaxRateId();
+
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
@@ -43,6 +62,7 @@ export async function POST(req: NextRequest) {
         product_data: { name: item.name, metadata: { stockNo: item.stockNo, size: item.size } },
       },
       quantity: item.qty,
+      tax_rates: [taxRateId],
     })),
     shipping_options: [
       shippingMethod === "pickup"
