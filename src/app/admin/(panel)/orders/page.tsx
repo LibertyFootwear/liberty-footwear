@@ -28,9 +28,9 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
 
   const orders = data ?? [];
 
-  // Board = web orders that need fulfilment (store point-of-sale sales are already complete).
+  // Board = web orders that need fulfilment (store point-of-sale + archived are excluded).
   const boardOrders: BoardOrder[] = orders
-    .filter((o) => o.source !== "store" && o.shipping_method !== "store" && o.status !== "cancelled")
+    .filter((o) => o.source !== "store" && o.shipping_method !== "store" && o.status !== "cancelled" && !o.archived)
     .map((o) => ({
       id: o.id, created_at: o.created_at, total: o.total, status: o.status,
       source: o.source, shipping_name: o.shipping_name, shipping_method: o.shipping_method,
@@ -106,7 +106,10 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
                   <td className="px-5 py-3 text-gray-600">{(o.items as unknown[])?.length ?? 0} items</td>
                   <td className="px-5 py-3 font-black text-gray-900">${o.total?.toFixed(2)}</td>
                   <td className="px-5 py-3">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_COLOR[o.status] ?? "bg-gray-100 text-gray-600"}`}>{o.status}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_COLOR[o.status] ?? "bg-gray-100 text-gray-600"}`}>{o.status}</span>
+                      {o.archived && <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">📁 filed</span>}
+                    </div>
                   </td>
                   <td className="px-5 py-3">
                     <Link href={`/admin/orders/${o.id}`} className="text-xs font-bold text-navy hover:text-red transition">Detail →</Link>

@@ -15,6 +15,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
   if (body.carrier !== undefined) update.carrier = String(body.carrier).trim() || null;
   if (body.trackingNumber !== undefined) update.tracking_number = String(body.trackingNumber).trim() || null;
+  if (body.archived !== undefined) update.archived = Boolean(body.archived);
 
   if (Object.keys(update).length === 0) return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   await getSupabase().from("orders").update(update).eq("id", id);

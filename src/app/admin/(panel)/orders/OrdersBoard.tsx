@@ -52,6 +52,18 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
     setOverCol(null);
   }
 
+  async function archive(id: string) {
+    setBusy(id);
+    setOrders((prev) => prev.filter((o) => o.id !== id)); // leaves the board
+    await fetch(`/api/admin/orders/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ archived: true }),
+    });
+    setBusy(null);
+    router.refresh();
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       {COLUMNS.map((col) => {
@@ -107,7 +119,13 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
                           {busy === o.id ? "…" : `${NEXT_LABEL[o.status]} →`}
                         </button>
                       ) : (
-                        <span className="flex-1 text-[11px] text-green-600 font-bold text-center py-1.5">✓ Complete</span>
+                        <button
+                          onClick={() => archive(o.id)}
+                          disabled={busy === o.id}
+                          className="flex-1 px-2 py-1.5 bg-green-600 text-white text-[11px] font-bold rounded-md hover:bg-green-700 transition disabled:opacity-50"
+                        >
+                          {busy === o.id ? "…" : "✓ File as done"}
+                        </button>
                       )}
                       <Link href={`/admin/orders/${o.id}`} className="px-2 py-1.5 border border-gray-200 text-navy text-[11px] font-bold rounded-md hover:border-navy transition">
                         Detail
