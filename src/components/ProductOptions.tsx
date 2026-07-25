@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Product, parseSizes } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 
 const LEATHER_COLORS: Record<string, string> = {
   "Jet Black":  "#1a1a1a",
@@ -47,6 +48,8 @@ export default function ProductOptions({ product, variants }: Props) {
   const router = useRouter();
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
+  const siteSettings = useSiteSettings();
+  const salesPaused = siteSettings ? !siteSettings.salesEnabled : false;
 
   const isApparel = !!product.apparelSizes?.length;
 
@@ -225,19 +228,28 @@ export default function ProductOptions({ product, variants }: Props) {
         </div>
       </div>
 
-      {/* Add to Cart */}
-      <button
-        type="button"
-        onClick={handleAdd}
-        disabled={!sizeLabel}
-        className={`w-full py-4 rounded-lg font-bold text-base uppercase tracking-wide transition ${
-          sizeLabel
-            ? "bg-red hover:bg-red-dark text-white"
-            : "bg-gray-200 text-gray-400 cursor-not-allowed"
-        }`}
-      >
-        {sizeLabel ? `Add to Cart — ${sizeLabel}` : "Select a Size"}
-      </button>
+      {/* Add to Cart — or paused notice when online ordering is stopped */}
+      {salesPaused ? (
+        <div className="space-y-3">
+          <span className="w-full py-4 rounded-lg font-bold text-base uppercase tracking-wide bg-gray-200 text-gray-400 text-center block cursor-not-allowed">
+            Ordering Paused
+          </span>
+          <SalesPausedBanner settings={siteSettings} />
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={!sizeLabel}
+          className={`w-full py-4 rounded-lg font-bold text-base uppercase tracking-wide transition ${
+            sizeLabel
+              ? "bg-red hover:bg-red-dark text-white"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+          }`}
+        >
+          {sizeLabel ? `Add to Cart — ${sizeLabel}` : "Select a Size"}
+        </button>
+      )}
 
       {/* Toast */}
       <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${added ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}>

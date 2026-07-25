@@ -21,6 +21,7 @@ export interface Order {
   id: string;
   stripeSessionId: string;
   userId?: string;
+  customerId?: string;
   items: OrderItem[];
   total: number;
   status: "paid" | "processing" | "shipped" | "delivered";
@@ -38,6 +39,7 @@ function mapRow(row: Record<string, unknown>): Order {
     id: row.id as string,
     stripeSessionId: row.stripe_session_id as string,
     userId: (row.user_id as string) ?? undefined,
+    customerId: (row.customer_id as string) ?? undefined,
     items: row.items as OrderItem[],
     total: row.total as number,
     status: row.status as Order["status"],
@@ -85,6 +87,7 @@ export async function saveOrder(order: Order): Promise<void> {
     id: order.id,
     stripe_session_id: order.stripeSessionId,
     user_id: order.userId ?? null,
+    customer_id: order.customerId ?? null,
     items: order.items,
     total: order.total,
     status: order.status,

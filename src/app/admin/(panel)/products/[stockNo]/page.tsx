@@ -18,9 +18,14 @@ export default async function AdminProductEdit({ params }: { params: Promise<{ s
 
   return (
     <div className="p-8 max-w-2xl">
-      <div className="flex items-center gap-4 mb-8">
+      <div className="mb-8">
         <Link href="/admin/products" className="text-sm text-gray-400 hover:text-navy transition">← Products</Link>
-        <h1 className="text-2xl font-black text-navy">{p.name} — {p.colorLeather}</h1>
+        <div className="flex flex-wrap items-center gap-3 mt-3">
+          <h1 className="text-2xl font-black text-navy">{p.name} — {p.colorLeather}</h1>
+          <span className="inline-flex items-center gap-1.5 bg-navy/10 text-navy text-xs font-bold px-2.5 py-1 rounded-md font-mono">
+            Stock #: {p.stockNo}
+          </span>
+        </div>
       </div>
 
       <ProductEditForm

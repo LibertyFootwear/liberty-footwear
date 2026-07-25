@@ -36,7 +36,7 @@ export const translations = {
     featured: {
       tag: "Our Collection",
       h2: "Featured Boots",
-      viewAll: "View All →",
+      viewAll: "View All",
     },
     whyUs: {
       h2: "Why Liberty Footwear?",
@@ -163,7 +163,7 @@ export const translations = {
     featured: {
       tag: "Nuestra Colección",
       h2: "Botas Destacadas",
-      viewAll: "Ver todo →",
+      viewAll: "Ver todo",
     },
     whyUs: {
       h2: "¿Por Qué Liberty Footwear?",

@@ -68,8 +68,9 @@ export default function ProductEditForm({
           <input
             type="number"
             min={0}
-            value={form.price}
-            onChange={(e) => set("price", parseFloat(e.target.value) || 0)}
+            value={form.price === 0 ? "" : form.price}
+            placeholder="0"
+            onChange={(e) => set("price", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
             className="w-32 border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold focus:outline-none focus:border-navy transition"
           />
           {form.price !== original.price && (

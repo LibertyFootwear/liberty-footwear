@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { getCatalogPrice } from "@/lib/catalog";
 import { products } from "@/data/products";
 import { getAuthUserId } from "@/lib/authJwt";
+import { getSiteSettings } from "@/lib/siteSettings";
 
 const APPAREL_SHIPPING_CENTS = 800; // $8 flat when the order is apparel-only
 
@@ -35,6 +36,16 @@ export async function POST(req: NextRequest) {
   };
 
   if (!items?.length) return NextResponse.json({ error: "No items" }, { status: 400 });
+
+  // Kill-switch: refuse new orders when online sales are paused in admin settings.
+  const settings = await getSiteSettings();
+  if (!settings.salesEnabled) {
+    return NextResponse.json(
+      { error: "sales_paused", message: settings.pausedMessage, phone: settings.contactPhone },
+      { status: 403 }
+    );
+  }
+
   const userId = await getAuthUserId();
 
   // Validate prices server-side — never trust client price (uses admin-edited catalog price)

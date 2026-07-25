@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getUserByEmail, createUser } from "@/lib/userDb";
+import { tryUpsertCustomer } from "@/lib/customersDb";
 import { signToken, setAuthCookie } from "@/lib/authJwt";
 import { checkRateLimit, clientIp } from "@/lib/rateLimit";
 
@@ -38,6 +39,17 @@ export async function POST(req: NextRequest) {
       zip: address.zip.trim(),
       country: (address.country || "US").trim(),
     },
+  });
+
+  // Register the new account holder in the unified customer registry (not a purchase yet).
+  await tryUpsertCustomer({
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    address: user.address,
+    userId: user.id,
+    source: "web",
+    isPurchase: false,
   });
 
   const token = await signToken({ userId: user.id });

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
+import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 
 const POPULAR = products.filter((p) => p.image).slice(0, 4);
 
@@ -19,6 +20,8 @@ const COUPONS: Record<string, number> = {
 export default function CartPage() {
   const { items, subtotal, removeItem, increment, decrement } = useCart();
   const { user } = useAuth();
+  const siteSettings = useSiteSettings();
+  const salesPaused = siteSettings ? !siteSettings.salesEnabled : false;
   const [shippingMethod, setShippingMethod] = useState<"ship" | "pickup">("ship");
 
   const [couponInput, setCouponInput] = useState("");
@@ -288,12 +291,21 @@ export default function CartPage() {
                   <span>${total.toFixed(2)}</span>
                 </div>
               </div>
-              <Link
-                href={`/checkout?shipping=${shippingMethod}${appliedCoupon ? `&coupon=${appliedCoupon}` : ""}`}
-                className="w-full py-4 text-base font-bold rounded-lg uppercase tracking-wide transition bg-amber-500 hover:bg-amber-400 text-white shadow-lg text-center block"
-              >
-                Proceed to Checkout →
-              </Link>
+              {salesPaused ? (
+                <div className="space-y-3">
+                  <span className="w-full py-4 text-base font-bold rounded-lg uppercase tracking-wide bg-gray-200 text-gray-400 text-center block cursor-not-allowed">
+                    Ordering Paused
+                  </span>
+                  <SalesPausedBanner settings={siteSettings} />
+                </div>
+              ) : (
+                <Link
+                  href={`/checkout?shipping=${shippingMethod}${appliedCoupon ? `&coupon=${appliedCoupon}` : ""}`}
+                  className="w-full py-4 text-base font-bold rounded-lg uppercase tracking-wide transition bg-amber-500 hover:bg-amber-400 text-white shadow-lg text-center block"
+                >
+                  Proceed to Checkout →
+                </Link>
+              )}
             </div>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, Suspense, createContext, useContext } from "react";
+import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 
 interface FieldCtx {
   form: Record<string, string | boolean>;
@@ -85,6 +86,8 @@ function CheckoutForm() {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const siteSettings = useSiteSettings();
+  const salesPaused = siteSettings ? !siteSettings.salesEnabled : false;
 
   // Prefill from the logged-in account once it loads (only empty fields, don't clobber typing).
   useEffect(() => {
@@ -196,7 +199,10 @@ function CheckoutForm() {
     });
     const data = await res.json();
     if (data.url) window.location.href = data.url;
-    else { alert("Checkout error. Please try again."); setLoading(false); }
+    else if (data.error === "sales_paused") {
+      alert(`${data.message}${data.phone ? `\n\nCall us: ${data.phone}` : ""}`);
+      setLoading(false);
+    } else { alert("Checkout error. Please try again."); setLoading(false); }
   }
 
   if (items.length === 0) {
@@ -425,14 +431,25 @@ function CheckoutForm() {
                   </div>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-4 text-base font-bold rounded-xl uppercase tracking-wide transition bg-amber-500 hover:bg-amber-400 text-white shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {loading ? "Redirecting…" : "Continue to Payment →"}
-                </button>
-                <p className="text-xs text-gray-400 text-center mt-3">You&apos;ll be redirected to Stripe for secure payment.</p>
+                {salesPaused ? (
+                  <div className="space-y-3">
+                    <span className="w-full py-4 text-base font-bold rounded-xl uppercase tracking-wide bg-gray-200 text-gray-400 text-center block cursor-not-allowed">
+                      Ordering Paused
+                    </span>
+                    <SalesPausedBanner settings={siteSettings} />
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-4 text-base font-bold rounded-xl uppercase tracking-wide transition bg-amber-500 hover:bg-amber-400 text-white shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {loading ? "Redirecting…" : "Continue to Payment →"}
+                    </button>
+                    <p className="text-xs text-gray-400 text-center mt-3">You&apos;ll be redirected to Stripe for secure payment.</p>
+                  </>
+                )}
               </div>
             </div>
           </div>

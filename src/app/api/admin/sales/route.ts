@@ -1,6 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { assertAdmin } from "@/lib/adminAuth";
+import { tryUpsertCustomer } from "@/lib/customersDb";
+
+/** Register the sale's customer in the unified registry (deduped by email/phone). */
+async function upsertSaleCustomer(b: Record<string, unknown>): Promise<string | undefined> {
+  const name = b.customerName ? String(b.customerName).trim() : undefined;
+  const phone = b.phone ? String(b.phone).trim() : undefined;
+  const email = b.customerEmail ? String(b.customerEmail).trim() : undefined;
+  if (!name && !phone && !email) return undefined;
+  return tryUpsertCustomer({
+    name,
+    phone,
+    email,
+    employer: b.customerEmployer ? String(b.customerEmployer).trim() : undefined,
+    referralSource: b.referralSource ? String(b.referralSource).trim() : undefined,
+    source: "store",
+    purchaseAt: b.saleDate ? new Date(String(b.saleDate) + "T12:00:00").toISOString() : undefined,
+  });
+}
 
 export async function POST(req: NextRequest) {
   try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
@@ -8,7 +26,9 @@ export async function POST(req: NextRequest) {
   if (!b.saleDate || !b.stockNo?.trim()) {
     return NextResponse.json({ error: "Date and Stock # are required" }, { status: 400 });
   }
+  const customerId = await upsertSaleCustomer(b);
   const { data, error } = await getSupabase().from("retail_sales").insert({
+    customer_id: customerId ?? null,
     sale_date: b.saleDate,
     stock_no: String(b.stockNo).trim(),
     size: b.size ? String(b.size).trim() : null,
@@ -36,7 +56,9 @@ export async function PATCH(req: NextRequest) {
   if (!b.saleDate || !b.stockNo?.trim()) {
     return NextResponse.json({ error: "Date and Stock # are required" }, { status: 400 });
   }
+  const customerId = await upsertSaleCustomer(b);
   const { error } = await getSupabase().from("retail_sales").update({
+    customer_id: customerId ?? null,
     sale_date: b.saleDate,
     stock_no: String(b.stockNo).trim(),
     size: b.size ? String(b.size).trim() : null,

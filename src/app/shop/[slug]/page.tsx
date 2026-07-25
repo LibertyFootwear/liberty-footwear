@@ -4,6 +4,10 @@ import { notFound } from "next/navigation";
 import ProductPageClient from "@/components/ProductPageClient";
 import type { Metadata } from "next";
 
+// Render on every request so admin price / description overrides show immediately
+// (matches the shop listing). Without this the page is statically cached and stays stale.
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ slug: string }>;
 }

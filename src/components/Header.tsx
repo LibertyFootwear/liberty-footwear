@@ -10,7 +10,7 @@ import { useState } from "react";
 export default function Header() {
   const { itemCount } = useCart();
   const { user } = useAuth();
-  const { lang, setLang, t } = useLang();
+  const { t } = useLang();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -40,15 +40,15 @@ export default function Header() {
 
           {/* Icons */}
           <div className="flex items-center gap-4">
-            {/* Language switcher */}
-            <button
+            {/* Language switcher — hidden until Spanish translation is ready */}
+            {/* <button
               type="button"
               onClick={() => setLang(lang === "en" ? "es" : "en")}
               className="hidden md:block text-xs font-bold border border-white/40 hover:border-white hover:bg-white/10 px-3 py-1.5 rounded-md transition cursor-pointer select-none"
               aria-label="Switch language"
             >
               {lang === "en" ? "ES" : "EN"}
-            </button>
+            </button> */}
             {/* Account */}
             <Link href={user ? "/account" : "/account/login"} className="hover:text-tan transition relative" aria-label="My account">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -97,12 +97,13 @@ export default function Header() {
             <Link href={user ? "/account" : "/account/login"} onClick={() => setMenuOpen(false)} className="hover:text-tan">
               {user ? `${t.nav.myAccount} (${user.name.split(" ")[0]})` : t.nav.signIn}
             </Link>
-            <button
+            {/* Language switcher — hidden until Spanish translation is ready */}
+            {/* <button
               onClick={() => setLang(lang === "en" ? "es" : "en")}
               className="text-left text-sm font-bold tracking-widest uppercase text-white/70 hover:text-white transition"
             >
               {lang === "en" ? "Español" : "English"}
-            </button>
+            </button> */}
           </div>
         )}
       </div>

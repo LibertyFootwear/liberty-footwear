@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { assertAdmin } from "@/lib/adminAuth";
+import { sendOrderStatusEmail, type OrderStatus } from "@/lib/orderEmail";
+import type { OrderItem } from "@/lib/ordersDb";
+
+// Statuses that notify the customer by email when newly set.
+const EMAIL_STATUSES: OrderStatus[] = ["processing", "shipped", "delivered", "cancelled"];
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
@@ -18,6 +23,38 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.archived !== undefined) update.archived = Boolean(body.archived);
 
   if (Object.keys(update).length === 0) return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
-  await getSupabase().from("orders").update(update).eq("id", id);
+
+  const sb = getSupabase();
+
+  // Load the current order so we can tell whether the status actually changed and
+  // gather the details (customer email, items, tracking) needed for the email.
+  const { data: before } = await sb
+    .from("orders")
+    .select("status, shipping_name, shipping_email, items, total, carrier, tracking_number")
+    .eq("id", id)
+    .single();
+
+  await sb.from("orders").update(update).eq("id", id);
+
+  // Notify the customer only when the status transitions to a new email-worthy value.
+  const newStatus = update.status as OrderStatus | undefined;
+  const statusChanged = newStatus && before && newStatus !== before.status;
+  if (statusChanged && EMAIL_STATUSES.includes(newStatus) && before.shipping_email) {
+    try {
+      await sendOrderStatusEmail({
+        to: before.shipping_email as string,
+        name: (before.shipping_name as string) ?? undefined,
+        orderId: id,
+        status: newStatus,
+        items: (before.items as OrderItem[]) ?? undefined,
+        total: (before.total as number) ?? undefined,
+        carrier: (body.carrier as string) ?? (before.carrier as string) ?? undefined,
+        trackingNumber: (body.trackingNumber as string) ?? (before.tracking_number as string) ?? undefined,
+      });
+    } catch (err) {
+      console.error("Order status email failed (status still updated):", err);
+    }
+  }
+
   return NextResponse.json({ ok: true });
 }

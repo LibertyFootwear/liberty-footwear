@@ -3,6 +3,7 @@ import { getSupabase } from "@/lib/supabase";
 import { assertAdmin } from "@/lib/adminAuth";
 import { getCatalogPrice } from "@/lib/catalog";
 import { decrementInventory } from "@/lib/inventoryDb";
+import { tryUpsertCustomer } from "@/lib/customersDb";
 
 interface InItem { stockNo: string; size: string; qty: number; price: number }
 
@@ -29,10 +30,21 @@ export async function POST(req: NextRequest) {
 
   const createdAt = date ? new Date(date + "T12:00:00").toISOString() : new Date().toISOString();
 
+  // Log the in-store buyer into the unified customer registry (deduped by phone).
+  const customerId = (customerName?.trim() || customerPhone?.trim())
+    ? await tryUpsertCustomer({
+        name: customerName?.trim(),
+        phone: customerPhone?.trim(),
+        source: "store",
+        purchaseAt: createdAt,
+      })
+    : undefined;
+
   const { data, error } = await getSupabase().from("orders").insert({
     id: crypto.randomUUID(),
     stripe_session_id: `store-${crypto.randomUUID()}`,
     user_id: null,
+    customer_id: customerId ?? null,
     items: lineItems,
     total: Math.round(total * 100) / 100,
     status: "delivered",
