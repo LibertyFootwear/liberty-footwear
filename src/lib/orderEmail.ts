@@ -1,9 +1,8 @@
 import { readFileSync } from "fs";
 import path from "path";
-import { Resend } from "resend";
+import { sendMail, type MailAttachment } from "./mailer";
 import { trackingUrl, type OrderItem } from "./ordersDb";
 
-const FROM = process.env.ORDER_EMAIL_FROM || "Liberty Footwear <info@libertyfootwear.com>";
 const NAVY = "#0b3154";
 const RED = "#d1282a";
 const LOGO_CID = "lf-logo";
@@ -122,26 +121,18 @@ export function buildOrderEmailHtml(o: OrderConfirmationEmail): string {
  * a mail hiccup never breaks order fulfillment.
  */
 export async function sendOrderConfirmationEmail(o: OrderConfirmationEmail): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("RESEND_API_KEY not set — skipping order confirmation email");
-    return;
-  }
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
   const logo = getLogoBase64();
-  const attachments: { filename: string; content: string; content_id?: string; content_type?: string }[] = [];
-  if (logo) attachments.push({ filename: "logo.png", content: logo, content_id: LOGO_CID, content_type: "image/png" });
-  if (o.invoicePdf) attachments.push({ filename: o.invoicePdf.filename, content: o.invoicePdf.base64, content_type: "application/pdf" });
+  const attachments: MailAttachment[] = [];
+  if (logo) attachments.push({ filename: "logo.png", content: Buffer.from(logo, "base64"), cid: LOGO_CID, contentType: "image/png" });
+  if (o.invoicePdf) attachments.push({ filename: o.invoicePdf.filename, content: Buffer.from(o.invoicePdf.base64, "base64"), contentType: "application/pdf" });
 
-  const { error } = await resend.emails.send({
-    from: o.from ?? FROM,
+  await sendMail({
     to: o.to,
+    from: o.from,
     subject: `Your Liberty Footwear order #${o.orderId.slice(0, 8)}`,
     html: buildOrderEmailHtml({ ...o, logoSrc: logo ? `cid:${LOGO_CID}` : undefined }),
-    ...(attachments.length ? { attachments } : {}),
+    attachments,
   });
-  // Resend reports failures in the return value, not by throwing — surface them.
-  if (error) throw new Error(`Resend error: ${error.name} — ${error.message}`);
 }
 
 // ── Order status updates (sent from the admin panel) ────────────────────────
@@ -219,23 +210,16 @@ export function buildStatusEmailHtml(o: OrderStatusEmail): string {
  * blocks the status update itself.
  */
 export async function sendOrderStatusEmail(o: OrderStatusEmail): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("RESEND_API_KEY not set — skipping order status email");
-    return;
-  }
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
   const logo = getLogoBase64();
-  const attachments = logo
-    ? [{ filename: "logo.png", content: logo, content_id: LOGO_CID, content_type: "image/png" }]
+  const attachments: MailAttachment[] = logo
+    ? [{ filename: "logo.png", content: Buffer.from(logo, "base64"), cid: LOGO_CID, contentType: "image/png" }]
     : [];
 
-  const { error } = await resend.emails.send({
-    from: o.from ?? FROM,
+  await sendMail({
     to: o.to,
+    from: o.from,
     subject: STATUS_COPY[o.status].subject(o.orderId.slice(0, 8)),
     html: buildStatusEmailHtml({ ...o, logoSrc: logo ? `cid:${LOGO_CID}` : undefined }),
-    ...(attachments.length ? { attachments } : {}),
+    attachments,
   });
-  if (error) throw new Error(`Resend error: ${error.name} — ${error.message}`);
 }

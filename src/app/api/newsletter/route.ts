@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import { sendMail } from "@/lib/mailer";
 import { addSubscriber } from "@/lib/newsletterDb";
 import { checkRateLimit, clientIp } from "@/lib/rateLimit";
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function POST(req: NextRequest) {
   if (!checkRateLimit(`newsletter:${clientIp(req)}`, 5, 60_000)) {
@@ -18,8 +16,7 @@ export async function POST(req: NextRequest) {
   try { await addSubscriber(email); } catch (err) { console.error("newsletter save failed", err); }
 
   try {
-    await resend.emails.send({
-      from: "Liberty Footwear <info@libertyfootwear.com>",
+    await sendMail({
       to: email,
       subject: "Welcome to Liberty Footwear",
       html: `
@@ -41,8 +38,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Also notify the shop owner
-    await resend.emails.send({
-      from: "Liberty Footwear <info@libertyfootwear.com>",
+    await sendMail({
       to: "info@libertyfootwear.com",
       subject: `New newsletter subscriber: ${email}`,
       html: `<p>New subscriber: <strong>${email}</strong></p>`,

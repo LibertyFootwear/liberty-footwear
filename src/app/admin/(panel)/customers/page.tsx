@@ -94,11 +94,7 @@ export default async function AdminCustomers() {
                     {c.last_purchase_at ? new Date(c.last_purchase_at).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-5 py-3">
-                    {c.user_id ? (
-                      <Link href={`/admin/customers/${c.user_id}`} className="text-xs font-bold text-navy hover:text-red transition">Detail →</Link>
-                    ) : (
-                      <span className="text-xs text-gray-300">—</span>
-                    )}
+                    <Link href={`/admin/customers/view/${c.id}`} className="text-xs font-bold text-navy hover:text-red transition">Detail →</Link>
                   </td>
                 </tr>
               );

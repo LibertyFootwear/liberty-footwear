@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import { sendMail } from "@/lib/mailer";
 import { checkRateLimit, clientIp } from "@/lib/rateLimit";
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
 
 function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -22,8 +20,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   if (!message || message.length > 10000) return NextResponse.json({ error: "Message too long" }, { status: 400 });
 
-  await resend.emails.send({
-    from: "Liberty Footwear Website <info@libertyfootwear.com>",
+  await sendMail({
     to: "info@libertyfootwear.com",
     replyTo: email,
     subject: `Contact form: ${esc(subject || "No subject")} – from ${esc(name)}`,
