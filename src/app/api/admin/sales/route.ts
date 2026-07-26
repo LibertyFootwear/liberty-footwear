@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { assertAdmin } from "@/lib/adminAuth";
 import { tryUpsertCustomer } from "@/lib/customersDb";
-import { incrementInventory } from "@/lib/inventoryDb";
+import { incrementInventory, decrementInventory } from "@/lib/inventoryDb";
 
 /** Register the sale's customer in the unified registry (deduped by email/phone). */
 async function upsertSaleCustomer(b: Record<string, unknown>): Promise<string | undefined> {
@@ -50,18 +50,17 @@ export async function POST(req: NextRequest) {
 
   // A return (negative total) puts the item back on the shelf — add it to inventory
   // if that SKU + size is tracked (untracked combos are skipped).
+  // Inventory keys boots by "<width> <number>" (e.g. "M 9"); the sales form stores
+  // width + size separately, so recombine to match. Non-boot rows (no width / no
+  // inventory row) are harmlessly skipped by inc/decrementInventory.
   const totalNum = typeof b.total === "number" ? b.total : parseFloat(b.total);
   const isReturn = b.isReturn === true || (Number.isFinite(totalNum) && totalNum < 0);
-  if (isReturn && b.size) {
-    // Inventory keys boots by "<width> <number>" (e.g. "M 9"); the sales form
-    // stores width + size separately, so recombine to match. Non-boot returns
-    // have no width and no inventory row, so they're harmlessly skipped.
+  if (b.size) {
     const size = b.width ? `${String(b.width).trim()} ${String(b.size).trim()}` : String(b.size).trim();
-    await incrementInventory([{
-      stockNo: String(b.stockNo).trim(),
-      size,
-      qty: Math.max(1, parseInt(b.qty) || 1),
-    }]);
+    const item = { stockNo: String(b.stockNo).trim(), size, qty: Math.max(1, parseInt(b.qty) || 1) };
+    // A return puts the item back on the shelf; a normal sale takes it off.
+    if (isReturn) await incrementInventory([item]);
+    else await decrementInventory([item]);
   }
 
   return NextResponse.json({ ok: true, id: data?.id });
