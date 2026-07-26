@@ -24,3 +24,28 @@ export async function decrementInventory(items: { stockNo: string; size?: string
       .eq("size", item.size);
   }
 }
+
+/**
+ * Add finished-boot inventory back for returned items.
+ * Mirror of {@link decrementInventory}: only touches rows that already exist
+ * (untracked SKU/size combos are skipped), so it's safe for a manual return log.
+ */
+export async function incrementInventory(items: { stockNo: string; size?: string; qty: number }[]): Promise<void> {
+  const sb = getSupabase();
+  for (const item of items) {
+    if (!item.stockNo || !item.size) continue;
+    const { data: row } = await sb
+      .from("inventory")
+      .select("qty")
+      .eq("stock_no", item.stockNo)
+      .eq("size", item.size)
+      .single();
+    if (!row) continue; // untracked — skip
+    const newQty = (row.qty ?? 0) + item.qty;
+    await sb
+      .from("inventory")
+      .update({ qty: newQty, updated_at: new Date().toISOString() })
+      .eq("stock_no", item.stockNo)
+      .eq("size", item.size);
+  }
+}
