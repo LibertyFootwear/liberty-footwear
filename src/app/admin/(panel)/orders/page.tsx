@@ -52,9 +52,6 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-black text-navy">Orders</h1>
-        <Link href="/admin/orders/new" className="px-4 py-2 bg-navy text-white text-sm font-bold rounded-lg hover:bg-navy/80 transition">
-          + Record Store Sale
-        </Link>
       </div>
 
       {/* View toggle */}
