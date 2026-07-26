@@ -21,6 +21,36 @@ async function upsertSaleCustomer(b: Record<string, unknown>): Promise<string | 
   });
 }
 
+interface StockLine { stockNo: string; size: string; qty: number }
+
+/**
+ * Build an inventory line from a sale's fields. Inventory keys boots by
+ * "<width> <number>" (e.g. "M 9"), but the sales form stores width + size
+ * separately, so recombine to match. Returns null when there's nothing to
+ * adjust (no item or no size) — inc/decrementInventory also skip untracked
+ * SKU/size combos, so non-boot rows are harmlessly no-ops.
+ */
+function stockLine(stockNo?: unknown, size?: unknown, width?: unknown, qty?: unknown): StockLine | null {
+  const sku = stockNo ? String(stockNo).trim() : "";
+  const sz = size ? String(size).trim() : "";
+  if (!sku || !sz) return null;
+  const w = width ? String(width).trim() : "";
+  return { stockNo: sku, size: w ? `${w} ${sz}` : sz, qty: Math.max(1, parseInt(String(qty)) || 1) };
+}
+
+/** True when a row represents a return (negative total, or an explicit flag). */
+function isReturnRow(total: unknown, flag?: unknown): boolean {
+  const n = typeof total === "number" ? total : parseFloat(String(total));
+  return flag === true || (Number.isFinite(n) && n < 0);
+}
+
+/** A sale takes a boot off the shelf; a return puts it back. No-op for null/untracked lines. */
+async function applyStock(line: StockLine | null, isReturn: boolean): Promise<void> {
+  if (!line) return;
+  if (isReturn) await incrementInventory([line]);
+  else await decrementInventory([line]);
+}
+
 export async function POST(req: NextRequest) {
   try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const b = await req.json();
@@ -48,20 +78,7 @@ export async function POST(req: NextRequest) {
   }).select("id").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // A return (negative total) puts the item back on the shelf — add it to inventory
-  // if that SKU + size is tracked (untracked combos are skipped).
-  // Inventory keys boots by "<width> <number>" (e.g. "M 9"); the sales form stores
-  // width + size separately, so recombine to match. Non-boot rows (no width / no
-  // inventory row) are harmlessly skipped by inc/decrementInventory.
-  const totalNum = typeof b.total === "number" ? b.total : parseFloat(b.total);
-  const isReturn = b.isReturn === true || (Number.isFinite(totalNum) && totalNum < 0);
-  if (b.size) {
-    const size = b.width ? `${String(b.width).trim()} ${String(b.size).trim()}` : String(b.size).trim();
-    const item = { stockNo: String(b.stockNo).trim(), size, qty: Math.max(1, parseInt(b.qty) || 1) };
-    // A return puts the item back on the shelf; a normal sale takes it off.
-    if (isReturn) await incrementInventory([item]);
-    else await decrementInventory([item]);
-  }
+  await applyStock(stockLine(b.stockNo, b.size, b.width, b.qty), isReturnRow(b.total, b.isReturn));
 
   return NextResponse.json({ ok: true, id: data?.id });
 }
@@ -73,8 +90,14 @@ export async function PATCH(req: NextRequest) {
   if (!b.saleDate || !b.stockNo?.trim()) {
     return NextResponse.json({ error: "Date and Stock # are required" }, { status: 400 });
   }
+  const sb = getSupabase();
+
+  // Read the pre-edit row so we can undo its old inventory effect before applying the new one.
+  const { data: old } = await sb.from("retail_sales")
+    .select("stock_no, size, width, qty, total").eq("id", b.id).maybeSingle();
+
   const customerId = await upsertSaleCustomer(b);
-  const { error } = await getSupabase().from("retail_sales").update({
+  const { error } = await sb.from("retail_sales").update({
     customer_id: customerId ?? null,
     sale_date: b.saleDate,
     stock_no: String(b.stockNo).trim(),
@@ -93,6 +116,12 @@ export async function PATCH(req: NextRequest) {
     notes: b.notes ? String(b.notes).trim() : null,
   }).eq("id", b.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Reconcile stock: reverse the old row's effect, then apply the edited row's.
+  // (If item/size/qty/type are unchanged these cancel out to a net zero change.)
+  if (old) await applyStock(stockLine(old.stock_no, old.size, old.width, old.qty), !isReturnRow(old.total));
+  await applyStock(stockLine(b.stockNo, b.size, b.width, b.qty), isReturnRow(b.total, b.isReturn));
+
   return NextResponse.json({ ok: true });
 }
 
@@ -100,6 +129,17 @@ export async function DELETE(req: NextRequest) {
   try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
-  await getSupabase().from("retail_sales").delete().eq("id", id);
+  const sb = getSupabase();
+
+  // Read the row first so deleting it can undo its inventory effect.
+  const { data: old } = await sb.from("retail_sales")
+    .select("stock_no, size, width, qty, total").eq("id", id).maybeSingle();
+
+  const { error } = await sb.from("retail_sales").delete().eq("id", id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Reverse the deleted row's stock effect: a sale returns to stock, a return leaves it.
+  if (old) await applyStock(stockLine(old.stock_no, old.size, old.width, old.qty), !isReturnRow(old.total));
+
   return NextResponse.json({ ok: true });
 }
