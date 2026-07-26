@@ -19,17 +19,19 @@ export default async function AdminCustomers() {
   const sales = salesRes.data ?? [];
 
   // Tally purchase counts + spend per customer across both channels.
+  // A retail return (negative total) refunds spend but is not itself a purchase,
+  // so it lowers "Spent" without bumping the purchase count.
   const stats = new Map<string, { count: number; spent: number }>();
-  const add = (cid: unknown, total: unknown) => {
+  const add = (cid: unknown, total: unknown, countable = true) => {
     if (!cid) return;
     const id = cid as string;
     const s = stats.get(id) ?? { count: 0, spent: 0 };
-    s.count += 1;
+    if (countable) s.count += 1;
     s.spent += (total as number) ?? 0;
     stats.set(id, s);
   };
   for (const o of orders) add(o.customer_id, o.total);
-  for (const s of sales) add(s.customer_id, s.total);
+  for (const s of sales) add(s.customer_id, s.total, ((s.total as number) ?? 0) >= 0);
 
   const withAccount = customers.filter((c) => c.user_id).length;
 

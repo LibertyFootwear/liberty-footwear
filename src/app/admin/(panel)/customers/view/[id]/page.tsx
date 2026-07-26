@@ -58,17 +58,21 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
   }
 
   for (const s of sales) {
-    purchaseCount += 1;
-    totalSpent += (s.total as number) ?? 0;
+    const amount = (s.total as number) ?? 0;
+    const isReturn = amount < 0;
+    // A return refunds spend and nets out items bought, but is not a purchase itself.
+    if (!isReturn) purchaseCount += 1;
+    totalSpent += amount;
     const stock = (s.stock_no as string) ?? "";
+    const qty = (s.qty as number) ?? 1;
     lines.push({
       date: (s.sale_date as string) ?? "",
       channel: "store",
       name: NAME_BY_STOCK.get(stock) || stock || "—",
       stockNo: stock,
       size: (s.size as string) ?? undefined,
-      qty: (s.qty as number) ?? 1,
-      amount: (s.total as number) ?? 0,
+      qty: isReturn ? -qty : qty,
+      amount,
     });
   }
 
