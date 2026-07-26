@@ -125,6 +125,7 @@ const emptyRow = {
   stockNo: "", customDesc: "", size: "", width: "", qty: "1", paid: true,
   total: "", payment: "Card", customerName: "", phone: "", notes: "",
   customerEmail: "", customerAddress: "", customerEmployer: "", referralSource: "",
+  isReturn: false,
 };
 
 export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog: CatalogItem[] }) {
@@ -150,7 +151,8 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
       width: r.width ?? "",
       qty: String(r.qty ?? 1),
       paid: r.paid,
-      total: r.total != null ? String(r.total) : "",
+      total: r.total != null ? String(Math.abs(r.total)) : "",
+      isReturn: (r.total ?? 0) < 0,
       payment: r.payment ?? "Card",
       customerName: r.customer_name ?? "",
       phone: r.phone ?? "",
@@ -223,7 +225,7 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
       size,
       width: showWidth ? form.width : "",
       qty: showQty ? (parseInt(form.qty) || 1) : 1,
-      total: form.total === "" ? null : parseFloat(form.total),
+      total: form.total === "" ? null : (form.isReturn ? -Math.abs(parseFloat(form.total)) : Math.abs(parseFloat(form.total))),
     };
     const res = await fetch("/api/admin/sales", {
       method: editingId ? "PATCH" : "POST",
@@ -296,7 +298,10 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
         <tr className={`hover:bg-gray-50 transition ${isOpen ? "bg-navy/5" : ""}`}>
           <td className="px-3 py-2 text-gray-600">{r.sale_date}</td>
           <td className="px-3 py-2 text-gray-400">{p.day}</td>
-          <td className="px-3 py-2 font-mono font-bold text-navy">{r.stock_no}</td>
+          <td className="px-3 py-2 font-mono font-bold text-navy">
+            {r.stock_no}
+            {(r.total ?? 0) < 0 && <span className="ml-1.5 text-[9px] font-sans font-bold px-1 py-0.5 rounded bg-red-100 text-red-700 align-middle">RETURN</span>}
+          </td>
           <td className="px-3 py-2 text-gray-600">{r.size || "—"}</td>
           <td className="px-3 py-2 text-gray-600">{r.width || "—"}</td>
           <td className="px-3 py-2 text-gray-600">{r.qty ?? 1}</td>
@@ -305,7 +310,9 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
               {r.paid ? "Yes" : "No"}
             </span>
           </td>
-          <td className="px-3 py-2 font-black text-gray-900">{r.total != null ? `$${r.total.toFixed(2)}` : "—"}</td>
+          <td className={`px-3 py-2 font-black ${(r.total ?? 0) < 0 ? "text-red-600" : "text-gray-900"}`}>
+            {r.total != null ? (r.total < 0 ? `−$${Math.abs(r.total).toFixed(2)}` : `$${r.total.toFixed(2)}`) : "—"}
+          </td>
           <td className="px-3 py-2 text-gray-600">{r.payment || "—"}</td>
           <td className="px-3 py-2">
             <button type="button" onClick={() => toggleRow(r.id)}
@@ -426,14 +433,22 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
           )}
 
           <div>
+            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Type</label>
+            <select value={form.isReturn ? "Return" : "Sale"} onChange={(e) => set("isReturn", e.target.value === "Return")}
+              className={`${cls} ${form.isReturn ? "text-red font-bold" : ""}`}>
+              <option>Sale</option><option>Return</option>
+            </select>
+          </div>
+          <div>
             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Paid</label>
             <select value={form.paid ? "Yes" : "No"} onChange={(e) => set("paid", e.target.value === "Yes")} className={cls}>
               <option>Yes</option><option>No</option>
             </select>
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Total $</label>
-            <input type="number" step="0.01" min="0" value={form.total} onChange={(e) => set("total", e.target.value)} placeholder="167.48" className={cls} />
+            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{form.isReturn ? "Refund $" : "Total $"}</label>
+            <input type="number" step="0.01" min="0" value={form.total} onChange={(e) => set("total", e.target.value)} placeholder="167.48"
+              className={`${cls} ${form.isReturn ? "border-red/40" : ""}`} />
           </div>
           <div>
             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Payment</label>
