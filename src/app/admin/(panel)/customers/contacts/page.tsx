@@ -12,7 +12,7 @@ interface Contact {
 const TABS = [
   { href: "/admin/customers", label: "Registered" },
   { href: "/admin/customers/old", label: "From Old Website" },
-  { href: "/admin/customers/contacts", label: "Email Contacts" },
+  { href: "/admin/customers/contacts", label: "Email Contacts from Old Website" },
 ];
 
 export default async function ContactsPage() {
