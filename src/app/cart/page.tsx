@@ -74,7 +74,7 @@ export default function CartPage() {
           </div>
           {/* Trust line */}
           <div className="flex flex-wrap items-center justify-center gap-5 text-xs text-gray-400 mt-4">
-            <span>✓ Free shipping on all orders</span>
+            <span>✓ Free shipping on boot orders</span>
             <span>✓ 30-day returns</span>
             <span>✓ Handcrafted in Michigan</span>
           </div>

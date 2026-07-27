@@ -91,7 +91,7 @@ export const translations = {
       width: "Width",
       size: "Size",
       addToCart: "Add to Cart",
-      freeShipping: "Built in America · Free shipping on all orders",
+      freeShipping: "Built in America · Free shipping on boot orders",
       moreFrom: "More from the",
       family: "boot family",
       reviews: "Customer Reviews",

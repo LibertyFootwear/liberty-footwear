@@ -71,7 +71,7 @@ const FAQS = [
     items: [
       {
         q: "Do you offer free shipping?",
-        a: "Yes — we offer free shipping on all orders within the continental United States, no minimum required. We also ship to Canada.",
+        a: "Yes — boot orders ship free within the continental United States, no minimum required. Apparel-only orders ship for a flat $8. We also ship to Canada.",
       },
       {
         q: "How long does shipping take?",
