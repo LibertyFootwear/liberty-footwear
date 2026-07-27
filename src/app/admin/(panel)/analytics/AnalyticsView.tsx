@@ -12,12 +12,12 @@ const TABS = [
 function Bar({ label, value, max, sub, color = "bg-navy" }: { label: string; value: number; max: number; sub?: string; color?: string }) {
   const pct = max > 0 ? (value / max) * 100 : 0;
   return (
-    <div className="flex items-center gap-3">
-      <div className="w-28 flex-shrink-0 text-sm text-gray-600 truncate text-right">{label}</div>
-      <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <div className="w-14 sm:w-28 flex-shrink-0 text-xs sm:text-sm text-gray-600 truncate text-right">{label}</div>
+      <div className="flex-1 bg-gray-100 rounded-full h-5 sm:h-6 overflow-hidden">
         <div className={`h-full ${color} rounded-full min-w-[2px]`} style={{ width: `${pct}%` }} />
       </div>
-      <div className="w-24 flex-shrink-0 text-sm font-bold text-navy">{value.toLocaleString()}{sub ? <span className="text-gray-400 font-normal text-xs"> {sub}</span> : ""}</div>
+      <div className="w-16 sm:w-24 flex-shrink-0 text-xs sm:text-sm font-bold text-navy">{value.toLocaleString()}{sub ? <span className="text-gray-400 font-normal text-[10px] sm:text-xs"> {sub}</span> : ""}</div>
     </div>
   );
 }
@@ -51,13 +51,13 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
   const hasHour = agg.hasHour && Object.keys(agg.byHour).length > 0 && active !== "retail";
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
       <div>
         <h1 className="text-2xl font-black text-navy mb-4">Analytics</h1>
-        <div className="flex gap-2 border-b border-gray-200 mb-4">
+        <div className="flex gap-2 border-b border-gray-200 mb-4 overflow-x-auto">
           {TABS.map((t) => (
             <a key={t.key} href={t.href}
-              className={`px-4 py-2 text-sm font-bold transition ${active === t.key ? "text-navy border-b-2 border-navy -mb-px" : "text-gray-400 hover:text-navy"}`}>
+              className={`px-4 py-2 text-sm font-bold transition whitespace-nowrap ${active === t.key ? "text-navy border-b-2 border-navy -mb-px" : "text-gray-400 hover:text-navy"}`}>
               {t.label}
             </a>
           ))}
@@ -73,23 +73,25 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
         <>
           {/* Revenue by year (historical / combined) */}
           {agg.hasYear && years.length > 1 && (
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
               <h2 className="font-black text-navy mb-5">Revenue by Year</h2>
-              <div className="flex items-end justify-between gap-3 h-48">
-                {years.map((y) => (
-                  <div key={y} className="flex-1 flex flex-col items-center justify-end h-full">
-                    <p className="text-xs font-black text-navy mb-1">${(agg.byYear[y].revenue / 1000).toFixed(0)}k</p>
-                    <div className="w-full bg-navy rounded-t-lg min-h-[2px]" style={{ height: `${(agg.byYear[y].revenue / maxYearRev) * 100}%` }} title={`${agg.byYear[y].units} units`} />
-                    <p className="text-xs text-gray-400 mt-2">{y}</p>
-                    <p className="text-[10px] text-gray-300">{agg.byYear[y].units}u</p>
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <div className="flex items-end justify-between gap-3 h-48 min-w-[320px]">
+                  {years.map((y) => (
+                    <div key={y} className="flex-1 flex flex-col items-center justify-end h-full">
+                      <p className="text-xs font-black text-navy mb-1">${(agg.byYear[y].revenue / 1000).toFixed(0)}k</p>
+                      <div className="w-full bg-navy rounded-t-lg min-h-[2px]" style={{ height: `${(agg.byYear[y].revenue / maxYearRev) * 100}%` }} title={`${agg.byYear[y].units} units`} />
+                      <p className="text-xs text-gray-400 mt-2">{y}</p>
+                      <p className="text-[10px] text-gray-300">{agg.byYear[y].units}u</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
           {/* Top products */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
             <h2 className="font-black text-navy mb-5">Top Selling Products</h2>
             <div className="space-y-2.5">
               {topProducts.map((p) => (
@@ -100,7 +102,7 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Sizes */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
               <h2 className="font-black text-navy mb-5">Best-Selling Sizes</h2>
               <div className="space-y-2.5">
                 {sizes.length === 0 && <p className="text-sm text-gray-400">No size data yet.</p>}
@@ -112,7 +114,7 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
 
             {/* Colors + widths */}
             <div className="space-y-8">
-              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
                 <h2 className="font-black text-navy mb-5">Best-Selling Colors</h2>
                 <div className="space-y-2.5">
                   {colors.map(([c, v]) => (
@@ -121,7 +123,7 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
                 </div>
               </div>
               {hasWidth && (
-                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
                   <h2 className="font-black text-navy mb-5">By Width</h2>
                   <div className="space-y-2.5">
                     {widths.map(([w, v]) => (
@@ -135,38 +137,42 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
 
           {/* Month seasonality */}
           {hasMonth && (
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
               <h2 className="font-black text-navy mb-5">Sales by Month (seasonality)</h2>
-              <div className="flex items-end justify-between gap-2 h-40">
-                {MONTHS.map((m) => (
-                  <div key={m} className="flex-1 flex flex-col items-center justify-end h-full">
-                    <p className="text-xs font-black text-navy mb-1">{agg.byMonth[m] ?? 0}</p>
-                    <div className="w-full bg-tan rounded-t-lg min-h-[2px]" style={{ height: `${((agg.byMonth[m] ?? 0) / maxMonth) * 100}%` }} />
-                    <p className="text-xs text-gray-400 mt-2">{m}</p>
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <div className="flex items-end justify-between gap-2 h-40 min-w-[560px]">
+                  {MONTHS.map((m) => (
+                    <div key={m} className="flex-1 flex flex-col items-center justify-end h-full">
+                      <p className="text-xs font-black text-navy mb-1">{agg.byMonth[m] ?? 0}</p>
+                      <div className="w-full bg-tan rounded-t-lg min-h-[2px]" style={{ height: `${((agg.byMonth[m] ?? 0) / maxMonth) * 100}%` }} />
+                      <p className="text-xs text-gray-400 mt-2">{m}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Day of week */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
               <h2 className="font-black text-navy mb-5">Sales by Day of Week</h2>
-              <div className="flex items-end justify-between gap-2 h-36">
-                {DAYS.map((day) => (
-                  <div key={day} className="flex-1 flex flex-col items-center justify-end h-full">
-                    <p className="text-xs font-black text-navy mb-1">{agg.byDay[day] ?? 0}</p>
-                    <div className="w-full bg-navy rounded-t-lg min-h-[2px]" style={{ height: `${((agg.byDay[day] ?? 0) / maxDay) * 100}%` }} />
-                    <p className="text-xs text-gray-400 mt-2">{day}</p>
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <div className="flex items-end justify-between gap-2 h-36 min-w-[340px]">
+                  {DAYS.map((day) => (
+                    <div key={day} className="flex-1 flex flex-col items-center justify-end h-full">
+                      <p className="text-xs font-black text-navy mb-1">{agg.byDay[day] ?? 0}</p>
+                      <div className="w-full bg-navy rounded-t-lg min-h-[2px]" style={{ height: `${((agg.byDay[day] ?? 0) / maxDay) * 100}%` }} />
+                      <p className="text-xs text-gray-400 mt-2">{day}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Payment methods */}
             {pays.length > 0 && (
-              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
                 <h2 className="font-black text-navy mb-5">Payment Method</h2>
                 <div className="space-y-2.5">
                   {pays.map(([m, v]) => (
@@ -179,16 +185,18 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
 
           {/* Hour of day (live only) */}
           {hasHour && (
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
               <h2 className="font-black text-navy mb-1">Sales by Time of Day</h2>
               <p className="text-xs text-gray-400 mb-5">Store local time (Grand Rapids, MI)</p>
-              <div className="flex items-end justify-between gap-0.5 h-32">
-                {Array.from({ length: 24 }, (_, h) => (
-                  <div key={h} className="flex-1 flex flex-col items-center justify-end h-full group">
-                    <div className="w-full bg-tan rounded-t min-h-[1px] group-hover:bg-navy transition" style={{ height: `${((agg.byHour[h] ?? 0) / maxHour) * 100}%` }} title={`${h}:00 — ${agg.byHour[h] ?? 0}`} />
-                    {h % 3 === 0 && <p className="text-[10px] text-gray-400 mt-1">{h}</p>}
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <div className="flex items-end justify-between gap-0.5 h-32 min-w-[600px]">
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <div key={h} className="flex-1 flex flex-col items-center justify-end h-full group">
+                      <div className="w-full bg-tan rounded-t min-h-[1px] group-hover:bg-navy transition" style={{ height: `${((agg.byHour[h] ?? 0) / maxHour) * 100}%` }} title={`${h}:00 — ${agg.byHour[h] ?? 0}`} />
+                      {h % 3 === 0 && <p className="text-[10px] text-gray-400 mt-1">{h}</p>}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
