@@ -264,9 +264,9 @@ export default function HomePage() {
                 <h2 className="text-3xl lg:text-4xl font-black text-navy">Liberty Footwear Apparel</h2>
                 <div className="w-16 h-1 bg-red mt-4" />
               </div>
-              <Link href="/shop?category=Apparel" className="hidden sm:inline-flex items-center gap-1.5 text-navy font-bold text-sm hover:text-red transition group">
+              <Link href="/shop?category=Apparel" className="hidden sm:inline-flex items-center gap-2 bg-navy hover:bg-red text-white font-bold text-base px-7 py-3.5 rounded-lg shadow-md transition group whitespace-nowrap">
                 Shop Apparel
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
               </Link>
