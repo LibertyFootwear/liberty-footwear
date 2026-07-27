@@ -3,6 +3,7 @@ import { getSupabase } from "@/lib/supabase";
 import { assertAdmin } from "@/lib/adminAuth";
 import { tryUpsertCustomer } from "@/lib/customersDb";
 import { incrementInventory, decrementInventory } from "@/lib/inventoryDb";
+import { syncRowToSheet, deleteRowFromSheet } from "@/lib/sheetsSync";
 
 /** Register the sale's customer in the unified registry (deduped by email/phone). */
 async function upsertSaleCustomer(b: Record<string, unknown>): Promise<string | undefined> {
@@ -75,10 +76,11 @@ export async function POST(req: NextRequest) {
     customer_employer: b.customerEmployer ? String(b.customerEmployer).trim() : null,
     referral_source: b.referralSource ? String(b.referralSource).trim() : null,
     notes: b.notes ? String(b.notes).trim() : null,
-  }).select("id").single();
+  }).select("*").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   await applyStock(stockLine(b.stockNo, b.size, b.width, b.qty), isReturnRow(b.total, b.isReturn));
+  if (data) await syncRowToSheet(data); // mirror the new row into the Google Sheet backup
 
   return NextResponse.json({ ok: true, id: data?.id });
 }
@@ -97,7 +99,7 @@ export async function PATCH(req: NextRequest) {
     .select("stock_no, size, width, qty, total").eq("id", b.id).maybeSingle();
 
   const customerId = await upsertSaleCustomer(b);
-  const { error } = await sb.from("retail_sales").update({
+  const { data: updated, error } = await sb.from("retail_sales").update({
     customer_id: customerId ?? null,
     sale_date: b.saleDate,
     stock_no: String(b.stockNo).trim(),
@@ -114,13 +116,14 @@ export async function PATCH(req: NextRequest) {
     customer_employer: b.customerEmployer ? String(b.customerEmployer).trim() : null,
     referral_source: b.referralSource ? String(b.referralSource).trim() : null,
     notes: b.notes ? String(b.notes).trim() : null,
-  }).eq("id", b.id);
+  }).eq("id", b.id).select("*").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Reconcile stock: reverse the old row's effect, then apply the edited row's.
   // (If item/size/qty/type are unchanged these cancel out to a net zero change.)
   if (old) await applyStock(stockLine(old.stock_no, old.size, old.width, old.qty), !isReturnRow(old.total));
   await applyStock(stockLine(b.stockNo, b.size, b.width, b.qty), isReturnRow(b.total, b.isReturn));
+  if (updated) await syncRowToSheet(updated); // mirror the edit into the Google Sheet backup
 
   return NextResponse.json({ ok: true });
 }
@@ -140,6 +143,7 @@ export async function DELETE(req: NextRequest) {
 
   // Reverse the deleted row's stock effect: a sale returns to stock, a return leaves it.
   if (old) await applyStock(stockLine(old.stock_no, old.size, old.width, old.qty), !isReturnRow(old.total));
+  await deleteRowFromSheet(id); // remove the row from the Google Sheet backup
 
   return NextResponse.json({ ok: true });
 }
