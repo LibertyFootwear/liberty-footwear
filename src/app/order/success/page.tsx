@@ -61,6 +61,23 @@ export default async function SuccessPage({ searchParams }: Props) {
           </div>
         </div>
 
+        {/* Google review invite */}
+        <div className="bg-cream border border-cream-dark rounded-2xl p-6 sm:p-8 text-center mb-12">
+          <div className="text-3xl mb-2">⭐️</div>
+          <h2 className="text-navy font-black text-lg mb-1">Love Liberty Footwear? Tell the world!</h2>
+          <p className="text-gray-600 text-sm max-w-md mx-auto mb-5">
+            A quick Google review helps other hard-working folks find boots built to last. It only takes a minute.
+          </p>
+          <a
+            href="https://g.page/r/CYcnSac-03mCEBE/review"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-7 py-3.5 bg-red text-white font-black rounded-xl uppercase tracking-wide text-sm shadow-lg shadow-red/20 hover:bg-red-dark transition"
+          >
+            ★ Leave a Google Review
+          </a>
+        </div>
+
         {/* Guest account offer */}
         {isGuest && (
           <div className="bg-navy rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 mb-12">

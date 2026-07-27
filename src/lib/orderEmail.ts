@@ -6,6 +6,7 @@ import { trackingUrl, type OrderItem } from "./ordersDb";
 const NAVY = "#0b3154";
 const RED = "#d1282a";
 const LOGO_CID = "lf-logo";
+export const GOOGLE_REVIEW_URL = "https://g.page/r/CYcnSac-03mCEBE/review";
 
 /** Read the white logo from /public once and cache its base64 (null if unreadable). */
 let _logoBase64: string | null | undefined;
@@ -193,6 +194,18 @@ export function buildStatusEmailHtml(o: OrderStatusEmail): string {
       </table>`;
   }
 
+  // On delivery, invite the customer to leave a Google review.
+  let reviewBlock = "";
+  if (o.status === "delivered") {
+    reviewBlock = `
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;">
+        <tr><td style="background:#f9fafb;border:1px solid #eee;border-radius:8px;padding:20px;text-align:center;">
+          <p style="margin:0 0 12px;color:${NAVY};font-size:15px;font-weight:700;">Happy with your boots? We'd love your feedback!</p>
+          <a href="${GOOGLE_REVIEW_URL}" style="display:inline-block;background:${RED};color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 22px;border-radius:6px;">★ Leave us a Google review</a>
+        </td></tr>
+      </table>`;
+  }
+
   const summary = o.items?.length ? itemsTable(o.items, o.total) : "";
 
   const inner = `
@@ -200,6 +213,7 @@ export function buildStatusEmailHtml(o: OrderStatusEmail): string {
     <p style="margin:0 0 4px;color:#374151;font-size:15px;line-height:1.6;">${copy.body}</p>
     <p style="margin:0 0 18px;color:#9ca3af;font-size:12px;">Order #${esc(shortId)}</p>
     ${trackingBlock}
+    ${reviewBlock}
     ${summary}`;
   return shell(o.logoSrc, inner);
 }
