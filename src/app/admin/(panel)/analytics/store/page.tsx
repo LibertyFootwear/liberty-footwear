@@ -1,11 +1,14 @@
 import { requireAdmin } from "@/lib/adminAuth";
+import { isAnalyticsUnlocked } from "@/lib/analyticsLock";
 import { getAllOrders, getRetailSales, splitOrders, aggFromOrders, retailAgg, mergeAgg } from "@/lib/analytics";
 import AnalyticsView from "../AnalyticsView";
+import AnalyticsGate from "@/components/AnalyticsGate";
 
 export const dynamic = "force-dynamic";
 
 export default async function RetailAnalytics() {
   await requireAdmin();
+  if (!(await isAnalyticsUnlocked())) return <AnalyticsGate />;
   const [orders, retail] = await Promise.all([getAllOrders(), getRetailSales()]);
   const { store } = splitOrders(orders);
   const agg = mergeAgg(retailAgg(retail), aggFromOrders(store));
