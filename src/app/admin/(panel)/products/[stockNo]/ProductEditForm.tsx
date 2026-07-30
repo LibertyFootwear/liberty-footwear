@@ -24,23 +24,35 @@ export default function ProductEditForm({
   const [form, setForm] = useState<Current>(current);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   function set<K extends keyof Current>(key: K, value: Current[K]) {
     setForm((f) => ({ ...f, [key]: value }));
     setSaved(false);
+    setError("");
   }
 
   async function save() {
     setSaving(true);
-    await fetch(`/api/admin/products/${stockNo}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    setSaving(false);
-    setSaved(true);
-    router.refresh();
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/products/${stockNo}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || `Save failed (${res.status})`);
+      }
+      setSaved(true);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Save failed.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function resetToDefault() {
@@ -149,6 +161,7 @@ export default function ProductEditForm({
           View on site →
         </Link>
       </div>
+      {error && <p className="text-sm text-red font-semibold">{error}</p>}
     </div>
   );
 }

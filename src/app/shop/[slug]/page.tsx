@@ -18,11 +18,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const p = getProductBySlug(slug);
+  // Use the catalog (with admin overrides) so an edited description also drives SEO.
+  const p = (await getCatalogBySlug(slug)) ?? getProductBySlug(slug);
   if (!p) return {};
   return {
     title: `${p.name} – ${p.colorLeather} | Liberty Footwear`,
-    description: p.description,
+    description: p.shortDescription || p.description,
   };
 }
 
