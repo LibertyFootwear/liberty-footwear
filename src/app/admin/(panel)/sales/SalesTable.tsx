@@ -100,6 +100,7 @@ const SIZES = [
 const LACES = "Laces";
 const SHOE_HORN = "Shoe horn";
 const CUSTOM = "Custom";
+const REPAIR = "Repair"; // takes a boot size + width instead of a quantity
 
 const SIZED_ITEMS = ["PS Pinnacle", "PS Pinnacle +Met", "Green footbeds", "Blue footbeds"];
 const PLAIN_ITEMS = [
@@ -206,10 +207,11 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
   const isShoeHorn = sn === SHOE_HORN;
   const isCustom = sn === CUSTOM;
   const isSizedItem = SIZED_ITEMS.includes(sn);
+  const isRepair = sn === REPAIR;
 
-  const showSize = isBoot || isApparel || isSizedItem;
-  const showWidth = isBoot;
-  const showQty = !!sn && !isBoot;
+  const showSize = isBoot || isApparel || isSizedItem || isRepair;
+  const showWidth = isBoot || isRepair;
+  const showQty = !!sn && !isBoot && !isRepair;
   const sizeChoices = apparelSizes ?? SIZES;
 
   async function add() {
