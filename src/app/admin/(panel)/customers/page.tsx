@@ -61,7 +61,7 @@ export default async function AdminCustomers() {
       </p>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm whitespace-nowrap">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
               {["Name", "Email", "Phone", "Channel", "Account", "Purchases", "Boots", "Spent", "Last purchase", ""].map((h) => (
