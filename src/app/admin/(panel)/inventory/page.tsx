@@ -1,11 +1,16 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import { products, parseSizes } from "@/data/products";
+import { getSiteSettings } from "@/lib/siteSettings";
 import InventoryEditor from "./InventoryEditor";
+import InventoryImport from "./InventoryImport";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminInventory() {
   await requireAdmin();
 
+  const settings = await getSiteSettings();
   const { data } = await getSupabase().from("inventory").select("*");
   const stockMap: Record<string, number> = {};
   for (const row of data ?? []) {
@@ -25,6 +30,11 @@ export default async function AdminInventory() {
     return { product: p, sizes };
   });
 
+  const knownStocks = products.map((p) => p.stockNo);
+  const lastCount = settings.lastInventoryDate
+    ? `Last counted ${settings.lastInventoryDate}${settings.lastInventoryBy ? ` · by ${settings.lastInventoryBy}` : ""}`
+    : null;
+
   return (
     <div className="p-8">
       <h1 className="text-2xl font-black text-navy mb-4">Inventory</h1>
@@ -35,7 +45,12 @@ export default async function AdminInventory() {
         <a href="/admin/inventory/uppers" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">Uppers</a>
       </div>
 
-      <p className="text-sm text-gray-400 mb-6">Stock levels by product and size. Click a number to edit.</p>
+      <InventoryImport knownStocks={knownStocks} />
+
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-sm text-gray-400">Stock levels by product and size. Click a number to edit.</p>
+        {lastCount && <p className="text-xs font-semibold text-gray-500">{lastCount}</p>}
+      </div>
       <InventoryEditor rows={rows} />
     </div>
   );

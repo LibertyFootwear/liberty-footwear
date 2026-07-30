@@ -4,6 +4,9 @@ export interface SiteSettings {
   salesEnabled: boolean;
   pausedMessage: string;
   contactPhone: string;
+  /** When finished-boot inventory was last counted (YYYY-MM-DD), and by whom. */
+  lastInventoryDate?: string;
+  lastInventoryBy?: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -19,6 +22,8 @@ function mapRow(row: Record<string, unknown> | null): SiteSettings {
     salesEnabled: (row.sales_enabled as boolean) ?? true,
     pausedMessage: (row.paused_message as string) ?? DEFAULT_SETTINGS.pausedMessage,
     contactPhone: (row.contact_phone as string) ?? DEFAULT_SETTINGS.contactPhone,
+    lastInventoryDate: (row.last_inventory_date as string) ?? undefined,
+    lastInventoryBy: (row.last_inventory_by as string) ?? undefined,
   };
 }
 
@@ -39,6 +44,8 @@ export async function updateSiteSettings(
   if (fields.salesEnabled !== undefined) update.sales_enabled = fields.salesEnabled;
   if (fields.pausedMessage !== undefined) update.paused_message = fields.pausedMessage;
   if (fields.contactPhone !== undefined) update.contact_phone = fields.contactPhone;
+  if (fields.lastInventoryDate !== undefined) update.last_inventory_date = fields.lastInventoryDate;
+  if (fields.lastInventoryBy !== undefined) update.last_inventory_by = fields.lastInventoryBy;
   // Upsert the singleton row so it exists even if the seed insert was skipped.
   await getSupabase().from("site_settings").upsert({ id: 1, ...update });
 }
