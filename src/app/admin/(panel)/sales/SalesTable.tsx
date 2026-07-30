@@ -100,7 +100,8 @@ const SIZES = [
 const LACES = "Laces";
 const SHOE_HORN = "Shoe horn";
 const CUSTOM = "Custom";
-const REPAIR = "Repair"; // takes a boot size + width instead of a quantity
+// Services performed on a specific boot — take a size + width instead of a quantity.
+const SIZE_WIDTH_SERVICES = ["Repair", "Resole", "Stretching"];
 
 const SIZED_ITEMS = ["PS Pinnacle", "PS Pinnacle +Met", "Green footbeds", "Blue footbeds"];
 const PLAIN_ITEMS = [
@@ -207,11 +208,10 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
   const isShoeHorn = sn === SHOE_HORN;
   const isCustom = sn === CUSTOM;
   const isSizedItem = SIZED_ITEMS.includes(sn);
-  const isRepair = sn === REPAIR;
+  const isSizeWidthService = SIZE_WIDTH_SERVICES.includes(sn);
 
-  const showSize = isBoot || isApparel || isSizedItem || isRepair;
-  const showWidth = isBoot || isRepair;
-  const showQty = !!sn && !isBoot && !isRepair;
+  const showSize = isBoot || isApparel || isSizedItem || isSizeWidthService;
+  const showWidth = isBoot || isSizeWidthService;
   const sizeChoices = apparelSizes ?? SIZES;
 
   async function add() {
@@ -226,7 +226,7 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
       stockNo: isCustom ? form.customDesc.trim() : sn,
       size,
       width: showWidth ? form.width : "",
-      qty: showQty ? (parseInt(form.qty) || 1) : 1,
+      qty: 1,
       total: form.total === "" ? null : (form.isReturn ? -Math.abs(parseFloat(form.total)) : Math.abs(parseFloat(form.total))),
     };
     const res = await fetch("/api/admin/sales", {
@@ -411,13 +411,6 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
                 <option value="">—</option>
                 {WIDTHS.map((w) => <option key={w} value={w}>{w}</option>)}
               </select>
-            </div>
-          )}
-
-          {showQty && (
-            <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Qty</label>
-              <input type="number" min="1" step="1" value={form.qty} onChange={(e) => set("qty", e.target.value)} className={cls} />
             </div>
           )}
 
