@@ -95,7 +95,7 @@ const NON_BOOT_KEYWORDS = [
 
 /** Is this stock number / item a boot? Catalog category is the source of truth;
  *  historical items not in the catalog fall back to a name check. */
-function isBootItem(stockNo: string): boolean {
+export function isBootItem(stockNo: string): boolean {
   const p = products.find((x) => x.stockNo === stockNo);
   if (p) return p.category !== "Apparel";
   const s = stockNo.toLowerCase();

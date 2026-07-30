@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
+import { isBootItem } from "@/lib/analytics";
 import Link from "next/link";
 
 export default async function AdminCustomers() {
@@ -10,28 +11,38 @@ export default async function AdminCustomers() {
     sb.from("customers")
       .select("id, name, email, phone, user_id, sources, newsletter, first_purchase_at, last_purchase_at, created_at")
       .order("last_purchase_at", { ascending: false, nullsFirst: false }),
-    sb.from("orders").select("customer_id, total"),
-    sb.from("retail_sales").select("customer_id, total"),
+    sb.from("orders").select("customer_id, total, items"),
+    sb.from("retail_sales").select("customer_id, total, stock_no, qty"),
   ]);
 
   const customers = customersRes.data ?? [];
   const orders = ordersRes.data ?? [];
   const sales = salesRes.data ?? [];
 
-  // Tally purchase counts + spend per customer across both channels.
-  // A retail return (negative total) refunds spend but is not itself a purchase,
-  // so it lowers "Spent" without bumping the purchase count.
-  const stats = new Map<string, { count: number; spent: number }>();
-  const add = (cid: unknown, total: unknown, countable = true) => {
+  // Tally purchase counts + spend + boots per customer across both channels.
+  // A retail return (negative total) refunds spend and nets out boots, but is not
+  // itself a purchase, so it lowers "Spent"/"Boots" without bumping the count.
+  const stats = new Map<string, { count: number; spent: number; boots: number }>();
+  const add = (cid: unknown, total: unknown, boots: number, countable = true) => {
     if (!cid) return;
     const id = cid as string;
-    const s = stats.get(id) ?? { count: 0, spent: 0 };
+    const s = stats.get(id) ?? { count: 0, spent: 0, boots: 0 };
     if (countable) s.count += 1;
     s.spent += (total as number) ?? 0;
+    s.boots += boots;
     stats.set(id, s);
   };
-  for (const o of orders) add(o.customer_id, o.total);
-  for (const s of sales) add(s.customer_id, s.total, ((s.total as number) ?? 0) >= 0);
+  for (const o of orders) {
+    const boots = ((o.items as { stockNo?: string; qty?: number }[]) ?? [])
+      .reduce((n, it) => n + (isBootItem(it.stockNo ?? "") ? (it.qty ?? 1) : 0), 0);
+    add(o.customer_id, o.total, boots);
+  }
+  for (const s of sales) {
+    const isReturn = ((s.total as number) ?? 0) < 0;
+    const q = (s.qty as number) ?? 1;
+    const boots = isBootItem((s.stock_no as string) ?? "") ? (isReturn ? -q : q) : 0;
+    add(s.customer_id, s.total, boots, !isReturn);
+  }
 
   const withAccount = customers.filter((c) => c.user_id).length;
 
@@ -53,17 +64,17 @@ export default async function AdminCustomers() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
-              {["Name", "Email", "Phone", "Channel", "Account", "Purchases", "Spent", "Last purchase", ""].map((h) => (
+              {["Name", "Email", "Phone", "Channel", "Account", "Purchases", "Boots", "Spent", "Last purchase", ""].map((h) => (
                 <th key={h} className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {customers.length === 0 && (
-              <tr><td colSpan={9} className="px-5 py-12 text-center text-gray-400">No customers yet. Run the backfill or record a sale.</td></tr>
+              <tr><td colSpan={10} className="px-5 py-12 text-center text-gray-400">No customers yet. Run the backfill or record a sale.</td></tr>
             )}
             {customers.map((c) => {
-              const st = stats.get(c.id) ?? { count: 0, spent: 0 };
+              const st = stats.get(c.id) ?? { count: 0, spent: 0, boots: 0 };
               const sources = (c.sources as string[]) ?? [];
               return (
                 <tr key={c.id} className="hover:bg-gray-50 transition">
@@ -91,6 +102,7 @@ export default async function AdminCustomers() {
                     )}
                   </td>
                   <td className="px-5 py-3 text-gray-600">{st.count}</td>
+                  <td className="px-5 py-3 text-gray-600">{st.boots || "—"}</td>
                   <td className="px-5 py-3 text-gray-600">{st.spent ? `$${st.spent.toFixed(2)}` : "—"}</td>
                   <td className="px-5 py-3 text-gray-400 text-xs">
                     {c.last_purchase_at ? new Date(c.last_purchase_at).toLocaleDateString() : "—"}

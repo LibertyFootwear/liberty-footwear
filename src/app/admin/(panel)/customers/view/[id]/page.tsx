@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import { products } from "@/data/products";
+import { isBootItem } from "@/lib/analytics";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
@@ -78,6 +79,9 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
 
   lines.sort((a, b) => (a.date < b.date ? 1 : -1));
 
+  // Boots only (excludes services, footbeds, accessories, apparel); returns net out.
+  const bootsBought = lines.filter((l) => isBootItem(l.stockNo)).reduce((s, l) => s + l.qty, 0);
+
   const sources = (c.sources as string[]) ?? [];
   const channelLabel = sources.includes("web") && sources.includes("store") ? "Web + In-store"
     : sources.includes("web") ? "Web" : sources.includes("store") ? "In-store" : "—";
@@ -100,7 +104,7 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Total spent</p>
           <p className="text-2xl font-black text-navy mt-1">${totalSpent.toFixed(2)}</p>
@@ -108,6 +112,10 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Purchases</p>
           <p className="text-2xl font-black text-navy mt-1">{purchaseCount}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Boots bought</p>
+          <p className="text-2xl font-black text-navy mt-1">{bootsBought}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Items bought</p>

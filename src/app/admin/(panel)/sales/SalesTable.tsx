@@ -306,7 +306,6 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
           </td>
           <td className="px-3 py-2 text-gray-600">{r.size || "—"}</td>
           <td className="px-3 py-2 text-gray-600">{r.width || "—"}</td>
-          <td className="px-3 py-2 text-gray-600">{r.qty ?? 1}</td>
           <td className="px-3 py-2">
             <span className={`font-bold px-1.5 py-0.5 rounded ${r.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
               {r.paid ? "Yes" : "No"}
@@ -335,7 +334,7 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
         </tr>
         {isOpen && (
           <tr className="bg-navy/5">
-            <td colSpan={11} className="px-6 py-3">
+            <td colSpan={10} className="px-6 py-3">
               {hasExtras ? (
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-2 whitespace-normal">
                   {extras.filter(([, v]) => v).map(([label, v]) => (
@@ -525,21 +524,21 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
         <table className="w-full text-xs whitespace-nowrap">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {["Date", "Day", "Item", "Size", "Width", "Qty", "Paid", "Total $", "Payment", "Customer", ""].map((h) => (
+              {["Date", "Day", "Item", "Size", "Width", "Paid", "Total $", "Payment", "Customer", ""].map((h) => (
                 <th key={h} className="text-left px-3 py-2 font-bold text-gray-400 uppercase tracking-wide">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {filtered.length === 0 && (
-              <tr><td colSpan={11} className="px-3 py-10 text-center text-gray-400">No sales recorded yet.</td></tr>
+              <tr><td colSpan={10} className="px-3 py-10 text-center text-gray-400">No sales recorded yet.</td></tr>
             )}
             {yearGroups.map((g) => {
               const open = searching || openYears.has(g.year);
               return (
                 <Fragment key={g.year}>
                   <tr className="bg-gray-100/80 border-y border-gray-200 cursor-pointer" onClick={() => toggleYear(g.year)}>
-                    <td colSpan={11} className="px-3 py-2">
+                    <td colSpan={10} className="px-3 py-2">
                       <button type="button" className="inline-flex items-center gap-2 font-black text-navy">
                         <span className={`text-[10px] transition-transform ${open ? "rotate-90" : ""}`}>▶</span>
                         {g.year}
