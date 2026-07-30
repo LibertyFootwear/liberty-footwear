@@ -225,6 +225,23 @@ const _raw: RawProduct[] = [
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0621-${i}.jpg`),
   },
   {
+    // New item. Same boot as Gary Hiker but with a Fornax rubber cup sole; "F" suffix
+    // keeps the stock no. unique. Placeholder image (reuses KS0521) until real photos.
+    stockNo: "KS0521F", slug: slug("KS0521F","gary-hiker-work-black"),
+    name: "Gary hiker work", family: "Gary", safetyToe: false,
+    colorLeather: "Black", outsoleType: "Fornax rubber cup", colorOutsole: "Black",
+    description: '6" Mocc Toe non-waterproof hiker',
+    sizes: "M: 9–12, 12.5, 13, 13.5 | EW: 9–12, 12.5, 13, 13.5", price: 239, isNew: true, image: img("KS0521"),
+  },
+  {
+    // New item. Safety-toe version of Gary hiker work. Placeholder image (reuses KS0621).
+    stockNo: "KS0621F", slug: slug("KS0621F","gary-hiker-work-ct-black"),
+    name: "Gary hiker work CT", family: "Gary", safetyToe: true,
+    colorLeather: "Black", outsoleType: "Fornax rubber cup", colorOutsole: "Black",
+    description: '6" Mocc Toe non-waterproof safety toe EH hiker',
+    sizes: "M: 9–12, 12.5, 13, 13.5 | EW: 9–12, 12.5, 13, 13.5", price: 249, isNew: true, image: img("KS0621"),
+  },
+  {
     stockNo: "KS0523", slug: slug("KS0523","gary-hiker-russet"),
     name: "Gary Hiker", family: "Gary", safetyToe: false,
     colorLeather: "Russet", outsoleType: "Andes rubber cup", colorOutsole: "Black",
