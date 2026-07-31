@@ -15,7 +15,7 @@ export interface InvRow {
   sizes: { size: string; qty: number }[];
 }
 
-export default function InventoryEditor({ rows }: { rows: InvRow[] }) {
+export default function InventoryEditor({ rows, saveEndpoint = "/api/admin/inventory" }: { rows: InvRow[]; saveEndpoint?: string }) {
   const [editing, setEditing] = useState<{ stockNo: string; size: string } | null>(null);
   const [qtys, setQtys] = useState<Record<string, number>>(() => {
     const m: Record<string, number> = {};
@@ -35,7 +35,7 @@ export default function InventoryEditor({ rows }: { rows: InvRow[] }) {
   async function save(stockNo: string, size: string, qty: number) {
     const key = `${stockNo}::${size}`;
     setSaving(key);
-    await fetch("/api/admin/inventory", {
+    await fetch(saveEndpoint, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ stockNo, size, qty }),

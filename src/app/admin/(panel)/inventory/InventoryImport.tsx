@@ -68,7 +68,15 @@ function parseWorkbook(data: ArrayBuffer, knownStocks: Set<string>): Parsed {
   };
 }
 
-export default function InventoryImport({ knownStocks }: { knownStocks: string[] }) {
+export default function InventoryImport({
+  knownStocks,
+  importEndpoint = "/api/admin/inventory/import",
+  label = "Import counted inventory (.xls)",
+}: {
+  knownStocks: string[];
+  importEndpoint?: string;
+  label?: string;
+}) {
   const router = useRouter();
   const knownSet = new Set(knownStocks);
   const [parsed, setParsed] = useState<Parsed | null>(null);
@@ -100,7 +108,7 @@ export default function InventoryImport({ knownStocks }: { knownStocks: string[]
     if (!parsed) return;
     setBusy(true); setError(""); setDone("");
     try {
-      const res = await fetch("/api/admin/inventory/import", {
+      const res = await fetch(importEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rows: parsed.rows, inventoryDate: date || undefined, responsibleBy: by }),
@@ -121,7 +129,7 @@ export default function InventoryImport({ knownStocks }: { knownStocks: string[]
 
   return (
     <details className="bg-white rounded-xl border border-gray-200 shadow-sm mb-6">
-      <summary className="cursor-pointer px-5 py-4 font-bold text-navy select-none">↥ Import counted inventory (.xls)</summary>
+      <summary className="cursor-pointer px-5 py-4 font-bold text-navy select-none">↥ {label}</summary>
       <div className="px-5 pb-5 pt-1 space-y-4">
         <p className="text-sm text-gray-500">
           Upload the standard <span className="font-mono">Finished Boots Inventory</span> sheet. Only the sizes listed
