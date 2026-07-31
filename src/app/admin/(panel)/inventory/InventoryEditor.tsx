@@ -2,24 +2,34 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Product } from "@/data/products";
 
-interface Row { product: Product; sizes: { size: string; qty: number }[] }
+export interface InvRow {
+  stockNo: string;
+  name: string;
+  colorLeather?: string;
+  outsoleType?: string;
+  colorOutsole?: string;
+  image?: string | null;
+  /** false for models counted in inventory but not in the website catalog. */
+  onWebsite: boolean;
+  sizes: { size: string; qty: number }[];
+}
 
-export default function InventoryEditor({ rows }: { rows: Row[] }) {
+export default function InventoryEditor({ rows }: { rows: InvRow[] }) {
   const [editing, setEditing] = useState<{ stockNo: string; size: string } | null>(null);
   const [qtys, setQtys] = useState<Record<string, number>>(() => {
     const m: Record<string, number> = {};
-    for (const r of rows) for (const s of r.sizes) m[`${r.product.stockNo}::${s.size}`] = s.qty;
+    for (const r of rows) for (const s of r.sizes) m[`${r.stockNo}::${s.size}`] = s.qty;
     return m;
   });
   const [saving, setSaving] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
+  const q = search.toLowerCase();
   const filtered = rows.filter((r) =>
-    !search || r.product.name.toLowerCase().includes(search.toLowerCase()) ||
-    r.product.stockNo.toLowerCase().includes(search.toLowerCase()) ||
-    r.product.colorLeather.toLowerCase().includes(search.toLowerCase())
+    !search || r.name.toLowerCase().includes(q) ||
+    r.stockNo.toLowerCase().includes(q) ||
+    (r.colorLeather ?? "").toLowerCase().includes(q)
   );
 
   async function save(stockNo: string, size: string, qty: number) {
@@ -45,18 +55,24 @@ export default function InventoryEditor({ rows }: { rows: Row[] }) {
       />
 
       <div className="space-y-4">
-        {filtered.map(({ product: p, sizes }) => {
-          const lowStock = sizes.some((s) => qtys[`${p.stockNo}::${s.size}`] > 0 && qtys[`${p.stockNo}::${s.size}`] <= 2);
-          const totalQty = sizes.reduce((sum, s) => sum + (qtys[`${p.stockNo}::${s.size}`] ?? 0), 0);
+        {filtered.map((r) => {
+          const p = r;
+          const lowStock = r.sizes.some((s) => qtys[`${p.stockNo}::${s.size}`] > 0 && qtys[`${p.stockNo}::${s.size}`] <= 2);
+          const totalQty = r.sizes.reduce((sum, s) => sum + (qtys[`${p.stockNo}::${s.size}`] ?? 0), 0);
+          const sizes = r.sizes;
           return (
-            <div key={p.stockNo} className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div key={p.stockNo} className={`bg-white rounded-xl border shadow-sm p-5 ${p.onWebsite ? "border-gray-100" : "border-dashed border-gray-300"}`}>
               <div className="flex items-center gap-4 mb-4">
                 <div className="relative w-12 h-12 rounded-lg bg-cream flex-shrink-0 overflow-hidden">
                   {p.image && <Image src={p.image} alt={p.name} fill className="object-contain p-1 mix-blend-multiply" sizes="48px" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-black text-navy">{p.name} <span className="font-normal text-gray-400">— {p.colorLeather}</span></p>
-                  <p className="text-xs text-gray-400">{p.stockNo} · {p.outsoleType} · {p.colorOutsole}</p>
+                  <p className="font-black text-navy">
+                    {p.name}
+                    {p.colorLeather && <span className="font-normal text-gray-400"> — {p.colorLeather}</span>}
+                    {!p.onWebsite && <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 align-middle">NOT ON WEBSITE</span>}
+                  </p>
+                  <p className="text-xs text-gray-400">{[p.stockNo, p.outsoleType, p.colorOutsole].filter(Boolean).join(" · ")}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-gray-400">Total stock</p>
