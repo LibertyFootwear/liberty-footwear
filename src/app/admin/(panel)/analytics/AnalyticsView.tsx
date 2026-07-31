@@ -9,6 +9,16 @@ const TABS = [
   { key: "all", href: "/admin/analytics/all", label: "All Combined" },
 ];
 
+function Kpi({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-5">
+      <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wide">{label}</p>
+      <p className="text-xl sm:text-2xl font-black text-navy mt-1">{value}</p>
+      {sub && <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5">{sub}</p>}
+    </div>
+  );
+}
+
 function Bar({ label, value, max, sub, color = "bg-navy" }: { label: string; value: number; max: number; sub?: string; color?: string }) {
   const pct = max > 0 ? (value / max) * 100 : 0;
   return (
@@ -44,6 +54,19 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
   const maxHour = Math.max(1, ...Object.values(agg.byHour));
   const maxYearRev = Math.max(1, ...years.map((y) => agg.byYear[y].revenue));
 
+  // Headline KPIs (computed from the same aggregate). Orders/AOV only apply to
+  // web orders — retail sales are line items, not baskets — so hide them at 0.
+  const money0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
+  const aov = agg.orders > 0 ? agg.revenue / agg.orders : 0;
+  const perPair = agg.units > 0 ? agg.revenue / agg.units : 0;
+  const kpis: { label: string; value: string; sub?: string }[] = [
+    { label: "Revenue", value: money0(agg.revenue) },
+    ...(agg.orders > 0 ? [{ label: "Orders", value: agg.orders.toLocaleString() }] : []),
+    { label: "Pairs sold", value: agg.units.toLocaleString() },
+    ...(agg.orders > 0 ? [{ label: "Avg order value", value: money0(aov) }] : []),
+    ...(agg.units > 0 ? [{ label: "Avg $ / pair", value: money0(perPair) }] : []),
+  ];
+
   const hasWidth = widths.some(([, v]) => v > 0);
   const hasMonth = MONTHS.some((m) => (agg.byMonth[m] ?? 0) > 0);
   // Hour-of-day is only meaningful where records carry a timestamp (web orders).
@@ -71,6 +94,11 @@ export default function AnalyticsView({ agg, active, subtitle }: { agg: Agg; act
         </div>
       ) : (
         <>
+          {/* Headline KPIs */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            {kpis.map((k) => <Kpi key={k.label} label={k.label} value={k.value} sub={k.sub} />)}
+          </div>
+
           {/* Revenue by year (historical / combined) */}
           {agg.hasYear && years.length > 1 && (
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
