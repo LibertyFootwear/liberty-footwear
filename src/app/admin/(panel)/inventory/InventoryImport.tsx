@@ -136,8 +136,13 @@ export default function InventoryImport({
           in the file are overwritten; sizes not in the file are left as they are.
         </p>
 
-        <input type="file" accept=".xls,.xlsx" onChange={onFile}
-          className="block text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-navy file:px-4 file:py-2 file:text-white file:font-bold" />
+        {/* Custom label + hidden input so the button text is always English,
+            not the browser's locale ("Vybrat soubor" / "soubor nevybrán"). */}
+        <label className="inline-flex items-center gap-3 cursor-pointer">
+          <span className="rounded-lg bg-navy px-4 py-2 text-white text-sm font-bold hover:bg-navy/80 transition">Choose file</span>
+          <span className="text-sm text-gray-500">{fileName || "No file chosen"}</span>
+          <input type="file" accept=".xls,.xlsx" onChange={onFile} className="hidden" />
+        </label>
 
         {parsed && (
           <div className="rounded-lg bg-gray-50 border border-gray-100 p-4 text-sm space-y-2">
