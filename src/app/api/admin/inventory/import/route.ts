@@ -18,14 +18,21 @@ export async function POST(req: NextRequest) {
   const inventoryDate = typeof body?.inventoryDate === "string" ? body.inventoryDate : "";
   const responsibleBy = typeof body?.responsibleBy === "string" ? body.responsibleBy.trim() : "";
 
-  const clean = rows
-    .map((r) => ({
-      stock_no: String(r.stockNo ?? "").trim(),
-      size: String(r.size ?? "").trim(),
-      qty: Math.max(0, Math.round(Number(r.qty))),
-      updated_at: new Date().toISOString(),
-    }))
-    .filter((r) => r.stock_no && r.size && Number.isFinite(r.qty));
+  // Aggregate by (stock_no, size): Postgres ON CONFLICT can't touch the same row
+  // twice in one upsert, so duplicate keys must be summed into a single row.
+  const now = new Date().toISOString();
+  const byKey = new Map<string, { stock_no: string; size: string; qty: number; updated_at: string }>();
+  for (const r of rows) {
+    const stock_no = String(r.stockNo ?? "").trim();
+    const size = String(r.size ?? "").trim();
+    const qty = Math.max(0, Math.round(Number(r.qty)));
+    if (!stock_no || !size || !Number.isFinite(qty)) continue;
+    const key = `${stock_no}::${size}`;
+    const ex = byKey.get(key);
+    if (ex) ex.qty += qty;
+    else byKey.set(key, { stock_no, size, qty, updated_at: now });
+  }
+  const clean = [...byKey.values()];
 
   if (clean.length === 0) return NextResponse.json({ error: "No valid rows to import" }, { status: 400 });
 

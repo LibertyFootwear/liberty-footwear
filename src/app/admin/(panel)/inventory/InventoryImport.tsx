@@ -33,7 +33,9 @@ function parseWorkbook(data: ArrayBuffer, knownStocks: Set<string>): Parsed {
   const header = (aoa[0] ?? []) as unknown[];
   const sizes = header.slice(2).map(fmtSize);
 
-  const rows: Row[] = [];
+  // Aggregate by stock+size — a stock number can legitimately appear in more than
+  // one block (variants sharing a number), and the same size must not be sent twice.
+  const acc = new Map<string, Row>();
   let cur = "";
   for (let r = 1; r < aoa.length; r++) {
     const row = (aoa[r] ?? []) as unknown[];
@@ -44,11 +46,16 @@ function parseWorkbook(data: ArrayBuffer, knownStocks: Set<string>): Parsed {
       for (let i = 0; i < sizes.length; i++) {
         const v = row[2 + i];
         if (typeof v === "number" && v !== 0 && sizes[i]) {
-          rows.push({ stockNo: cur, size: `${c1} ${sizes[i]}`, qty: Math.round(v) });
+          const size = `${c1} ${sizes[i]}`;
+          const key = `${cur}::${size}`;
+          const ex = acc.get(key);
+          if (ex) ex.qty += Math.round(v);
+          else acc.set(key, { stockNo: cur, size, qty: Math.round(v) });
         }
       }
     }
   }
+  const rows = [...acc.values()];
 
   const stocks = new Set(rows.map((r) => r.stockNo));
   const unknown = [...stocks].filter((s) => !knownStocks.has(s)).sort();
