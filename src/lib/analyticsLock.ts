@@ -47,3 +47,17 @@ export function unlockCookie() {
     sameSite: "lax" as const,
   };
 }
+
+/** Cookie descriptor that clears the unlock — used on admin login/logout so a new
+ *  session must re-enter the passcode to see Dashboard/Analytics. */
+export function clearUnlockCookie() {
+  return {
+    name: COOKIE,
+    value: "",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0,
+    sameSite: "lax" as const,
+  };
+}

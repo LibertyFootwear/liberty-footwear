@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getAdminByEmail } from "@/lib/adminDb";
 import { signAdminToken, setAdminCookie } from "@/lib/adminJwt";
+import { clearUnlockCookie } from "@/lib/analyticsLock";
 import { checkRateLimit, clientIp } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
@@ -23,5 +24,6 @@ export async function POST(req: NextRequest) {
   const token = await signAdminToken({ adminId: admin.id });
   const res = NextResponse.json({ ok: true, name: admin.name });
   res.cookies.set(setAdminCookie(token));
+  res.cookies.set(clearUnlockCookie()); // require the Dashboard passcode again this session
   return res;
 }
