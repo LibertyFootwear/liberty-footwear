@@ -259,10 +259,10 @@ function CheckoutForm() {
               <div className="bg-white border border-gray-200 rounded-2xl p-6">
                 <h2 className="font-black text-navy text-lg mb-5">Contact Information</h2>
                 <div className="grid grid-cols-2 gap-4">
-                  <Field label="First Name" name="firstName" half />
-                  <Field label="Last Name" name="lastName" half />
+                  <Field label="First Name" name="firstName" half required />
+                  <Field label="Last Name" name="lastName" half required />
                   <Field label="Email Address" name="email" type="email" required />
-                  <Field label="Phone Number" name="phone" type="tel" placeholder="(555) 000-0000" />
+                  <Field label="Phone Number" name="phone" type="tel" placeholder="(555) 000-0000" required />
                 </div>
               </div>
 
@@ -309,10 +309,10 @@ function CheckoutForm() {
                     )}
                     <h3 className="font-bold text-navy text-sm mb-4">Shipping Address</h3>
                     <div className="grid grid-cols-2 gap-4">
-                      <Field label="Street Address" name="address" inputId="checkout-street" />
-                      <Field label="City" name="city" half />
-                      <Field label="State" name="state" half placeholder="MI" />
-                      <Field label="ZIP Code" name="zip" half placeholder="49501" />
+                      <Field label="Street Address" name="address" inputId="checkout-street" required />
+                      <Field label="City" name="city" half required />
+                      <Field label="State" name="state" half placeholder="MI" required />
+                      <Field label="ZIP Code" name="zip" half placeholder="49501" required />
                       <div className="col-span-1">
                         <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">Country</label>
                         <select
@@ -339,10 +339,10 @@ function CheckoutForm() {
                       </label>
                       {!form.billingSame && (
                         <div className="mt-4 grid grid-cols-2 gap-4">
-                          <Field label="Billing Street Address" name="billingAddress" />
-                          <Field label="City" name="billingCity" half />
-                          <Field label="State" name="billingState" half placeholder="MI" />
-                          <Field label="ZIP Code" name="billingZip" half placeholder="49501" />
+                          <Field label="Billing Street Address" name="billingAddress" required />
+                          <Field label="City" name="billingCity" half required />
+                          <Field label="State" name="billingState" half placeholder="MI" required />
+                          <Field label="ZIP Code" name="billingZip" half placeholder="49501" required />
                           <div className="col-span-1">
                             <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">Country</label>
                             <select
@@ -378,7 +378,7 @@ function CheckoutForm() {
                 </label>
                 {form.createAccount && (
                   <div className="mt-4">
-                    <Field label="Password" name="password" type="password" />
+                    <Field label="Password" name="password" type="password" required />
                   </div>
                 )}
               </div>
