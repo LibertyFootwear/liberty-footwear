@@ -358,19 +358,20 @@ function CheckoutForm() {
                   </>
                 )}
               </div>
-            {/* Create account */}
+            {/* Create account — highlighted box so guests notice the option */}
             {!user && (
-              <div className="bg-white border border-gray-200 rounded-2xl p-6">
-                <label className="flex items-center gap-3 cursor-pointer select-none">
+              <div className="bg-cream border-2 border-navy/20 rounded-2xl p-6">
+                <label className="flex items-start gap-3 cursor-pointer select-none">
+                  <span className="text-2xl leading-none">👟</span>
                   <input
                     type="checkbox"
                     checked={form.createAccount}
                     onChange={(e) => set("createAccount", e.target.checked)}
-                    className="w-4 h-4 accent-navy"
+                    className="w-5 h-5 accent-navy mt-0.5"
                   />
                   <div>
-                    <p className="font-bold text-navy text-sm">Create a free account</p>
-                    <p className="text-xs text-gray-500 mt-0.5">Save your order history and check out faster next time.</p>
+                    <p className="font-black text-navy">Create a free account</p>
+                    <p className="text-xs text-gray-600 mt-0.5">Save your order history, reorder in one click, and check out faster next time.</p>
                   </div>
                 </label>
                 {form.createAccount && (
