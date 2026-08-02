@@ -23,13 +23,15 @@ const AUTOCOMPLETE: Record<string, string> = {
   billingState: "billing address-level1", billingZip: "billing postal-code",
 };
 
-function Field({ label, name, type = "text", half = false, placeholder = "", inputId }: {
-  label: string; name: string; type?: string; half?: boolean; placeholder?: string; inputId?: string;
+function Field({ label, name, type = "text", half = false, placeholder = "", inputId, required = false }: {
+  label: string; name: string; type?: string; half?: boolean; placeholder?: string; inputId?: string; required?: boolean;
 }) {
   const ctx = useContext(FieldContext)!;
   return (
     <div className={half ? "col-span-1" : "col-span-2"}>
-      <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">{label}</label>
+      <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">
+        {label}{required && <span className="text-red"> *</span>}
+      </label>
       <input
         id={inputId}
         type={type}
@@ -259,7 +261,7 @@ function CheckoutForm() {
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="First Name" name="firstName" half />
                   <Field label="Last Name" name="lastName" half />
-                  <Field label="Email Address" name="email" type="email" />
+                  <Field label="Email Address" name="email" type="email" required />
                   <Field label="Phone Number" name="phone" type="tel" placeholder="(555) 000-0000" />
                 </div>
               </div>
