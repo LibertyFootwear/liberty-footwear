@@ -423,7 +423,7 @@ function CheckoutForm() {
                       : <span className="font-semibold text-green-600">Free</span>}
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Tax (6% MI)</span>
+                    <span className="text-gray-600">Tax</span>
                     <span className="font-semibold">${tax.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-cream-dark pt-3 flex justify-between font-black text-lg">
