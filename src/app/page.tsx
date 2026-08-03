@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { products } from "@/data/products";
@@ -91,6 +92,18 @@ const WHY_US = [
 
 export default function HomePage() {
   const { t } = useLang();
+
+  // Featured/apparel are static (base prices baked in the bundle). Pull live
+  // catalog prices so admin price edits show here too, not just in the shop.
+  const [prices, setPrices] = useState<Record<string, number>>({});
+  useEffect(() => {
+    fetch("/api/catalog-prices")
+      .then((r) => r.json())
+      .then((d) => setPrices(d.prices ?? {}))
+      .catch(() => {});
+  }, []);
+  const withPrice = <T extends { stockNo: string; price: number }>(p: T): T =>
+    ({ ...p, price: prices[p.stockNo] ?? p.price });
 
   return (
     <>
@@ -245,7 +258,7 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featured.map((p) => (
-              <ProductCard key={p.stockNo} product={p} />
+              <ProductCard key={p.stockNo} product={withPrice(p)} />
             ))}
           </div>
           <div className="text-center mt-10 sm:hidden">
@@ -273,7 +286,7 @@ export default function HomePage() {
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {apparel.map((p) => (
-                <ProductCard key={p.stockNo} product={p} />
+                <ProductCard key={p.stockNo} product={withPrice(p)} />
               ))}
             </div>
             <div className="text-center mt-10 sm:hidden">
