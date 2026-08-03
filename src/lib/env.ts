@@ -33,7 +33,7 @@ const optionalServerEnvSchema = z.object({
   SHEETS_WEBHOOK_SECRET: optionalString,
 });
 
-function throwMissing(issues: { path: PropertyKey[] }[]) {
+function throwMissing(issues: { path: PropertyKey[] }[]): never {
   const names = [...new Set(issues.map((i) => String(i.path[0] ?? "")))].filter(Boolean);
   throw new Error(
     names.length === 1
