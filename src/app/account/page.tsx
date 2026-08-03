@@ -10,8 +10,8 @@ import AddressManager from "@/components/AddressManager";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import type { Order } from "@/lib/ordersDb";
 import type { Review } from "@/lib/reviewsDb";
-import type { Notifications } from "@/lib/userDb";
-import { defaultNotifications } from "@/lib/userDb";
+import type { Notifications } from "@/lib/userTypes";
+import { defaultNotifications } from "@/lib/userTypes";
 
 type Tab = "overview" | "orders" | "favorites" | "addresses" | "settings" | "password";
 

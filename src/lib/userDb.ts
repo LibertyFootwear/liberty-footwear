@@ -1,47 +1,16 @@
+import "server-only";
 import { getSupabase } from "./supabase";
 import crypto from "crypto";
+import {
+  type Address,
+  type Notifications,
+  type SavedAddress,
+  type User,
+  defaultNotifications,
+} from "./userTypes";
 
-export interface Notifications {
-  specialOffers: boolean;
-  newsletter: boolean;
-  blog: boolean;
-  newProducts: boolean;
-}
-
-export const defaultNotifications: Notifications = {
-  specialOffers: true,
-  newsletter: true,
-  blog: true,
-  newProducts: true,
-};
-
-export interface Address {
-  line1: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
-}
-
-export interface SavedAddress extends Address {
-  id: string;
-  label: string;
-  isDefault?: boolean;
-}
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  passwordHash: string;
-  favorites: string[];
-  newsletter: boolean;
-  notifications: Notifications;
-  address?: Address;
-  addresses: SavedAddress[];
-  createdAt: string;
-}
+export type { Address, Notifications, SavedAddress, User };
+export { defaultNotifications };
 
 function mapRow(row: Record<string, unknown>): User {
   const address = (row.address as Address) ?? undefined;

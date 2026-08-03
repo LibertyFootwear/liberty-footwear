@@ -1,5 +1,5 @@
 import { getSupabase } from "./supabase";
-import type { Address } from "./userDb";
+import type { Address } from "./userTypes";
 
 export type CustomerSource = "web" | "store";
 
