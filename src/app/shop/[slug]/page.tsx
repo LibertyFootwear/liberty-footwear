@@ -2,7 +2,7 @@ import { products, getProductBySlug } from "@/data/products";
 import { getCatalogBySlug, getCatalogVariantGroup } from "@/lib/catalog";
 import { notFound } from "next/navigation";
 import ProductPageClient from "@/components/ProductPageClient";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, jsonLd } from "@/lib/seo";
 import type { Metadata } from "next";
 
 // Render on every request so admin price / description overrides show immediately
@@ -77,8 +77,8 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(productLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbLd) }} />
       <ProductPageClient p={p} variants={variants} related={related} />
     </>
   );

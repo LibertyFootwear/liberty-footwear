@@ -8,7 +8,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import PublicChrome from "@/components/PublicChrome";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, jsonLd } from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -67,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="h-full">
       <body className={`${inter.className} min-h-full flex flex-col`}>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ORG_JSONLD) }} />
         <LanguageProvider>
         <AuthProvider>
           <CartProvider>
