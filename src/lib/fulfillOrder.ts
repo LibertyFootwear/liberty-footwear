@@ -4,6 +4,7 @@ import { decrementInventory } from "@/lib/inventoryDb";
 import { tryUpsertCustomer } from "@/lib/customersDb";
 import { sendOrderConfirmationEmail } from "@/lib/orderEmail";
 import { products } from "@/data/products";
+import { env } from "@/lib/env";
 
 /**
  * Fetch the Stripe invoice for a completed checkout session: the hosted URL and
@@ -14,10 +15,9 @@ async function getInvoice(
   session: Stripe.Checkout.Session
 ): Promise<{ url?: string; pdfBase64?: string }> {
   try {
-    const key = process.env.STRIPE_SECRET_KEY;
     const invoiceRef = (session as unknown as { invoice?: string | Stripe.Invoice }).invoice;
-    if (!key || !invoiceRef) return {};
-    const stripe = new Stripe(key, { apiVersion: "2026-06-24.dahlia" });
+    if (!invoiceRef) return {};
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
     const invoice = typeof invoiceRef === "string" ? await stripe.invoices.retrieve(invoiceRef) : invoiceRef;
     const url = invoice.hosted_invoice_url ?? undefined;
     let pdfBase64: string | undefined;

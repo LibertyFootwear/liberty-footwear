@@ -1,11 +1,12 @@
+import { env } from "@/lib/env";
+
 /**
  * Mirror retail_sales rows into a Google Sheet (backup) via a Google Apps Script
  * web-app webhook. Best-effort: a Sheets hiccup must never break a sale, so every
- * call swallows its errors. No-op when SHEETS_WEBHOOK_URL is unset.
+ * call swallows its errors. No-op when SHEETS_WEBHOOK_URL is unset (local/script env).
  *
  * Setup: deploy scripts/google-apps-script.gs as a Sheets-bound web app, then set
- *   SHEETS_WEBHOOK_URL     the /exec URL of the deployed web app
- *   SHEETS_WEBHOOK_SECRET  a shared secret (must match the script's SECRET)
+ *   SHEETS_WEBHOOK_URL / SHEETS_WEBHOOK_SECRET in .env.local (see src/lib/env.ts).
  */
 
 /** Column order shared with the Apps Script. Keep in sync on both sides. */
@@ -25,13 +26,13 @@ export function toSheetRow(dbRow: Record<string, unknown>): SheetRow {
 }
 
 async function post(body: Record<string, unknown>): Promise<void> {
-  const url = process.env.SHEETS_WEBHOOK_URL;
+  const url = env.SHEETS_WEBHOOK_URL;
   if (!url) return; // not configured — mirroring is optional
   try {
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ secret: process.env.SHEETS_WEBHOOK_SECRET ?? "", ...body }),
+      body: JSON.stringify({ secret: env.SHEETS_WEBHOOK_SECRET ?? "", ...body }),
       // Apps Script /exec responds 302→200; follow it.
       redirect: "follow",
     });

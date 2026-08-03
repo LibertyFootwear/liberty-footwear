@@ -1,20 +1,19 @@
 import { cookies } from "next/headers";
 import { createHmac, timingSafeEqual } from "crypto";
+import { env } from "@/lib/env";
 
 /**
  * Lightweight passcode lock for Dashboard + Analytics, on top of the admin login.
- * The passcode defaults to "1234" and can be overridden with ANALYTICS_PASSCODE.
  * The unlock cookie stores an HMAC of the passcode, so changing the passcode
  * invalidates old unlocks. Low-security by design — a convenience lock, not auth.
  */
 
 const COOKIE = "lf_analytics_unlock";
-export const ANALYTICS_PASSCODE = process.env.ANALYTICS_PASSCODE || "1234";
+export const ANALYTICS_PASSCODE = env.ANALYTICS_PASSCODE;
 
 /** Cookie value derived from the current passcode. */
 function token(): string {
-  const secret = process.env.JWT_SECRET || "lf-analytics-lock";
-  return createHmac("sha256", secret).update(`analytics:${ANALYTICS_PASSCODE}`).digest("hex");
+  return createHmac("sha256", env.JWT_SECRET).update(`analytics:${ANALYTICS_PASSCODE}`).digest("hex");
 }
 
 function safeEqual(a: string, b: string): boolean {
@@ -41,7 +40,7 @@ export function unlockCookie() {
     name: COOKIE,
     value: token(),
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.isProduction,
     path: "/",
     maxAge: 60 * 60 * 24 * 30,
     sameSite: "lax" as const,
@@ -55,7 +54,7 @@ export function clearUnlockCookie() {
     name: COOKIE,
     value: "",
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.isProduction,
     path: "/",
     maxAge: 0,
     sameSite: "lax" as const,

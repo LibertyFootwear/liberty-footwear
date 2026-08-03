@@ -1,13 +1,11 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { env } from "@/lib/env";
 
 let _client: SupabaseClient | null = null;
 
 export function getSupabase(): SupabaseClient {
   if (!_client) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !key) throw new Error("Supabase env vars not set");
-    _client = createClient(url, key);
+    _client = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
   }
   return _client;
 }

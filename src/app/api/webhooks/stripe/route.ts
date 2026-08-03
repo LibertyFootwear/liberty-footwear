@@ -1,25 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { fulfillCheckoutSession } from "@/lib/fulfillOrder";
+import { env } from "@/lib/env";
 
 // Stripe needs the raw request body to verify the signature.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const secret = process.env.STRIPE_SECRET_KEY;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!secret || !webhookSecret) {
-    return NextResponse.json({ error: "Stripe not configured" }, { status: 500 });
-  }
-
-  const stripe = new Stripe(secret, { apiVersion: "2026-06-24.dahlia" });
+  const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
   const sig = req.headers.get("stripe-signature");
   const body = await req.text();
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, sig ?? "", webhookSecret);
+    event = stripe.webhooks.constructEvent(body, sig ?? "", env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     console.error("Stripe webhook signature check failed:", err);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });

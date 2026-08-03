@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendMail } from "@/lib/mailer";
 import { addSubscriber } from "@/lib/newsletterDb";
 import { checkRateLimit, clientIp } from "@/lib/rateLimit";
+import { env } from "@/lib/env";
 
 export async function POST(req: NextRequest) {
   if (!checkRateLimit(`newsletter:${clientIp(req)}`, 5, 60_000)) {
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
           <div style="padding:32px 24px">
             <h2 style="color:#0b3154">You're in!</h2>
             <p>Thanks for signing up. You'll be the first to hear about new styles, promotions, and boot care tips from Liberty Footwear.</p>
-            <a href="${process.env.NEXT_PUBLIC_BASE_URL}/shop" style="display:inline-block;margin-top:16px;background:#d1282a;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;text-transform:uppercase;letter-spacing:1px">Shop Now</a>
+            <a href="${env.NEXT_PUBLIC_BASE_URL}/shop" style="display:inline-block;margin-top:16px;background:#d1282a;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;text-transform:uppercase;letter-spacing:1px">Shop Now</a>
           </div>
           <div style="background:#f5f0e8;padding:16px 24px;text-align:center;font-size:12px;color:#888">
             © ${new Date().getFullYear()} Liberty Footwear · Built in America

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Stripe from "stripe";
 import OrderStatusForm from "./OrderStatusForm";
 import TrackingForm from "./TrackingForm";
+import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,9 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
   let invoiceUrl: string | null = null;
   let invoicePdf: string | null = null;
   const sessionId = o.stripe_session_id as string | null;
-  if (sessionId && !sessionId.startsWith("store-") && process.env.STRIPE_SECRET_KEY) {
+  if (sessionId && !sessionId.startsWith("store-")) {
     try {
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
+      const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
       const session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ["invoice"] });
       const inv = session.invoice as Stripe.Invoice | null;
       if (inv) {

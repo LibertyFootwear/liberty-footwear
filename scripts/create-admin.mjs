@@ -3,8 +3,8 @@
  *
  * Prerequisites:
  *   1. Run scripts/sql/create-admins-table.sql in the Supabase SQL Editor once.
- *   2. Ensure .env.local has NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY
- *      (sb_secret_... from Dashboard → API Keys). SUPABASE_SERVICE_ROLE_KEY also works as env name.
+ *   2. Ensure .env.local has NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+ *      (sb_secret_... from Dashboard → API Keys).
  *
  * Usage (PowerShell) — password is prompted interactively (not stored in shell history):
  *   npm run admin:create
@@ -139,12 +139,10 @@ if (password !== confirm) {
 }
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-// Prefer modern name; keep SERVICE_ROLE_KEY as a fallback if that's what .env.local still uses.
-const key = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) {
   console.error(
-    "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY (check .env.local).\n" +
-      "(SUPABASE_SERVICE_ROLE_KEY is also accepted as a fallback env name.)"
+    "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY (check .env.local)."
   );
   process.exit(1);
 }
@@ -161,7 +159,7 @@ if (!key.startsWith("sb_secret_")) {
   console.error(
     "Expected a modern secret key starting with sb_secret_.\n" +
       "Dashboard → Project Settings → API Keys → copy the Secret key into\n" +
-      "SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY) in .env.local."
+      "SUPABASE_SERVICE_ROLE_KEY in .env.local."
   );
   process.exit(1);
 }
@@ -184,7 +182,7 @@ if (error) {
   console.error("Failed to create admin:", error.message);
   if (/row-level security/i.test(error.message)) {
     console.error(
-      "Hint: RLS blocked the insert — confirm SUPABASE_SECRET_KEY is an sb_secret_ key\n" +
+      "Hint: RLS blocked the insert — confirm SUPABASE_SERVICE_ROLE_KEY is an sb_secret_ key\n" +
         "(not sb_publishable_). Dashboard → Project Settings → API Keys."
     );
   }

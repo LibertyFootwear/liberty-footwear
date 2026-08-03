@@ -1,34 +1,29 @@
 import nodemailer, { type Transporter } from "nodemailer";
+import { env } from "@/lib/env";
 
 /**
- * Shared SMTP mailer (IONOS by default). Configure via env:
- *   SMTP_HOST  (default smtp.ionos.com)
- *   SMTP_PORT  (default 587 — STARTTLS; use 465 for implicit TLS)
- *   SMTP_USER  the mailbox address, e.g. orders@libertyfootwear.com
- *   SMTP_PASS  the mailbox password
+ * Shared SMTP mailer. Configure via env (see src/lib/env.ts):
+ *   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, ORDER_EMAIL_FROM
  *
- * IONOS requires the From address to match the authenticated mailbox, so the
- * default From uses SMTP_USER.
+ * IONOS requires the From address to match the authenticated mailbox, so
+ * ORDER_EMAIL_FROM should use the same mailbox as SMTP_USER.
  */
 
 let _transport: Transporter | null = null;
 
 function getTransport(): Transporter {
   if (_transport) return _transport;
-  const host = process.env.SMTP_HOST || "smtp.ionos.com";
-  const port = Number(process.env.SMTP_PORT) || 587;
+  const port = env.SMTP_PORT;
   _transport = nodemailer.createTransport({
-    host,
+    host: env.SMTP_HOST,
     port,
     secure: port === 465, // 465 = implicit TLS; 587 = STARTTLS
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
   });
   return _transport;
 }
 
-export const MAIL_FROM =
-  process.env.ORDER_EMAIL_FROM ||
-  `Liberty Footwear <${process.env.SMTP_USER || "info@libertyfootwear.com"}>`;
+export const MAIL_FROM = env.ORDER_EMAIL_FROM;
 
 export interface MailAttachment {
   filename: string;
@@ -49,10 +44,6 @@ export interface SendMailInput {
 
 /** Send an email via SMTP. Throws on failure — wrap in try/catch in flows that must not break. */
 export async function sendMail(input: SendMailInput): Promise<void> {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn("SMTP_USER / SMTP_PASS not set — skipping email send");
-    return;
-  }
   await getTransport().sendMail({
     from: input.from ?? MAIL_FROM,
     to: input.to,

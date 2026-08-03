@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCatalog } from "@/lib/catalog";
 import ShopClient from "./ShopClient";
+import { SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Shop All Work Boots – Liberty Footwear",
     description: "Handcrafted American-made work boots, built in Grand Rapids, Michigan.",
-    url: `${process.env.NEXT_PUBLIC_BASE_URL || "https://libertyfootwear.com"}/shop`,
+    url: `${SITE_URL}/shop`,
   },
 };
 

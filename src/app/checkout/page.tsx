@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, Suspense, createContext, useContext } from "react";
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
+import { publicEnv } from "@/lib/publicEnv";
 
 interface FieldCtx {
   form: Record<string, string | boolean>;
@@ -109,10 +110,10 @@ function CheckoutForm() {
     }));
   }, [user]);
 
-  // Google Places address autocomplete — activates only when an API key is set.
+  // Google Places address autocomplete.
   useEffect(() => {
-    const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    if (!key || shippingMethod === "pickup") return;
+    const key = publicEnv.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (shippingMethod === "pickup") return;
     let cancelled = false;
 
     function attach() {

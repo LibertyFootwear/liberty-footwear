@@ -9,7 +9,6 @@
  * Prerequisites:
  *   1. Run scripts/sql/create-customers-table.sql in the Supabase SQL Editor first.
  *   2. .env.local has NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
- *      (SUPABASE_SECRET_KEY also works).
  *
  * Usage:
  *   node scripts/backfill-customers.mjs           # apply
@@ -45,7 +44,7 @@ loadEnvLocal();
 const DRY = process.argv.includes("--dry-run");
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) {
   console.error("Missing NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env.local");
   process.exit(1);

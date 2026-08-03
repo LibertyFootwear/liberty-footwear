@@ -1,8 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { env } from "@/lib/env";
 
-if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET env var is required");
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const SECRET = new TextEncoder().encode(env.JWT_SECRET);
 const COOKIE = "lf_admin";
 
 export async function signAdminToken(payload: { adminId: string }) {
@@ -36,7 +36,7 @@ export function setAdminCookie(token: string) {
     name: COOKIE,
     value: token,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.isProduction,
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
     sameSite: "lax" as const,
@@ -48,7 +48,7 @@ export function clearAdminCookie() {
     name: COOKIE,
     value: "",
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.isProduction,
     sameSite: "lax" as const,
     path: "/",
     maxAge: 0,

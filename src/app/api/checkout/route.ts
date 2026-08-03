@@ -4,10 +4,11 @@ import { getCatalogPrice } from "@/lib/catalog";
 import { products } from "@/data/products";
 import { getAuthUserId } from "@/lib/authJwt";
 import { getSiteSettings } from "@/lib/siteSettings";
+import { env } from "@/lib/env";
 
 const APPAREL_SHIPPING_CENTS = 800; // $8 flat when the order is apparel-only
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2026-06-24.dahlia",
 });
 
@@ -117,8 +118,8 @@ export async function POST(req: NextRequest) {
       ...(userId ? { userId } : {}),
       ...(billing ? { name: `${billing.firstName} ${billing.lastName}`, phone: billing.phone, shippingMethod: shippingMethod ?? "ship" } : {}),
     },
-    success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
+    success_url: `${env.NEXT_PUBLIC_BASE_URL}/order/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${env.NEXT_PUBLIC_BASE_URL}/cart`,
   });
 
   return NextResponse.json({ url: session.url });

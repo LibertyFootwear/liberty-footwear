@@ -4,6 +4,7 @@ import { fulfillCheckoutSession } from "@/lib/fulfillOrder";
 import { getCatalog } from "@/lib/catalog";
 import { getAuthUserId } from "@/lib/authJwt";
 import ProductCard from "@/components/ProductCard";
+import { env } from "@/lib/env";
 
 interface Props {
   searchParams: Promise<{ session_id?: string }>;
@@ -13,9 +14,9 @@ export default async function SuccessPage({ searchParams }: Props) {
   const { session_id } = await searchParams;
 
   const bought = new Set<string>();
-  if (session_id && process.env.STRIPE_SECRET_KEY) {
+  if (session_id) {
     try {
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
+      const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
       const session = await stripe.checkout.sessions.retrieve(session_id, {
         expand: ["line_items.data.price.product"],
       });
@@ -25,7 +26,7 @@ export default async function SuccessPage({ searchParams }: Props) {
         if (prod?.metadata?.stockNo) bought.add(prod.metadata.stockNo);
       }
     } catch {
-      // Stripe not configured or session invalid — still show success
+      // Session invalid — still show success
     }
   }
 
