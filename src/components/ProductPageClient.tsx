@@ -38,10 +38,10 @@ export default function ProductPageClient({ p, variants, related }: Props) {
 
           {/* Image / Gallery */}
           {p.gallery && p.gallery.length > 0 ? (
-            <ProductGallery images={p.gallery} alt={`${p.name} – ${p.colorLeather}`} isNew={p.isNew} />
+            <ProductGallery images={p.gallery} alt={`${p.name} – ${p.colorLeather} work boot by Liberty Footwear`} isNew={p.isNew} />
           ) : p.image ? (
             <div className="relative aspect-square bg-cream rounded-2xl overflow-hidden">
-              <Image src={p.image} alt={`${p.name} – ${p.colorLeather}`} fill className="object-contain p-8 mix-blend-multiply" sizes="(max-width: 1024px) 100vw, 50vw" priority />
+              <Image src={p.image} alt={`${p.name} – ${p.colorLeather} work boot by Liberty Footwear`} fill className="object-contain p-8 mix-blend-multiply" sizes="(max-width: 1024px) 100vw, 50vw" priority />
               {p.isNew && (
                 <span className="absolute top-4 left-4 bg-red text-white text-sm font-bold px-3 py-1 rounded uppercase tracking-wide">{t.shop.new}</span>
               )}
@@ -109,7 +109,7 @@ export default function ProductPageClient({ p, variants, related }: Props) {
                 <Link key={r.stockNo} href={`/shop/${r.slug}`} className="group bg-cream rounded-xl overflow-hidden hover:shadow-md transition">
                   <div className="relative aspect-square">
                     {r.image && (
-                      <Image src={r.image} alt={r.name} fill className="object-contain p-4 group-hover:scale-105 transition-transform mix-blend-multiply" sizes="25vw" />
+                      <Image src={r.image} alt={`${r.name} work boot by Liberty Footwear`} fill className="object-contain p-4 group-hover:scale-105 transition-transform mix-blend-multiply" sizes="25vw" />
                     )}
                   </div>
                   <div className="p-3">

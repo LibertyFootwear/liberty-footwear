@@ -288,7 +288,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl order-2 lg:order-1">
-              <Image src="/images/factory-leather.jpg" alt="Liberty Footwear factory" fill className="object-cover" />
+              <Image src="/images/factory-leather.jpg" alt="Premium leather for work boots inside the Liberty Footwear factory in Grand Rapids, Michigan" fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-navy/60 to-transparent" />
             </div>
             <div className="order-1 lg:order-2">
@@ -374,7 +374,7 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative">
                   <div className="relative w-full aspect-square mb-4 rounded-xl overflow-hidden bg-white group-hover:scale-105 transition-transform duration-300">
-                    <Image src={CATEGORY_IMAGES[i]} alt={c.label} fill className="object-contain p-3" sizes="(max-width: 640px) 50vw, 25vw" />
+                    <Image src={CATEGORY_IMAGES[i]} alt={`${c.label} work boots by Liberty Footwear`} fill className="object-contain p-3" sizes="(max-width: 640px) 50vw, 25vw" />
                   </div>
                   <h3 className="text-lg font-black mb-1.5">{c.label}</h3>
                   <p className="text-white/50 group-hover:text-white/80 text-xs leading-snug transition-colors">{c.desc}</p>

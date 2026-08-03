@@ -19,7 +19,7 @@ export default function ProductCard({ product: p }: { product: Product }) {
         {p.image ? (
           <Image
             src={p.image}
-            alt={`${p.name} – ${p.colorLeather}`}
+            alt={`${p.name} – ${p.colorLeather} work boot by Liberty Footwear`}
             fill
             className="object-contain p-4 group-hover:scale-105 transition-transform duration-500 mix-blend-multiply"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
