@@ -5,13 +5,20 @@
 
 import { z } from "zod";
 
+/** Empty or unset → undefined (optional public keys). */
+const optionalString = z.preprocess(
+  (v) => (typeof v === "string" && v.length > 0 ? v : undefined),
+  z.string().min(1).optional()
+);
+
 const publicEnvSchema = z.object({
   NEXT_PUBLIC_BASE_URL: z
     .string()
     .min(1)
     .transform((s) => s.replace(/\/$/, "")),
   NEXT_PUBLIC_SUPABASE_URL: z.string().min(1),
-  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().min(1),
+  /** Optional — checkout address autocomplete is skipped when unset. */
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: optionalString,
 });
 
 function parsePublicEnv() {
