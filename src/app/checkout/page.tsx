@@ -110,10 +110,10 @@ function CheckoutForm() {
     }));
   }, [user]);
 
-  // Google Places address autocomplete.
+  // Google Places address autocomplete — skipped when no API key.
   useEffect(() => {
     const key = publicEnv.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    if (shippingMethod === "pickup") return;
+    if (!key || shippingMethod === "pickup") return;
     let cancelled = false;
 
     function attach() {
