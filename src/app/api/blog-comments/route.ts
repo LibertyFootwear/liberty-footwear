@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getComments, addComment } from "@/lib/commentsDb";
 import { getAuthUserId } from "@/lib/authJwt";
 import { getUserById } from "@/lib/userDb";
+import { checkRateLimit, clientIp } from "@/lib/rateLimit";
 
 function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -14,6 +15,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!checkRateLimit(`blog-comment:${clientIp(req)}`, 5, 60_000)) {
+    return NextResponse.json({ error: "Too many comments. Please try again in a minute." }, { status: 429 });
+  }
+
   const userId = await getAuthUserId();
   if (!userId) return NextResponse.json({ error: "Not logged in" }, { status: 401 });
 
