@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import bcrypt from "bcryptjs";
 import { getCatalogPrice } from "@/lib/catalog";
 import { products } from "@/data/products";
-import { getAuthUserId } from "@/lib/authJwt";
+import { getAuthUserId, signToken, setAuthCookie } from "@/lib/authJwt";
+import { getUserByEmail, createUser } from "@/lib/userDb";
+import { tryUpsertCustomer } from "@/lib/customersDb";
 import { getSiteSettings } from "@/lib/siteSettings";
 import { env } from "@/lib/env";
 
@@ -33,7 +36,7 @@ export async function POST(req: NextRequest) {
   const { items, shippingMethod, billing } = await req.json() as {
     items: { stockNo: string; name: string; size?: string; price: number; qty: number }[];
     shippingMethod?: "ship" | "pickup";
-    billing?: { firstName: string; lastName: string; email: string; phone: string; address?: string; city?: string; state?: string; zip?: string; country?: string };
+    billing?: { firstName: string; lastName: string; email: string; phone: string; address?: string; city?: string; state?: string; zip?: string; country?: string; createAccount?: boolean; password?: string };
   };
 
   if (!items?.length) return NextResponse.json({ error: "No items" }, { status: 400 });
@@ -47,7 +50,40 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const userId = await getAuthUserId();
+  let userId = await getAuthUserId();
+
+  // Optional: create the account the guest opted into at checkout. Best-effort —
+  // a hiccup here must never block the purchase. On success we log them in
+  // (auth cookie set on the response) and link the order to the new account.
+  let authCookie: ReturnType<typeof setAuthCookie> | null = null;
+  if (!userId && billing?.createAccount && billing.email && (billing.password?.length ?? 0) >= 8) {
+    try {
+      if (!(await getUserByEmail(billing.email))) {
+        const user = await createUser({
+          name: `${billing.firstName ?? ""} ${billing.lastName ?? ""}`.trim() || billing.email,
+          email: billing.email,
+          phone: billing.phone ?? "",
+          passwordHash: await bcrypt.hash(billing.password!, 10),
+          newsletter: false,
+          address: {
+            line1: billing.address?.trim() ?? "",
+            city: billing.city?.trim() ?? "",
+            state: billing.state?.trim() ?? "",
+            zip: billing.zip?.trim() ?? "",
+            country: (billing.country || "US").trim(),
+          },
+        });
+        await tryUpsertCustomer({
+          name: user.name, email: user.email, phone: user.phone, address: user.address,
+          userId: user.id, source: "web", isPurchase: false,
+        });
+        userId = user.id;
+        authCookie = setAuthCookie(await signToken({ userId: user.id }));
+      }
+    } catch (err) {
+      console.error("Account creation at checkout failed (order still proceeds):", err);
+    }
+  }
 
   // Validate prices server-side — never trust client price (uses admin-edited catalog price)
   const validatedItems = await Promise.all(items.map(async (item) => {
@@ -122,5 +158,7 @@ export async function POST(req: NextRequest) {
     cancel_url: `${env.NEXT_PUBLIC_BASE_URL}/cart`,
   });
 
-  return NextResponse.json({ url: session.url });
+  const res = NextResponse.json({ url: session.url });
+  if (authCookie) res.cookies.set(authCookie); // log in the just-created account
+  return res;
 }
