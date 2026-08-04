@@ -14,11 +14,13 @@ let _transport: Transporter | null = null;
 function getTransport(): Transporter {
   if (_transport) return _transport;
   const port = env.SMTP_PORT;
+  // Trim stray whitespace/tabs a pasted env value may carry — a leading tab in
+  // SMTP_HOST makes DNS lookups fail (getaddrinfo EBUSY "\tsmtp.ionos.com").
   _transport = nodemailer.createTransport({
-    host: env.SMTP_HOST,
+    host: env.SMTP_HOST.trim(),
     port,
     secure: port === 465, // 465 = implicit TLS; 587 = STARTTLS
-    auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+    auth: { user: env.SMTP_USER.trim(), pass: env.SMTP_PASS },
   });
   return _transport;
 }
