@@ -180,8 +180,8 @@ export default function CartPage() {
                   <p className="font-bold text-navy text-sm mb-1">Checkout faster with a free account</p>
                   <p className="text-xs text-gray-600 mb-3">Save your order history, reorder your favorite boots in one click, and skip re-entering your details next time.</p>
                   <div className="flex flex-wrap gap-2">
-                    <Link href="/register" className="px-4 py-2 bg-navy text-white text-xs font-bold rounded-lg hover:bg-navy/80 transition">Create account — it&apos;s free</Link>
-                    <Link href="/login" className="px-4 py-2 border border-navy text-navy text-xs font-bold rounded-lg hover:bg-navy/5 transition">Sign in</Link>
+                    <Link href="/account/register" className="px-4 py-2 bg-navy text-white text-xs font-bold rounded-lg hover:bg-navy/80 transition">Create account — it&apos;s free</Link>
+                    <Link href="/account/login" className="px-4 py-2 border border-navy text-navy text-xs font-bold rounded-lg hover:bg-navy/5 transition">Sign in</Link>
                   </div>
                 </div>
               </div>
