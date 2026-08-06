@@ -5,9 +5,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect, Suspense, createContext, useContext } from "react";
+import { useState, useEffect, useRef, Suspense, createContext, useContext } from "react";
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 import { publicEnv } from "@/lib/publicEnv";
+import { trackBeginCheckout } from "@/lib/gtag";
 
 interface FieldCtx {
   form: Record<string, string | boolean>;
@@ -92,10 +93,31 @@ function CheckoutForm() {
   const siteSettings = useSiteSettings();
   const salesPaused = siteSettings ? !siteSettings.salesEnabled : false;
 
+  // GA4 begin_checkout — fire once when the checkout loads with items in the cart.
+  const beginCheckoutFired = useRef(false);
+  useEffect(() => {
+    if (beginCheckoutFired.current || items.length === 0) return;
+    beginCheckoutFired.current = true;
+    trackBeginCheckout({
+      value: taxableAmount,
+      items: items.map((i) => ({
+        item_id: i.product.stockNo,
+        item_name: i.product.name,
+        price: i.product.price,
+        quantity: i.qty,
+        item_category: i.product.category,
+        item_variant: `${i.product.colorLeather} · ${i.size}`,
+      })),
+    });
+  }, [items, taxableAmount]);
+
   // Prefill from the logged-in account once it loads (only empty fields, don't clobber typing).
   useEffect(() => {
     if (!user) return;
     const def = user.addresses?.find((a) => a.isDefault) ?? user.addresses?.[0] ?? user.address ?? undefined;
+    // One-time prefill of empty fields from the async-loaded account — a valid
+    // sync of external data into editable form state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm((f) => ({
       ...f,
       firstName: f.firstName || (user.name?.split(" ")[0] ?? ""),
@@ -201,6 +223,7 @@ function CheckoutForm() {
       }),
     });
     const data = await res.json();
+    // eslint-disable-next-line react-hooks/immutability
     if (data.url) window.location.href = data.url;
     else if (data.error === "sales_paused") {
       alert(`${data.message}${data.phone ? `\n\nCall us: ${data.phone}` : ""}`);

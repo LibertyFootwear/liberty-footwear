@@ -4,6 +4,8 @@ import { fulfillCheckoutSession } from "@/lib/fulfillOrder";
 import { getCatalog } from "@/lib/catalog";
 import { getAuthUserId } from "@/lib/authJwt";
 import ProductCard from "@/components/ProductCard";
+import PurchaseTracker from "@/components/PurchaseTracker";
+import type { GaItem } from "@/lib/gtag";
 import { env } from "@/lib/env";
 
 interface Props {
@@ -14,6 +16,14 @@ export default async function SuccessPage({ searchParams }: Props) {
   const { session_id } = await searchParams;
 
   const bought = new Set<string>();
+  // GA4 purchase payload — built from the Stripe session, fired client-side.
+  let purchase: {
+    transactionId: string;
+    value: number;
+    tax?: number;
+    shipping?: number;
+    items: GaItem[];
+  } | null = null;
   if (session_id) {
     try {
       const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
@@ -21,9 +31,26 @@ export default async function SuccessPage({ searchParams }: Props) {
         expand: ["line_items.data.price.product"],
       });
       await fulfillCheckoutSession(session); // idempotent
+      const items: GaItem[] = [];
       for (const li of session.line_items?.data ?? []) {
         const prod = li.price?.product as Stripe.Product | undefined;
-        if (prod?.metadata?.stockNo) bought.add(prod.metadata.stockNo);
+        const stockNo = prod?.metadata?.stockNo;
+        if (stockNo) bought.add(stockNo);
+        items.push({
+          item_id: stockNo ?? prod?.id ?? li.id,
+          item_name: prod?.name ?? li.description ?? "Item",
+          price: (li.price?.unit_amount ?? 0) / 100,
+          quantity: li.quantity ?? 1,
+        });
+      }
+      if (session.payment_status === "paid") {
+        purchase = {
+          transactionId: session.id,
+          value: (session.amount_total ?? 0) / 100,
+          tax: session.total_details?.amount_tax != null ? session.total_details.amount_tax / 100 : undefined,
+          shipping: session.total_details?.amount_shipping != null ? session.total_details.amount_shipping / 100 : undefined,
+          items,
+        };
       }
     } catch {
       // Session invalid — still show success
@@ -41,6 +68,15 @@ export default async function SuccessPage({ searchParams }: Props) {
 
   return (
     <div className="bg-white">
+      {purchase && (
+        <PurchaseTracker
+          transactionId={purchase.transactionId}
+          value={purchase.value}
+          tax={purchase.tax}
+          shipping={purchase.shipping}
+          items={purchase.items}
+        />
+      )}
       <div className="max-w-5xl mx-auto px-4 py-14">
         {/* Confirmation */}
         <div className="flex flex-col items-center text-center gap-5 mb-10">

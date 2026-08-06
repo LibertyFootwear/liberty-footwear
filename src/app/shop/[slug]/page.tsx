@@ -1,5 +1,5 @@
 import { products, getProductBySlug } from "@/data/products";
-import { getCatalogBySlug, getCatalogVariantGroup } from "@/lib/catalog";
+import { getCatalog, getCatalogBySlug, getCatalogVariantGroup } from "@/lib/catalog";
 import { notFound } from "next/navigation";
 import ProductPageClient from "@/components/ProductPageClient";
 import { SITE_URL, jsonLd } from "@/lib/seo";
@@ -43,7 +43,10 @@ export default async function ProductPage({ params }: Props) {
   if (!p || p.hidden) notFound();
 
   const variants = await getCatalogVariantGroup(p);
-  const related = products
+  // Use the live catalog so related cards show current prices and skip hidden
+  // products — not the static bundle prices baked at build.
+  const catalog = await getCatalog();
+  const related = catalog
     .filter((r) => r.family === p.family && r.stockNo !== p.stockNo && r.image)
     .slice(0, 4);
 

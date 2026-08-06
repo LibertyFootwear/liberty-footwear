@@ -91,15 +91,35 @@ export default function AccountPage() {
     }
   }, [user, reviewsLoaded]);
 
+  // Live catalog prices + hidden set, so recently-viewed shows current prices
+  // and recommended never surfaces products hidden in the admin panel.
+  const [prices, setPrices] = useState<Record<string, number>>({});
+  const [hidden, setHidden] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    fetch("/api/catalog-prices")
+      .then((r) => r.json())
+      .then((d) => {
+        setPrices(d.prices ?? {});
+        setHidden(new Set<string>(d.hidden ?? []));
+      })
+      .catch(() => {});
+  }, []);
+  const withPrice = (p: (typeof products)[number]) => ({
+    ...p,
+    price: prices[p.stockNo] ?? p.price,
+  });
+
   const recentSlugs = useRecentlyViewed();
   const recentProducts = recentSlugs
     .map((s) => products.find((p) => p.slug === s))
-    .filter(Boolean) as typeof products;
+    .filter((p): p is (typeof products)[number] => Boolean(p) && !hidden.has(p!.stockNo))
+    .map(withPrice);
 
   const recommendedProducts = products
-    .filter((p) => !recentSlugs.includes(p.slug))
+    .filter((p) => !recentSlugs.includes(p.slug) && !hidden.has(p.stockNo))
     .sort(() => 0.5 - Math.random())
-    .slice(0, 4);
+    .slice(0, 4)
+    .map(withPrice);
 
   if (loading || !user) {
     return (

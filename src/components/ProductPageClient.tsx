@@ -6,6 +6,7 @@ import ProductGallery from "@/components/ProductGallery";
 import ProductOptions from "@/components/ProductOptions";
 import ProductReviews from "@/components/ProductReviews";
 import { trackProduct } from "@/hooks/useRecentlyViewed";
+import { trackViewItem } from "@/lib/gtag";
 import { useLang } from "@/context/LanguageContext";
 import type { Product } from "@/data/products";
 
@@ -18,7 +19,16 @@ interface Props {
 export default function ProductPageClient({ p, variants, related }: Props) {
   const { t } = useLang();
   const isApparel = p.category === "Apparel";
-  useEffect(() => { trackProduct(p.slug); }, [p.slug]);
+  useEffect(() => {
+    trackProduct(p.slug);
+    trackViewItem({
+      item_id: p.stockNo,
+      item_name: p.name,
+      price: p.price,
+      item_category: p.category,
+      item_variant: p.colorLeather,
+    });
+  }, [p.slug, p.stockNo, p.name, p.price, p.category, p.colorLeather]);
 
   return (
     <div className="bg-white">

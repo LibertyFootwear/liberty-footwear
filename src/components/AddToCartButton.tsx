@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import { trackAddToCart } from "@/lib/gtag";
 
 interface Props {
   product: Product;
@@ -17,6 +18,14 @@ export default function AddToCartButton({ product, sizeOptions }: Props) {
   function handleAdd() {
     if (!selectedSize) return;
     addItem(product, selectedSize);
+    trackAddToCart({
+      item_id: product.stockNo,
+      item_name: product.name,
+      price: product.price,
+      item_category: product.category,
+      item_variant: `${product.colorLeather} · ${selectedSize}`,
+      quantity: 1,
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }
