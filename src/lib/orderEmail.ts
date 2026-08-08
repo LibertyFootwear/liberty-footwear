@@ -136,6 +136,74 @@ export async function sendOrderConfirmationEmail(o: OrderConfirmationEmail): Pro
   });
 }
 
+// ── New-order admin notification (sent to the shop on every order) ──────────
+
+export const ADMIN_NOTIFY_TO = "info@libertyfootwear.com";
+
+export interface NewOrderAdminEmail {
+  orderId: string;
+  items: OrderItem[];
+  total: number;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  shippingAddress?: { line1?: string; city?: string; state?: string; postalCode?: string; country?: string };
+  /** Absolute base URL (no trailing slash) for the admin edit link. */
+  baseUrl: string;
+  logoSrc?: string;
+  from?: string;
+}
+
+export function buildNewOrderAdminHtml(o: NewOrderAdminEmail): string {
+  const shortId = o.orderId.slice(0, 8);
+  const editUrl = `${o.baseUrl}/admin/orders/${o.orderId}`;
+  const a = o.shippingAddress;
+  const addr = a && (a.line1 || a.city)
+    ? `${esc(a.line1 ?? "")}${a.city ? `, ${esc(a.city)}` : ""}${a.state ? `, ${esc(a.state)}` : ""} ${esc(a.postalCode ?? "")}${a.country ? `, ${esc(a.country)}` : ""}`
+    : "—";
+
+  const detail = (label: string, value: string) =>
+    `<tr><td style="padding:2px 0;color:#9ca3af;font-size:13px;width:90px;">${label}</td><td style="padding:2px 0;color:${NAVY};font-size:13px;">${value}</td></tr>`;
+
+  const inner = `
+    <h1 style="margin:0 0 6px;color:${NAVY};font-size:22px;">New order received 🔔</h1>
+    <p style="margin:0 0 18px;color:#9ca3af;font-size:12px;">Order #${esc(shortId)} · ${money(o.total)}</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
+      ${detail("Customer", esc(o.customerName ?? "Guest"))}
+      ${o.customerEmail ? detail("Email", esc(o.customerEmail)) : ""}
+      ${o.customerPhone ? detail("Phone", esc(o.customerPhone)) : ""}
+      ${detail("Ship to", addr)}
+    </table>
+    ${itemsTable(o.items, o.total)}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0 0;">
+      <tr><td align="center">
+        <a href="${esc(editUrl)}" style="display:inline-block;background:${RED};color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:13px 26px;border-radius:6px;">Open &amp; edit in admin panel →</a>
+      </td></tr>
+    </table>`;
+  return shell(o.logoSrc, inner);
+}
+
+/**
+ * Notify the shop of a new order, with a summary and a click-through to edit it
+ * in the admin panel. Throws on failure — callers wrap in try/catch so a mail
+ * hiccup never breaks fulfillment.
+ */
+export async function sendNewOrderAdminEmail(o: NewOrderAdminEmail): Promise<void> {
+  const logo = getLogoBase64();
+  const attachments: MailAttachment[] = logo
+    ? [{ filename: "logo.png", content: Buffer.from(logo, "base64"), cid: LOGO_CID, contentType: "image/png" }]
+    : [];
+
+  await sendMail({
+    to: ADMIN_NOTIFY_TO,
+    from: o.from,
+    replyTo: o.customerEmail,
+    subject: `🔔 New order #${o.orderId.slice(0, 8)} — ${money(o.total)}`,
+    html: buildNewOrderAdminHtml({ ...o, logoSrc: logo ? `cid:${LOGO_CID}` : undefined }),
+    attachments,
+  });
+}
+
 // ── Order status updates (sent from the admin panel) ────────────────────────
 
 export type OrderStatus = "processing" | "shipped" | "delivered" | "cancelled";

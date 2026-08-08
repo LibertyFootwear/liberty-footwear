@@ -2,9 +2,10 @@ import Stripe from "stripe";
 import { saveOrder, getOrderByStripeSession } from "@/lib/ordersDb";
 import { decrementInventory } from "@/lib/inventoryDb";
 import { tryUpsertCustomer } from "@/lib/customersDb";
-import { sendOrderConfirmationEmail } from "@/lib/orderEmail";
+import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/orderEmail";
 import { products } from "@/data/products";
 import { env } from "@/lib/env";
+import { publicEnv } from "@/lib/publicEnv";
 
 /**
  * Fetch the Stripe invoice for a completed checkout session: the hosted URL and
@@ -133,6 +134,29 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
     } catch (err) {
       console.error("Order confirmation email failed (order still recorded):", err);
     }
+  }
+
+  // Notify the shop of the new order, with a click-through to edit it in the
+  // admin panel. Independent of the customer email and best-effort.
+  try {
+    await sendNewOrderAdminEmail({
+      orderId,
+      items,
+      total,
+      customerName: shippingName,
+      customerEmail: shippingEmail,
+      customerPhone: shippingPhone,
+      shippingAddress: addr ? {
+        line1: addr.line1,
+        city: addr.city,
+        state: addr.state,
+        postalCode: addr.postal_code,
+        country: addr.country,
+      } : undefined,
+      baseUrl: publicEnv.NEXT_PUBLIC_BASE_URL,
+    });
+  } catch (err) {
+    console.error("New-order admin email failed (order still recorded):", err);
   }
 
   return true;
