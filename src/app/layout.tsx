@@ -9,6 +9,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import PublicChrome from "@/components/PublicChrome";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import ForceEnglishValidation from "@/components/ForceEnglishValidation";
 import { SITE_URL, jsonLd } from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -69,6 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="h-full">
       <body className={`${inter.className} min-h-full flex flex-col`}>
         <GoogleAnalytics />
+        <ForceEnglishValidation />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ORG_JSONLD) }} />
         <LanguageProvider>
         <AuthProvider>
