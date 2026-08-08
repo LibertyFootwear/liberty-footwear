@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import { trackingUrl } from "@/lib/ordersDb";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import Stripe from "stripe";
 import OrderStatusForm from "./OrderStatusForm";
 import TrackingForm from "./TrackingForm";
@@ -38,7 +39,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
   return (
     <div className="p-8 max-w-3xl">
       <div className="flex items-center gap-4 mb-8">
-        <a href="/admin/orders" className="text-sm text-gray-400 hover:text-navy transition">← Orders</a>
+        <Link href="/admin/orders" className="text-sm text-gray-400 hover:text-navy transition">← Orders</Link>
         <h1 className="text-2xl font-black text-navy">Order #{o.id.slice(0, 8)}</h1>
       </div>
 
@@ -64,26 +65,28 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
       {/* Items */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-6">
         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide px-5 pt-5 mb-3">Items</p>
-        <table className="w-full text-sm">
-          <thead className="border-b border-gray-100">
-            <tr>
-              {["Product", "Stock No", "Size", "Qty", "Price"].map((h) => (
-                <th key={h} className="text-left px-5 py-2 text-xs font-bold text-gray-400">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {items.map((item, i) => (
-              <tr key={i}>
-                <td className="px-5 py-3 font-semibold text-navy">{item.name}</td>
-                <td className="px-5 py-3 font-mono text-xs text-gray-500">{item.stockNo}</td>
-                <td className="px-5 py-3 text-gray-600">{(item as unknown as Record<string, string>).size ?? "—"}</td>
-                <td className="px-5 py-3 text-gray-600">{item.qty}</td>
-                <td className="px-5 py-3 font-bold">${(item.price * item.qty).toFixed(2)}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b border-gray-100">
+              <tr>
+                {["Product", "Stock No", "Size", "Qty", "Price"].map((h) => (
+                  <th key={h} className="text-left px-3 sm:px-5 py-2 text-xs font-bold text-gray-400 whitespace-nowrap">{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {items.map((item, i) => (
+                <tr key={i}>
+                  <td className="px-3 sm:px-5 py-3 font-semibold text-navy">{item.name}</td>
+                  <td className="px-3 sm:px-5 py-3 font-mono text-xs text-gray-500 whitespace-nowrap">{item.stockNo}</td>
+                  <td className="px-3 sm:px-5 py-3 text-gray-600 whitespace-nowrap">{(item as unknown as Record<string, string>).size ?? "—"}</td>
+                  <td className="px-3 sm:px-5 py-3 text-gray-600">{item.qty}</td>
+                  <td className="px-3 sm:px-5 py-3 font-bold tabular-nums whitespace-nowrap">${(item.price * item.qty).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <div className="px-5 py-3 border-t border-gray-100 flex justify-end">
           <p className="font-black text-lg text-navy">Total: ${o.total?.toFixed(2)}</p>
         </div>

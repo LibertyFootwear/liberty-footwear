@@ -113,9 +113,9 @@ export default async function AdminDashboard() {
           { label: "In-Store Revenue", value: `$${retailRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, sub: "retail · historical + live" },
           { label: "This Month (web + store)", value: `$${thisMonth.revenue.toFixed(0)}`, sub: `${thisMonth.label} · ${paidOrders} live orders total` },
         ].map((s) => (
-          <div key={s.label} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+          <div key={s.label} className="bg-white rounded-xl p-4 sm:p-5 border border-gray-100 shadow-sm">
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{s.label}</p>
-            <p className="text-3xl font-black text-navy">{s.value}</p>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-black text-navy tabular-nums break-words leading-tight">{s.value}</p>
             <p className="text-xs text-gray-400 mt-1">{s.sub}</p>
           </div>
         ))}
@@ -138,17 +138,17 @@ export default async function AdminDashboard() {
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div className="bg-blue-50 rounded-lg py-3">
                   <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wide mb-1">🌐 Web</p>
-                  <p className="text-xl font-black text-navy">{money(p.web.r)}</p>
+                  <p className="text-base sm:text-lg lg:text-xl font-black text-navy tabular-nums">{money(p.web.r)}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{p.web.n} order{p.web.n !== 1 ? "s" : ""}</p>
                 </div>
                 <div className="bg-amber-50 rounded-lg py-3">
                   <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wide mb-1">🏪 Store</p>
-                  <p className="text-xl font-black text-navy">{money(p.store.r)}</p>
+                  <p className="text-base sm:text-lg lg:text-xl font-black text-navy tabular-nums">{money(p.store.r)}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{p.store.n} sale{p.store.n !== 1 ? "s" : ""}</p>
                 </div>
                 <div className="bg-navy/5 rounded-lg py-3">
                   <p className="text-[10px] font-bold text-navy uppercase tracking-wide mb-1">Σ Combined</p>
-                  <p className="text-xl font-black text-navy">{money(combinedR)}</p>
+                  <p className="text-base sm:text-lg lg:text-xl font-black text-navy tabular-nums">{money(combinedR)}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{combinedN} total</p>
                 </div>
               </div>
@@ -186,14 +186,14 @@ export default async function AdminDashboard() {
           <div className="divide-y divide-gray-50">
             {orders.length === 0 && <p className="px-6 py-8 text-sm text-gray-400 text-center">No orders yet.</p>}
             {orders.map((o) => (
-              <Link key={o.id} href={`/admin/orders/${o.id}`} className="flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition">
-                <div>
+              <Link key={o.id} href={`/admin/orders/${o.id}`} className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 hover:bg-gray-50 transition">
+                <div className="min-w-0">
                   <p className="text-sm font-semibold text-navy">#{o.id.slice(0, 8)}</p>
                   <p className="text-xs text-gray-400">{new Date(o.created_at).toLocaleDateString()}</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                   <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_COLOR[o.status] ?? "bg-gray-100 text-gray-600"}`}>{o.status}</span>
-                  <span className="text-sm font-black text-gray-900">${o.total?.toFixed(2)}</span>
+                  <span className="text-sm font-black text-gray-900 tabular-nums whitespace-nowrap">${o.total?.toFixed(2)}</span>
                 </div>
               </Link>
             ))}

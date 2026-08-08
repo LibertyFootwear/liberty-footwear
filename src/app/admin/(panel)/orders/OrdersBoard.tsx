@@ -96,9 +96,9 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
                     onDragEnd={() => { setDragId(null); setOverCol(null); }}
                     className={`bg-white rounded-lg border border-gray-100 shadow-sm p-3 cursor-grab active:cursor-grabbing ${dragId === o.id ? "opacity-40" : ""}`}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <Link href={`/admin/orders/${o.id}`} className="font-mono text-xs font-bold text-navy hover:text-red transition">#{o.id.slice(0, 8)}</Link>
-                      <span className="text-xs font-black text-gray-900">${o.total?.toFixed(2)}</span>
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <Link href={`/admin/orders/${o.id}`} className="font-mono text-xs font-bold text-navy hover:text-red transition truncate">#{o.id.slice(0, 8)}</Link>
+                      <span className="text-xs font-black text-gray-900 tabular-nums whitespace-nowrap flex-shrink-0">${o.total?.toFixed(2)}</span>
                     </div>
                     <p className="text-sm font-semibold text-navy truncate">{o.shipping_name ?? "Guest"}</p>
                     <p className="text-xs text-gray-400">
