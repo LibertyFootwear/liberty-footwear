@@ -18,9 +18,9 @@ export const DEFAULT_ADDONS: BootAddons = { insole: "Regular", speedhooks: false
 /** Per-upgrade surcharge in dollars. Insole choice is free. */
 export const ADDON_PRICES = { speedhooks: 20, toeBumpers: 20 } as const;
 
-/** Boots take add-ons; apparel does not. */
+/** Boots take add-ons; apparel and insoles do not. */
 export function takesAddons(category: string | undefined): boolean {
-  return category !== "Apparel";
+  return category !== "Apparel" && category !== "Insoles";
 }
 
 export function addonsSurcharge(a: BootAddons | undefined): number {

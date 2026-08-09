@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import { Product, ProductCategory } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import { useLang } from "@/context/LanguageContext";
@@ -12,6 +13,7 @@ const CATEGORIES: { id: ProductCategory; label: string }[] = [
   { id: "Outdoors",     label: "Outdoors" },
   { id: "Safety",       label: "Safety" },
   { id: "One of a Kind", label: "One of a Kind" },
+  { id: "Insoles",      label: "Insoles" },
   { id: "Apparel",      label: "Apparel" },
 ];
 
@@ -355,6 +357,7 @@ function ShopContent({ products }: { products: Product[] }) {
                   Outdoors:       "bg-[#2D5016]",
                   Safety:         "bg-[#8B1A1A]",
                   "One of a Kind": "bg-[#8A6D3B]",
+                  Insoles:        "bg-[#3A5A6B]",
                   Apparel:        "bg-[#1e3a5f]",
                 };
                 return (
@@ -403,7 +406,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
     <div className="bg-white min-h-screen">
       <div className="bg-cream border-b border-cream-dark py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-sm text-gray-500">
-          <a href="/" className="hover:text-navy">Home</a>
+          <Link href="/" className="hover:text-navy">Home</Link>
           {" / "}
           <span className="text-navy font-medium">Shop</span>
         </div>

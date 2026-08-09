@@ -1,5 +1,5 @@
-export type ProductFamily = "Gary" | "Terry" | "Larry" | "Kenny" | "Apparel";
-export type ProductCategory = "Work" | "Casual" | "Outdoors" | "Safety" | "One of a Kind" | "Apparel";
+export type ProductFamily = "Gary" | "Terry" | "Larry" | "Kenny" | "Apparel" | "Insoles";
+export type ProductCategory = "Work" | "Casual" | "Outdoors" | "Safety" | "One of a Kind" | "Apparel" | "Insoles";
 
 export interface Product {
   stockNo: string;
@@ -505,6 +505,27 @@ const _raw: RawProduct[] = [
     description: "Classic adjustable cap with the embroidered Liberty Footwear logo. One size fits most with a snap-back closure — a comfortable everyday cap that shows your support for American-made craftsmanship.",
     apparelSizes: ["One Size"],
     sizes: "", price: 25, isNew: true, image: img("KS0011"),
+  },
+  // ── Insoles / removable footbeds ────────────────────────────────────────────
+  {
+    stockNo: "KS0004", slug: slug("KS0004","removable-footbed-regular"),
+    name: "Removable Footbed — Regular", family: "Insoles", safetyToe: false,
+    colorLeather: "Blue cushion", outsoleType: "", colorOutsole: "",
+    categoryOverride: "Insoles",
+    shortDescription: "Dual-density Airtek20 footbed · 5×7 mm",
+    description: "Removable dual-density Airtek20 recycled PU foam footbed with NZYM™ organic odor control treatment. 5×7 mm profile — grey base with a light blue cushion layer and black lining. A breathable, comfortable everyday insole that fits any Liberty Footwear boot.",
+    apparelSizes: ["5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"],
+    sizes: "", price: 11, isNew: true, image: img("KS0004"),
+  },
+  {
+    stockNo: "KS0005", slug: slug("KS0005","removable-footbed-high-cushion"),
+    name: "Removable Footbed — High Cushion", family: "Insoles", safetyToe: false,
+    colorLeather: "Green cushion", outsoleType: "", colorOutsole: "",
+    categoryOverride: "Insoles",
+    shortDescription: "Extra-cushion Airtek20 footbed · 7×9 mm",
+    description: "Removable dual-density Airtek20 recycled PU foam footbed with NZYM™ organic odor control treatment. Thicker 7×9 mm profile — grey base with a green cushion layer and black lining — for extra underfoot cushioning. Fits any Liberty Footwear boot.",
+    apparelSizes: ["5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"],
+    sizes: "", price: 15, isNew: true, image: img("KS0005"),
   },
 ];
 
