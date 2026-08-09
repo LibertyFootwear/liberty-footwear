@@ -378,6 +378,15 @@ const _raw: RawProduct[] = [
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0111H-${i}.jpg`),
   },
   {
+    stockNo: "KS0211H", slug: slug("KS0211H","larry-ct-black-heel-lug"),
+    name: "Larry CT", family: "Larry", safetyToe: true,
+    colorLeather: "Black", outsoleType: "Heel lug", colorOutsole: "Black",
+    description: 'Full grain polishable cowhide leather — breathable and easy to care for. bioDewix® Dry cushion lining is breathable and wicks away sweat. Side elastic is extra durable double-layer. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Heel lug outsole for a traditional look and urban wear. Composite toe caps are the latest technology multilayer fiberglass with carbon nano tubes — 50% lighter than steel toes, non-metallic, non-magnetic, cold and heat resistant, non-corrosive, meeting and exceeding the ASTM F2413 safety footwear standard.',
+    // Shares KS0111H photos (same boot, safety-toe version) until dedicated shots.
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0111H"),
+    gallery: [1,2,3,4,5,6].map(i => `/products/KS0111H-${i}.jpg`),
+  },
+  {
     stockNo: "KS0112", slug: slug("KS0112","larry-coffee-wedge"),
     name: "Larry", family: "Larry", safetyToe: false,
     colorLeather: "Coffee", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
@@ -424,6 +433,26 @@ const _raw: RawProduct[] = [
     colorLeather: "Black", outsoleType: "Andes rubber cup", colorOutsole: "Black",
     shortDescription: '5″ Romeo slip-on water resistant safety toe EH',
     description: 'Water resistant full grain polishable cowhide leather — breathable and easy to care for. bioDewix® Dry cushion lining is breathable and wicks away sweat. Side elastic is extra durable double-layer. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Andes rugged rubber cup outsole for trail-ready grip and durability. Composite toe caps are the latest technology multilayer fiberglass with carbon nano tubes — 50% lighter than steel toes, non-metallic, non-magnetic, cold and heat resistant, non-corrosive, meeting and exceeding the ASTM F2413 safety footwear standard.',
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0611"),
+    gallery: [3,1,2,4,5,6].map(i => `/products/KS0611-${i}.jpg`),
+  },
+  {
+    stockNo: "KS0512", slug: slug("KS0512","larry-hiker-coffee-andes"),
+    name: "Larry hiker", family: "Larry", safetyToe: false, categoryOverride: "Outdoors",
+    colorLeather: "Coffee", outsoleType: "Andes rubber cup", colorOutsole: "Black",
+    shortDescription: '5″ Romeo slip-on water resistant',
+    description: 'Water resistant oiled Crazyhorse Nubuck leather — breathable and easy to care for. bioDewix® Dry cushion lining is breathable and wicks away sweat. Side elastic is extra durable double-layer. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Andes rugged rubber cup outsole for trail-ready grip and durability.',
+    // Placeholder photos from the Black hiker (KS0511) until Coffee shots arrive.
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0511"),
+    gallery: [3,1,2,4,5,6].map(i => `/products/KS0511-${i}.jpg`),
+  },
+  {
+    stockNo: "KS0612", slug: slug("KS0612","larry-ct-hiker-coffee-andes"),
+    name: "Larry CT hiker", family: "Larry", safetyToe: true, categoryOverride: "Outdoors",
+    colorLeather: "Coffee", outsoleType: "Andes rubber cup", colorOutsole: "Black",
+    shortDescription: '5″ Romeo slip-on water resistant safety toe EH',
+    description: 'Water resistant oiled Crazyhorse Nubuck leather — breathable and easy to care for. bioDewix® Dry cushion lining is breathable and wicks away sweat. Side elastic is extra durable double-layer. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Andes rugged rubber cup outsole for trail-ready grip and durability. Composite toe caps are the latest technology multilayer fiberglass with carbon nano tubes — 50% lighter than steel toes, non-metallic, non-magnetic, cold and heat resistant, non-corrosive, meeting and exceeding the ASTM F2413 safety footwear standard.',
+    // Placeholder photos from the Black CT hiker (KS0611) until Coffee shots arrive.
     sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0611"),
     gallery: [3,1,2,4,5,6].map(i => `/products/KS0611-${i}.jpg`),
   },
