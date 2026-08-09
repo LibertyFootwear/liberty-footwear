@@ -126,7 +126,7 @@ const _raw: RawProduct[] = [
     colorLeather: "Honey", outsoleType: "Wedge rubber blend", colorOutsole: "Gum",
     shortDescription: "6″ Mocc Toe water resistant",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Gum sole color.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: true, image: img("KS0122G"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: true, image: img("KS0122G"),
   },
   {
     stockNo: "KS0222", slug: slug("KS0222","gary-ct-honey-cream"),
