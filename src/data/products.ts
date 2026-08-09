@@ -85,7 +85,7 @@ const _raw: RawProduct[] = [
     name: "Gary", family: "Gary", safetyToe: false,
     colorLeather: "Black", outsoleType: "Wedge rubber blend", colorOutsole: "Cream",
     description: 'Oiled tumbled full grain leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color.',
-    sizes: "M: 9–12, 13 | EW: 9–12, 13", price: 215, isNew: false, image: img("KS0121"),
+    sizes: "M: 9–12, 13 | EW: 9–12, 13", price: 229, isNew: false, image: img("KS0121"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0121-${i}.jpg`),
   },
   {
@@ -93,7 +93,7 @@ const _raw: RawProduct[] = [
     name: "Gary CT", family: "Gary", safetyToe: true,
     colorLeather: "Black", outsoleType: "Wedge rubber blend", colorOutsole: "Cream",
     description: 'Oiled tumbled full grain leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 9–12, 13 | EW: 9–12, 13", price: 215, isNew: false, image: img("KS0121"),
+    sizes: "M: 9–12, 13 | EW: 9–12, 13", price: 239, isNew: false, image: img("KS0121"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0121-${i}.jpg`),
   },
   {
@@ -101,7 +101,7 @@ const _raw: RawProduct[] = [
     name: "Gary", family: "Gary", safetyToe: false,
     colorLeather: "Black", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Oiled tumbled full grain leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color.',
-    sizes: "M: 9–12, 13 | EW: 9–12, 13", price: 215, isNew: false, image: img("KS0121B"),
+    sizes: "M: 9–12, 13 | EW: 9–12, 13", price: 229, isNew: false, image: img("KS0121B"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0121B-${i}.jpg`),
   },
   {
@@ -109,7 +109,7 @@ const _raw: RawProduct[] = [
     name: "Gary CT", family: "Gary", safetyToe: true,
     colorLeather: "Black", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Oiled tumbled full grain leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 9–12, 13 | EW: 9–12, 13", price: 215, isNew: false, image: img("KS0121B"),
+    sizes: "M: 9–12, 13 | EW: 9–12, 13", price: 239, isNew: false, image: img("KS0121B"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0121B-${i}.jpg`),
   },
   {
@@ -117,7 +117,7 @@ const _raw: RawProduct[] = [
     name: "Gary", family: "Gary", safetyToe: false,
     colorLeather: "Honey", outsoleType: "Wedge rubber blend", colorOutsole: "Cream",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: false, image: img("KS0122"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0122"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0122-${i}.jpg`),
   },
   {
@@ -133,7 +133,7 @@ const _raw: RawProduct[] = [
     name: "Gary CT", family: "Gary", safetyToe: true,
     colorLeather: "Honey", outsoleType: "Wedge rubber blend", colorOutsole: "Cream",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: false, image: img("KS0122"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0122"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0122-${i}.jpg`),
   },
   {
@@ -141,7 +141,7 @@ const _raw: RawProduct[] = [
     name: "Gary CT", family: "Gary", safetyToe: true,
     colorLeather: "Honey", outsoleType: "Wedge rubber blend", colorOutsole: "Gum",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: true, image: img("KS0222G"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: true, image: img("KS0222G"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0122-${i}.jpg`),
   },
   {
@@ -149,7 +149,7 @@ const _raw: RawProduct[] = [
     name: "Gary", family: "Gary", safetyToe: false,
     colorLeather: "Russet", outsoleType: "Wedge rubber blend", colorOutsole: "Cream",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: false, image: img("KS0123"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0123"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0123-${i}.jpg`),
   },
   {
@@ -157,7 +157,7 @@ const _raw: RawProduct[] = [
     name: "Gary CT", family: "Gary", safetyToe: true,
     colorLeather: "Russet", outsoleType: "Wedge rubber blend", colorOutsole: "Cream",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: false, image: img("KS0123"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0123"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0123-${i}.jpg`),
   },
   {
@@ -165,7 +165,7 @@ const _raw: RawProduct[] = [
     name: "Gary", family: "Gary", safetyToe: false,
     colorLeather: "Russet", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: false, image: img("KS0123B"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0123B"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0123B-${i}.jpg`),
   },
   {
@@ -173,7 +173,7 @@ const _raw: RawProduct[] = [
     name: "Gary CT", family: "Gary", safetyToe: true,
     colorLeather: "Russet", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: false, image: img("KS0123B"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0123B"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0123B-${i}.jpg`),
   },
   {
@@ -181,7 +181,7 @@ const _raw: RawProduct[] = [
     name: "Gary", family: "Gary", safetyToe: false,
     colorLeather: "Mocha", outsoleType: "Wedge rubber blend", colorOutsole: "Cream",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: false, image: img("KS0124"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0124"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0124-${i}.jpg`),
   },
   {
@@ -189,7 +189,7 @@ const _raw: RawProduct[] = [
     name: "Gary CT", family: "Gary", safetyToe: true,
     colorLeather: "Mocha", outsoleType: "Wedge rubber blend", colorOutsole: "Cream",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: false, image: img("KS0124"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0124"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0124-${i}.jpg`),
   },
   {
@@ -197,7 +197,7 @@ const _raw: RawProduct[] = [
     name: "Gary", family: "Gary", safetyToe: false,
     colorLeather: "Mocha", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: false, image: img("KS0124B"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0124B"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0124B-${i}.jpg`),
   },
   {
@@ -205,7 +205,7 @@ const _raw: RawProduct[] = [
     name: "Gary CT", family: "Gary", safetyToe: true,
     colorLeather: "Mocha", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Oiled tumbled waterproof Nubuck leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: false, image: img("KS0124B"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0124B"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0124B-${i}.jpg`),
   },
   // ── Gary Hiker family ────────────────────────────────────────────────────────
@@ -214,14 +214,14 @@ const _raw: RawProduct[] = [
     name: "Gary Hiker", family: "Gary", safetyToe: false,
     colorLeather: "Black", outsoleType: "Andes rubber cup", colorOutsole: "Cream",
     description: 'Oiled tumbled full grain leather — breathable, soft and easy care. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber cup Andes outsole — abrasion, slip and oil resistant, non-marking. Aggressive lug design is most suitable for outdoor jobs. High-content nitrile rubber compound is long-wearing, diesel and fuel resistant, and heat resistant up to 500 °F.',
-    sizes: "M: 9–12, 12.5, 13, 13.5 | EW: 9–12, 12.5, 13, 13.5", price: 235, isNew: false, image: img("KS0521"),
+    sizes: "M: 9–12, 12.5, 13, 13.5 | EW: 9–12, 12.5, 13, 13.5", price: 239, isNew: false, image: img("KS0521"),
   },
   {
     stockNo: "KS0621", slug: slug("KS0621","gary-hiker-ct-black"),
     name: "Gary Hiker CT", family: "Gary", safetyToe: true,
     colorLeather: "Black", outsoleType: "Andes rubber cup", colorOutsole: "Black",
     description: 'Oiled tumbled full grain leather — breathable, soft and easy care. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber cup Andes outsole — abrasion, slip and oil resistant, non-marking. Aggressive lug design is most suitable for outdoor jobs. High-content nitrile rubber compound is long-wearing, diesel and fuel resistant, and heat resistant up to 500 °F. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 9–12, 12.5, 13, 13.5 | EW: 9–12, 12.5, 13, 13.5", price: 245, isNew: false, image: img("KS0621"),
+    sizes: "M: 9–12, 12.5, 13, 13.5 | EW: 9–12, 12.5, 13, 13.5", price: 249, isNew: false, image: img("KS0621"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0621-${i}.jpg`),
   },
   {
@@ -246,14 +246,14 @@ const _raw: RawProduct[] = [
     name: "Gary Hiker", family: "Gary", safetyToe: false,
     colorLeather: "Russet", outsoleType: "Andes rubber cup", colorOutsole: "Black",
     description: 'Oiled tumbled waterproof Nubuck — breathable, soft and easy care. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber cup Andes outsole — abrasion, slip and oil resistant, non-marking. Aggressive lug design is most suitable for outdoor jobs. High-content nitrile rubber compound is long-wearing, diesel and fuel resistant, and heat resistant up to 500 °F.',
-    sizes: "M: 5–14, 15, 16 | EW: 5–14, 15, 16", price: 235, isNew: false, image: img("KS0623"),
+    sizes: "M: 5–14, 15, 16 | EW: 5–14, 15, 16", price: 239, isNew: false, image: img("KS0623"),
   },
   {
     stockNo: "KS0623", slug: slug("KS0623","gary-hiker-ct-russet"),
     name: "Gary Hiker CT", family: "Gary", safetyToe: true,
     colorLeather: "Russet", outsoleType: "Andes rubber cup", colorOutsole: "Black",
     description: 'Oiled tumbled waterproof Nubuck — breathable, soft and easy care. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber cup Andes outsole — abrasion, slip and oil resistant, non-marking. Aggressive lug design is most suitable for outdoor jobs. High-content nitrile rubber compound is long-wearing, diesel and fuel resistant, and heat resistant up to 500 °F. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 5–14, 15, 16 | EW: 5–14, 15, 16", price: 245, isNew: false, image: img("KS0623"),
+    sizes: "M: 5–14, 15, 16 | EW: 5–14, 15, 16", price: 249, isNew: false, image: img("KS0623"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0623-${i}.jpg`),
   },
   // ── Terry family ─────────────────────────────────────────────────────────────
@@ -262,7 +262,7 @@ const _raw: RawProduct[] = [
     name: "Terry", family: "Terry", safetyToe: false,
     colorLeather: "Black", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Full grain waterproof polishable cowhide leather. Seams are WP-sealed. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Also available in Heel Lug version.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: false, image: img("KS0101", "png"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0101", "png"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0101-${i}.png`),
   },
   {
@@ -270,7 +270,7 @@ const _raw: RawProduct[] = [
     name: "Terry CT", family: "Terry", safetyToe: true,
     colorLeather: "Black", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Full grain waterproof polishable cowhide leather. Seams are WP-sealed. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: false, image: img("KS0101", "png"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0101", "png"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0101-${i}.png`),
   },
   {
@@ -278,7 +278,7 @@ const _raw: RawProduct[] = [
     name: "Terry", family: "Terry", safetyToe: false,
     colorLeather: "Black", outsoleType: "Heel lug", colorOutsole: "Black",
     description: 'Full grain waterproof polishable cowhide leather. Seams are WP-sealed. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Heel Lug outsole for a traditional look and urban wear — slip and oil resistant, non-marking.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: false, image: img("KS0101H"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0101H"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0101H-${i}.jpg`),
   },
   {
@@ -286,7 +286,7 @@ const _raw: RawProduct[] = [
     name: "Terry CT", family: "Terry", safetyToe: true,
     colorLeather: "Black", outsoleType: "Heel lug", colorOutsole: "Black",
     description: 'Full grain waterproof polishable cowhide leather. Seams are WP-sealed. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Heel Lug outsole for a traditional look and urban wear. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: false, image: img("KS0101H"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0101H"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0101H-${i}.jpg`),
   },
   {
@@ -294,7 +294,7 @@ const _raw: RawProduct[] = [
     name: "Terry", family: "Terry", safetyToe: false,
     colorLeather: "Coffee", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Oiled tumbled waterproof Nubuck leather — soft, breathable, care friendly. Seams are WP-sealed. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Also available in Heel Lug version.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: false, image: img("KS0102"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0102"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0102-${i}.jpg`),
   },
   {
@@ -302,7 +302,7 @@ const _raw: RawProduct[] = [
     name: "Terry CT", family: "Terry", safetyToe: true,
     colorLeather: "Coffee", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Oiled tumbled waterproof Nubuck leather — soft, breathable, care friendly. Seams are WP-sealed. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: false, image: img("KS0102"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0102"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0102-${i}.jpg`),
   },
   {
@@ -310,7 +310,7 @@ const _raw: RawProduct[] = [
     name: "Terry", family: "Terry", safetyToe: false,
     colorLeather: "Coffee", outsoleType: "Heel lug", colorOutsole: "Gum",
     description: 'Oiled tumbled waterproof Nubuck leather — soft, breathable, care friendly. Seams are WP-sealed. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Heel Lug outsole with Gum sole for a traditional look and urban wear — slip and oil resistant, non-marking.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: false, image: img("KS0102HG"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0102HG"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0102HG-${i}.jpg`),
   },
   {
@@ -318,7 +318,7 @@ const _raw: RawProduct[] = [
     name: "Terry CT", family: "Terry", safetyToe: true,
     colorLeather: "Coffee", outsoleType: "Heel lug", colorOutsole: "Gum",
     description: 'Oiled tumbled waterproof Nubuck leather — soft, breathable, care friendly. Seams are WP-sealed. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Heel Lug outsole with Gum sole for a traditional look and urban wear. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: false, image: img("KS0102HG"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0102HG"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0102HG-${i}.jpg`),
   },
   // ── Terry Hiker ──────────────────────────────────────────────────────────────
@@ -327,14 +327,14 @@ const _raw: RawProduct[] = [
     name: "Terry Hiker", family: "Terry", safetyToe: false,
     colorLeather: "Black", outsoleType: "Andes outdoor hiker", colorOutsole: "Black",
     description: 'Full grain waterproof polishable cowhide leather with WP-sealed seams. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber cup Andes outsole — abrasion, slip and oil resistant, non-marking. Aggressive lug design is most suitable for outdoor jobs. High-content nitrile rubber compound is long-wearing, diesel and fuel resistant, and heat resistant up to 500 °F.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 245, isNew: false, image: img("KS0501"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 249, isNew: false, image: img("KS0501"),
   },
   {
     stockNo: "KS0601", slug: slug("KS0601","terry-hiker-ct-black"),
     name: "Terry Hiker CT", family: "Terry", safetyToe: true,
     colorLeather: "Black", outsoleType: "Andes outdoor hiker", colorOutsole: "Black",
     description: 'Full grain waterproof polishable cowhide leather with WP-sealed seams. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber cup Andes outsole — abrasion, slip and oil resistant, non-marking. Aggressive lug design is most suitable for outdoor jobs. High-content nitrile rubber compound is long-wearing, diesel and fuel resistant, and heat resistant up to 500 °F. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 255, isNew: false, image: img("KS0601"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 259, isNew: false, image: img("KS0601"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0601-${i}.jpg`),
   },
   {
@@ -342,14 +342,14 @@ const _raw: RawProduct[] = [
     name: "Terry Hiker", family: "Terry", safetyToe: false,
     colorLeather: "Coffee", outsoleType: "Andes outdoor hiker", colorOutsole: "Black",
     description: 'Oiled tumbled waterproof Nubuck leather — soft, breathable and care friendly, with WP-sealed seams. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber cup Andes outsole — abrasion, slip and oil resistant, non-marking. Aggressive lug design is most suitable for outdoor jobs. High-content nitrile rubber compound is long-wearing, diesel and fuel resistant, and heat resistant up to 500 °F.',
-    sizes: "M & EW: 5–12, 13", price: 245, isNew: false, image: img("KS0502"),
+    sizes: "M & EW: 5–12, 13", price: 249, isNew: false, image: img("KS0502"),
   },
   {
     stockNo: "KS0602", slug: slug("KS0602","terry-hiker-ct-coffee"),
     name: "Terry Hiker CT", family: "Terry", safetyToe: true,
     colorLeather: "Coffee", outsoleType: "Andes outdoor hiker", colorOutsole: "Black",
     description: 'Oiled tumbled waterproof Nubuck leather — soft, breathable and care friendly, with WP-sealed seams. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber cup Andes outsole — abrasion, slip and oil resistant, non-marking. Aggressive lug design is most suitable for outdoor jobs. High-content nitrile rubber compound is long-wearing, diesel and fuel resistant, and heat resistant up to 500 °F. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
-    sizes: "M & EW: 5–12, 13", price: 255, isNew: false, image: img("KS0602"),
+    sizes: "M & EW: 5–12, 13", price: 259, isNew: false, image: img("KS0602"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0602-${i}.jpg`),
   },
   // ── Larry family ─────────────────────────────────────────────────────────────
@@ -424,7 +424,7 @@ const _raw: RawProduct[] = [
     colorLeather: "Black", outsoleType: "Andes rubber cup", colorOutsole: "Black",
     shortDescription: '5″ Romeo slip-on water resistant safety toe EH',
     description: 'Water resistant full grain polishable cowhide leather — breathable and easy to care for. bioDewix® Dry cushion lining is breathable and wicks away sweat. Side elastic is extra durable double-layer. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Andes rugged rubber cup outsole for trail-ready grip and durability. Composite toe caps are the latest technology multilayer fiberglass with carbon nano tubes — 50% lighter than steel toes, non-metallic, non-magnetic, cold and heat resistant, non-corrosive, meeting and exceeding the ASTM F2413 safety footwear standard.',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: false, image: img("KS0611"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: false, image: img("KS0611"),
     gallery: [3,1,2,4,5,6].map(i => `/products/KS0611-${i}.jpg`),
   },
   // ── Kenny family ─────────────────────────────────────────────────────────────
@@ -433,56 +433,56 @@ const _raw: RawProduct[] = [
     name: "Kenny", family: "Kenny", safetyToe: false,
     colorLeather: "Coffee", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: '10" Pull-on Wellington water resistant',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: true, image: img("KS0172"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: true, image: img("KS0172"),
   },
   {
     stockNo: "KS0272", slug: slug("KS0272","kenny-ct-coffee-wedge-black"),
     name: "Kenny CT", family: "Kenny", safetyToe: true,
     colorLeather: "Coffee", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: '10" Pull-on Wellington water resistant – Safety Toe EH',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: true, image: img("KS0272"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: true, image: img("KS0272"),
   },
   {
     stockNo: "KS0172C", slug: slug("KS0172C","kenny-coffee-wedge-cream"),
     name: "Kenny", family: "Kenny", safetyToe: false,
     colorLeather: "Coffee", outsoleType: "Wedge rubber blend", colorOutsole: "Cream",
     description: '10" Pull-on Wellington water resistant – Cream sole',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: true, image: img("KS0172C"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: true, image: img("KS0172C"),
   },
   {
     stockNo: "KS0272C", slug: slug("KS0272C","kenny-ct-coffee-wedge-cream"),
     name: "Kenny CT", family: "Kenny", safetyToe: true,
     colorLeather: "Coffee", outsoleType: "Wedge rubber blend", colorOutsole: "Cream",
     description: '10" Pull-on Wellington water resistant – Safety Toe EH, Cream sole',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: true, image: img("KS0272C"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: true, image: img("KS0272C"),
   },
   {
     stockNo: "KS0172HG", slug: slug("KS0172HG","kenny-coffee-heel-lug-gum"),
     name: "Kenny", family: "Kenny", safetyToe: false,
     colorLeather: "Coffee", outsoleType: "Heel Lug rubber blend", colorOutsole: "Gum",
     description: '10" Pull-on Wellington water resistant – Heel Lug, Gum sole',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 225, isNew: true, image: img("KS0172HG"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 229, isNew: true, image: img("KS0172HG"),
   },
   {
     stockNo: "KS0272HG", slug: slug("KS0272HG","kenny-ct-coffee-heel-lug-gum"),
     name: "Kenny CT", family: "Kenny", safetyToe: true,
     colorLeather: "Coffee", outsoleType: "Heel Lug rubber blend", colorOutsole: "Gum",
     description: '10" Pull-on Wellington water resistant – Safety Toe EH, Heel Lug, Gum sole',
-    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 235, isNew: true, image: img("KS0272HG"),
+    sizes: "M: 6–12, 13 | EW: 6–12, 13", price: 239, isNew: true, image: img("KS0272HG"),
   },
   {
     stockNo: "KS0572", slug: slug("KS0572","kenny-hiker-coffee"),
     name: "Kenny Hiker", family: "Kenny", safetyToe: false,
     colorLeather: "Coffee", outsoleType: "Fornax rubber cup", colorOutsole: "Black",
     description: '10" Pull-on Wellington water resistant hiker',
-    sizes: "M: 6–12, 16 | EW: 6–12, 16", price: 245, isNew: true, image: img("KS0572"),
+    sizes: "M: 6–12, 16 | EW: 6–12, 16", price: 249, isNew: true, image: img("KS0572"),
   },
   {
     stockNo: "KS0672", slug: slug("KS0672","kenny-hiker-ct-coffee"),
     name: "Kenny Hiker CT", family: "Kenny", safetyToe: true,
     colorLeather: "Coffee", outsoleType: "Fornax rubber cup", colorOutsole: "Black",
     description: '10" Pull-on Wellington water resistant – Safety Toe EH hiker',
-    sizes: "M: 6–12, 16 | EW: 6–12, 16", price: 255, isNew: true, image: img("KS0672"),
+    sizes: "M: 6–12, 16 | EW: 6–12, 16", price: 259, isNew: true, image: img("KS0672"),
   },
 
   // ── Apparel ─────────────────────────────────────────────────────────────────
