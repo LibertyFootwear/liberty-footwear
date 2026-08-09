@@ -58,7 +58,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
               {(o.shipping_address as Record<string, string>).address}, {(o.shipping_address as Record<string, string>).city}, {(o.shipping_address as Record<string, string>).state} {(o.shipping_address as Record<string, string>).zip}
             </p>
           )}
-          <p className="text-xs text-gray-400 mt-1">{new Date(o.created_at).toLocaleString()}</p>
+          <p className="text-xs text-gray-400 mt-1">{new Date(o.created_at).toLocaleString("en-US")}</p>
         </div>
       </div>
 

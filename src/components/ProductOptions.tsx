@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Product, parseSizes } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
+import { BootAddons, DEFAULT_ADDONS, INSOLE_CHOICES, ADDON_PRICES, addonsSurcharge, takesAddons } from "@/lib/bootAddons";
 
 const LEATHER_COLORS: Record<string, string> = {
   "Jet Black":  "#1a1a1a",
@@ -52,6 +53,9 @@ export default function ProductOptions({ product, variants }: Props) {
   const salesPaused = siteSettings ? !siteSettings.salesEnabled : false;
 
   const isApparel = !!product.apparelSizes?.length;
+  const showAddons = takesAddons(product.category) && !isApparel;
+  const [addons, setAddons] = useState<BootAddons>(DEFAULT_ADDONS);
+  const surcharge = showAddons ? addonsSurcharge(addons) : 0;
 
   const sizeMap = parseSizes(product.sizes);
   const widths = Object.keys(sizeMap);
@@ -86,7 +90,7 @@ export default function ProductOptions({ product, variants }: Props) {
 
   function handleAdd() {
     if (!sizeLabel) return;
-    addItem(product, sizeLabel);
+    addItem(product, sizeLabel, showAddons ? addons : undefined);
     setAdded(true);
     setTimeout(() => setAdded(false), 4000);
   }
@@ -228,6 +232,61 @@ export default function ProductOptions({ product, variants }: Props) {
         </div>
       </div>
 
+      {/* Insoles + upgrades — boots only */}
+      {showAddons && (
+        <div className="space-y-5 border-t border-gray-100 pt-6">
+          {/* Insole (free choice) */}
+          <div>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">
+              Insole — <span className="text-navy normal-case font-semibold">{addons.insole}</span>
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              {INSOLE_CHOICES.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setAddons((a) => ({ ...a, insole: c }))}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold border-2 transition ${
+                    addons.insole === c ? "border-navy bg-navy text-white" : "border-gray-200 text-gray-700 hover:border-navy"
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Paid upgrades */}
+          <div>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Upgrades</p>
+            <div className="space-y-2">
+              {([
+                { key: "speedhooks", label: "Speedhooks", price: ADDON_PRICES.speedhooks },
+                { key: "toeBumpers", label: "Toe bumpers", price: ADDON_PRICES.toeBumpers },
+              ] as const).map((u) => {
+                const on = addons[u.key];
+                return (
+                  <button
+                    key={u.key}
+                    type="button"
+                    onClick={() => setAddons((a) => ({ ...a, [u.key]: !a[u.key] }))}
+                    className={`w-full flex items-center gap-3 rounded-lg border-2 p-3 text-left transition ${
+                      on ? "border-navy bg-navy/5" : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <span className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${on ? "border-navy bg-navy text-white" : "border-gray-300"}`}>
+                      {on && <span className="text-xs">✓</span>}
+                    </span>
+                    <span className="flex-1 text-sm font-semibold text-navy">{u.label}</span>
+                    <span className="text-sm font-bold text-gray-500">+${u.price}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add to Cart — or paused notice when online ordering is stopped */}
       {salesPaused ? (
         <div className="space-y-3">
@@ -247,7 +306,7 @@ export default function ProductOptions({ product, variants }: Props) {
               : "bg-gray-200 text-gray-400 cursor-not-allowed"
           }`}
         >
-          {sizeLabel ? `Add to Cart — ${sizeLabel}` : "Select a Size"}
+          {sizeLabel ? `Add to Cart — $${product.price + surcharge}` : "Select a Size"}
         </button>
       )}
 

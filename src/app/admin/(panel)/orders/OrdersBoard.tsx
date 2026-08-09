@@ -102,7 +102,7 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
                     </div>
                     <p className="text-sm font-semibold text-navy truncate">{o.shipping_name ?? "Guest"}</p>
                     <p className="text-xs text-gray-400">
-                      {new Date(o.created_at).toLocaleDateString()} · {o.itemCount} item{o.itemCount !== 1 ? "s" : ""}
+                      {new Date(o.created_at).toLocaleDateString("en-US")} · {o.itemCount} item{o.itemCount !== 1 ? "s" : ""}
                       {o.shipping_method === "pickup" ? " · 🏪 pickup" : ""}
                     </p>
                     {o.status === "shipped" && !o.tracking_number && (

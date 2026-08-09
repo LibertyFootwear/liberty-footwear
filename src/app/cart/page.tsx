@@ -1,7 +1,8 @@
 "use client";
 
-import { useCart } from "@/context/CartContext";
+import { useCart, itemUnitPrice, type CartItem } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { DEFAULT_ADDONS, INSOLE_CHOICES, ADDON_PRICES, addonsSurcharge, takesAddons, type BootAddons } from "@/lib/bootAddons";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -17,8 +18,67 @@ const COUPONS: Record<string, number> = {
   WELCOME20: 20,
 };
 
+/** In-cart prompt (boots only) to change insoles or add paid upgrades. */
+function CartItemAddons({ item, onChange }: { item: CartItem; onChange: (a: BootAddons) => void }) {
+  const [open, setOpen] = useState(false);
+  const a = item.addons ?? DEFAULT_ADDONS;
+  const surcharge = addonsSurcharge(a);
+  const summary = `${a.insole} insole${a.speedhooks ? " · Speedhooks" : ""}${a.toeBumpers ? " · Toe bumpers" : ""}`;
+
+  return (
+    <div className="mt-3 border-t border-cream-dark pt-3">
+      <button onClick={() => setOpen((v) => !v)} className="flex items-center justify-between w-full text-left">
+        <span className="text-xs text-gray-500">
+          <span className="font-semibold text-navy">Insoles & upgrades:</span> {summary}
+          {surcharge > 0 && <span className="text-gray-400"> (+${surcharge})</span>}
+        </span>
+        <span className="text-xs font-bold text-navy hover:text-red transition whitespace-nowrap ml-3">{open ? "Done" : "Change"}</span>
+      </button>
+
+      {open && (
+        <div className="mt-3 space-y-3">
+          <div>
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Insole</p>
+            <div className="flex gap-2 flex-wrap">
+              {INSOLE_CHOICES.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => onChange({ ...a, insole: c })}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border-2 transition ${a.insole === c ? "border-navy bg-navy text-white" : "border-gray-200 text-gray-700 hover:border-navy"}`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Upgrades</p>
+            <div className="flex gap-2 flex-wrap">
+              {([
+                { key: "speedhooks", label: "Speedhooks", price: ADDON_PRICES.speedhooks },
+                { key: "toeBumpers", label: "Toe bumpers", price: ADDON_PRICES.toeBumpers },
+              ] as const).map((u) => {
+                const on = a[u.key];
+                return (
+                  <button
+                    key={u.key}
+                    onClick={() => onChange({ ...a, [u.key]: !a[u.key] })}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border-2 transition ${on ? "border-navy bg-navy text-white" : "border-gray-200 text-gray-700 hover:border-navy"}`}
+                  >
+                    {on ? "✓ " : "+ "}{u.label} (+${u.price})
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CartPage() {
-  const { items, subtotal, removeItem, increment, decrement } = useCart();
+  const { items, subtotal, removeItem, increment, decrement, setAddons } = useCart();
   const { user } = useAuth();
   const siteSettings = useSiteSettings();
   const salesPaused = siteSettings ? !siteSettings.salesEnabled : false;
@@ -148,27 +208,32 @@ export default function CartPage() {
           {/* Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => (
-              <div key={`${item.product.stockNo}-${item.size}`} className="flex gap-4 bg-cream rounded-xl p-4">
-                <div className="relative w-24 h-24 flex-shrink-0 bg-white rounded-lg overflow-hidden">
-                  {item.product.image ? (
-                    <Image src={item.product.image} alt={item.product.name} fill className="object-contain p-2 mix-blend-multiply" sizes="96px" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" /></svg>
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <Link href={`/shop/${item.product.slug}`} className="font-bold text-navy hover:text-red transition">{item.product.name}</Link>
-                  <p className="text-sm text-gray-500">{item.product.colorLeather} · Size {item.size}</p>
-                  <div className="flex items-center gap-3 mt-3">
-                    <button onClick={() => decrement(item.product.stockNo, item.size)} className="w-8 h-8 rounded-full border border-gray-300 font-bold hover:border-navy transition">−</button>
-                    <span className="font-bold w-6 text-center">{item.qty}</span>
-                    <button onClick={() => increment(item.product.stockNo, item.size)} className="w-8 h-8 rounded-full border border-gray-300 font-bold hover:border-navy transition">+</button>
-                    <button onClick={() => removeItem(item.product.stockNo, item.size)} className="ml-4 text-xs text-red hover:underline">Remove</button>
+              <div key={item.lineId} className="bg-cream rounded-xl p-4">
+                <div className="flex gap-4">
+                  <div className="relative w-24 h-24 flex-shrink-0 bg-white rounded-lg overflow-hidden">
+                    {item.product.image ? (
+                      <Image src={item.product.image} alt={item.product.name} fill className="object-contain p-2 mix-blend-multiply" sizes="96px" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-300">
+                        <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" /></svg>
+                      </div>
+                    )}
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <Link href={`/shop/${item.product.slug}`} className="font-bold text-navy hover:text-red transition">{item.product.name}</Link>
+                    <p className="text-sm text-gray-500">{item.product.colorLeather} · Size {item.size}</p>
+                    <div className="flex items-center gap-3 mt-3">
+                      <button onClick={() => decrement(item.lineId)} className="w-8 h-8 rounded-full border border-gray-300 font-bold hover:border-navy transition">−</button>
+                      <span className="font-bold w-6 text-center">{item.qty}</span>
+                      <button onClick={() => increment(item.lineId)} className="w-8 h-8 rounded-full border border-gray-300 font-bold hover:border-navy transition">+</button>
+                      <button onClick={() => removeItem(item.lineId)} className="ml-4 text-xs text-red hover:underline">Remove</button>
+                    </div>
+                  </div>
+                  <p className="font-black text-lg text-gray-900 flex-shrink-0 tabular-nums">${itemUnitPrice(item) * item.qty}</p>
                 </div>
-                <p className="font-black text-lg text-gray-900 flex-shrink-0">${item.product.price * item.qty}</p>
+                {takesAddons(item.product.category) && (
+                  <CartItemAddons item={item} onChange={(a) => setAddons(item.lineId, a)} />
+                )}
               </div>
             ))}
 

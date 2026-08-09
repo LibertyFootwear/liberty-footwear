@@ -118,7 +118,7 @@ export default async function AdminNewsletter() {
                 <td className="px-4 py-3">
                   <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">{l.source}</span>
                 </td>
-                <td className="px-4 py-3 text-gray-500">{l.date ? new Date(l.date).toLocaleDateString() : "—"}</td>
+                <td className="px-4 py-3 text-gray-500">{l.date ? new Date(l.date).toLocaleDateString("en-US") : "—"}</td>
               </tr>
             ))}
           </tbody>

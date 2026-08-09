@@ -105,7 +105,7 @@ export default async function AdminCustomers() {
                   <td className="px-5 py-3 text-gray-600">{st.boots || "—"}</td>
                   <td className="px-5 py-3 text-gray-600">{st.spent ? `$${st.spent.toFixed(2)}` : "—"}</td>
                   <td className="px-5 py-3 text-gray-400 text-xs">
-                    {c.last_purchase_at ? new Date(c.last_purchase_at).toLocaleDateString() : "—"}
+                    {c.last_purchase_at ? new Date(c.last_purchase_at).toLocaleDateString("en-US") : "—"}
                   </td>
                   <td className="px-5 py-3">
                     <Link href={`/admin/customers/view/${c.id}`} className="text-xs font-bold text-navy hover:text-red transition">Detail →</Link>

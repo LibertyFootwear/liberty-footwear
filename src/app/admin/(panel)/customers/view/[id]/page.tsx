@@ -140,7 +140,7 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
             )}
             {lines.map((l, i) => (
               <tr key={i} className="hover:bg-gray-50 transition">
-                <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{l.date ? new Date(l.date).toLocaleDateString() : "—"}</td>
+                <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{l.date ? new Date(l.date).toLocaleDateString("en-US") : "—"}</td>
                 <td className="px-5 py-3 font-semibold text-navy">{l.name}</td>
                 <td className="px-5 py-3 text-gray-500 font-mono text-xs">{l.stockNo || "—"}</td>
                 <td className="px-5 py-3 text-gray-500">{l.size || "—"}</td>

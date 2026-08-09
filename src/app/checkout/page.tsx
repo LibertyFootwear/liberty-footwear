@@ -1,7 +1,8 @@
 "use client";
 
-import { useCart } from "@/context/CartContext";
+import { useCart, itemUnitPrice } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { encodeAddons, addonsLabel } from "@/lib/bootAddons";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -215,6 +216,7 @@ function CheckoutForm() {
           size: i.size,
           price: i.product.price,
           qty: i.qty,
+          addons: encodeAddons(i.addons),
         })),
         coupon,
         discount,
@@ -425,8 +427,9 @@ function CheckoutForm() {
                       <div className="flex-1 min-w-0">
                         <Link href={`/shop/${item.product.slug}`} className="text-xs font-bold text-navy hover:text-red transition truncate block">{item.product.name}</Link>
                         <p className="text-xs text-gray-500">{item.product.colorLeather} · {item.size} · ×{item.qty}</p>
+                        {item.addons && <p className="text-[11px] text-gray-400">{addonsLabel(item.addons)}</p>}
                       </div>
-                      <p className="text-xs font-black text-gray-900 flex-shrink-0">${item.product.price * item.qty}</p>
+                      <p className="text-xs font-black text-gray-900 flex-shrink-0 tabular-nums">${itemUnitPrice(item) * item.qty}</p>
                     </div>
                   ))}
                 </div>

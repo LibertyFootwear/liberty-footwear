@@ -2,6 +2,7 @@
 
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
+import { usDate } from "@/lib/formatDate";
 
 export interface SaleRow {
   id: string;
@@ -298,7 +299,7 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
     return (
       <Fragment key={r.id}>
         <tr className={`hover:bg-gray-50 transition ${isOpen ? "bg-navy/5" : ""}`}>
-          <td className="px-3 py-2 text-gray-600">{r.sale_date}</td>
+          <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{usDate(r.sale_date)}</td>
           <td className="px-3 py-2 text-gray-400">{p.day}</td>
           <td className="px-3 py-2 font-mono font-bold text-navy">
             {r.stock_no}

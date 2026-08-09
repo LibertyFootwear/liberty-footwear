@@ -57,7 +57,7 @@ export default async function AdminCustomerDetail({ params }: { params: Promise<
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div><p className="text-gray-400 text-xs">Email</p><p className="font-semibold">{u.email}</p></div>
           <div><p className="text-gray-400 text-xs">Phone</p><p className="font-semibold">{u.phone || "—"}</p></div>
-          <div><p className="text-gray-400 text-xs">Joined</p><p className="font-semibold">{new Date(u.created_at).toLocaleDateString()}</p></div>
+          <div><p className="text-gray-400 text-xs">Joined</p><p className="font-semibold">{new Date(u.created_at).toLocaleDateString("en-US")}</p></div>
           <div><p className="text-gray-400 text-xs">Newsletter</p><p className="font-semibold">{u.newsletter ? "Yes" : "No"}</p></div>
           <div className="col-span-2">
             <p className="text-gray-400 text-xs">Address {addrLine ? <span className="text-gray-300">(from {addrSource})</span> : ""}</p>
@@ -74,7 +74,7 @@ export default async function AdminCustomerDetail({ params }: { params: Promise<
             <Link key={o.id} href={`/admin/orders/${o.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50 transition">
               <div>
                 <p className="text-sm font-semibold text-navy">#{o.id.slice(0, 8)}</p>
-                <p className="text-xs text-gray-400">{new Date(o.created_at).toLocaleDateString()} · {(o.items as unknown[])?.length ?? 0} items</p>
+                <p className="text-xs text-gray-400">{new Date(o.created_at).toLocaleDateString("en-US")} · {(o.items as unknown[])?.length ?? 0} items</p>
               </div>
               <p className="font-black text-gray-900">${o.total?.toFixed(2)}</p>
             </Link>

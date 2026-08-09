@@ -189,7 +189,7 @@ export default async function AdminDashboard() {
               <Link key={o.id} href={`/admin/orders/${o.id}`} className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 hover:bg-gray-50 transition">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-navy">#{o.id.slice(0, 8)}</p>
-                  <p className="text-xs text-gray-400">{new Date(o.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-400">{new Date(o.created_at).toLocaleDateString("en-US")}</p>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                   <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_COLOR[o.status] ?? "bg-gray-100 text-gray-600"}`}>{o.status}</span>
@@ -214,7 +214,7 @@ export default async function AdminDashboard() {
                   <p className="text-sm font-semibold text-navy">{u.name}</p>
                   <p className="text-xs text-gray-400">{u.email}</p>
                 </div>
-                <p className="text-xs text-gray-400">{new Date(u.created_at).toLocaleDateString()}</p>
+                <p className="text-xs text-gray-400">{new Date(u.created_at).toLocaleDateString("en-US")}</p>
               </Link>
             ))}
           </div>

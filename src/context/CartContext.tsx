@@ -2,11 +2,24 @@
 
 import { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
 import { Product, products as allProducts } from "@/data/products";
+import { BootAddons, addonsKey, addonsSurcharge, takesAddons } from "@/lib/bootAddons";
 
 export interface CartItem {
+  /** Stable line identity: stockNo + size + add-ons. Same config → same line. */
+  lineId: string;
   product: Product;
   size: string;
+  addons?: BootAddons;
   qty: number;
+}
+
+/** Unit price including any paid add-ons (speedhooks / toe bumpers). */
+export function itemUnitPrice(item: CartItem): number {
+  return item.product.price + addonsSurcharge(item.addons);
+}
+
+function makeLineId(stockNo: string, size: string, addons?: BootAddons): string {
+  return `${stockNo}__${size}__${addonsKey(addons)}`;
 }
 
 interface CartState {
@@ -14,10 +27,11 @@ interface CartState {
 }
 
 type CartAction =
-  | { type: "ADD"; product: Product; size: string }
-  | { type: "REMOVE"; stockNo: string; size: string }
-  | { type: "INCREMENT"; stockNo: string; size: string }
-  | { type: "DECREMENT"; stockNo: string; size: string }
+  | { type: "ADD"; product: Product; size: string; addons?: BootAddons }
+  | { type: "REMOVE"; lineId: string }
+  | { type: "INCREMENT"; lineId: string }
+  | { type: "DECREMENT"; lineId: string }
+  | { type: "SET_ADDONS"; lineId: string; addons: BootAddons }
   | { type: "CLEAR" }
   | { type: "LOAD"; items: CartItem[] };
 
@@ -26,36 +40,44 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case "LOAD":
       return { items: action.items };
     case "ADD": {
-      const existing = state.items.find(
-        (i) => i.product.stockNo === action.product.stockNo && i.size === action.size
-      );
-      if (existing) {
-        return {
-          items: state.items.map((i) =>
-            i.product.stockNo === action.product.stockNo && i.size === action.size
-              ? { ...i, qty: i.qty + 1 }
-              : i
-          ),
-        };
+      // Only boots carry add-ons; apparel ignores them.
+      const addons = takesAddons(action.product.category) ? action.addons : undefined;
+      const lineId = makeLineId(action.product.stockNo, action.size, addons);
+      if (state.items.some((i) => i.lineId === lineId)) {
+        return { items: state.items.map((i) => (i.lineId === lineId ? { ...i, qty: i.qty + 1 } : i)) };
       }
-      return { items: [...state.items, { product: action.product, size: action.size, qty: 1 }] };
+      return { items: [...state.items, { lineId, product: action.product, size: action.size, addons, qty: 1 }] };
     }
     case "REMOVE":
-      return { items: state.items.filter((i) => !(i.product.stockNo === action.stockNo && i.size === action.size)) };
+      return { items: state.items.filter((i) => i.lineId !== action.lineId) };
     case "INCREMENT":
-      return {
-        items: state.items.map((i) =>
-          i.product.stockNo === action.stockNo && i.size === action.size ? { ...i, qty: i.qty + 1 } : i
-        ),
-      };
+      return { items: state.items.map((i) => (i.lineId === action.lineId ? { ...i, qty: i.qty + 1 } : i)) };
     case "DECREMENT":
       return {
         items: state.items
-          .map((i) =>
-            i.product.stockNo === action.stockNo && i.size === action.size ? { ...i, qty: i.qty - 1 } : i
-          )
+          .map((i) => (i.lineId === action.lineId ? { ...i, qty: i.qty - 1 } : i))
           .filter((i) => i.qty > 0),
       };
+    case "SET_ADDONS": {
+      const target = state.items.find((i) => i.lineId === action.lineId);
+      if (!target) return state;
+      const newLineId = makeLineId(target.product.stockNo, target.size, action.addons);
+      if (newLineId === action.lineId) return state;
+      // If a line with the new config already exists, fold this line's qty into it.
+      const dupe = state.items.find((i) => i.lineId === newLineId);
+      if (dupe) {
+        return {
+          items: state.items
+            .filter((i) => i.lineId !== action.lineId)
+            .map((i) => (i.lineId === newLineId ? { ...i, qty: i.qty + target.qty } : i)),
+        };
+      }
+      return {
+        items: state.items.map((i) =>
+          i.lineId === action.lineId ? { ...i, lineId: newLineId, addons: action.addons } : i
+        ),
+      };
+    }
     case "CLEAR":
       return { items: [] };
     default:
@@ -65,12 +87,12 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 
 const STORAGE_KEY = "lf_cart";
 
-// Persist only stockNo+size+qty, rehydrate full Product from catalog
-type PersistedItem = { stockNo: string; size: string; qty: number };
+// Persist only stockNo+size+addons+qty, rehydrate full Product from catalog
+type PersistedItem = { stockNo: string; size: string; qty: number; addons?: BootAddons };
 
 function save(items: CartItem[]) {
   try {
-    const slim: PersistedItem[] = items.map((i) => ({ stockNo: i.product.stockNo, size: i.size, qty: i.qty }));
+    const slim: PersistedItem[] = items.map((i) => ({ stockNo: i.product.stockNo, size: i.size, qty: i.qty, addons: i.addons }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
   } catch {}
 }
@@ -83,7 +105,8 @@ function load(): CartItem[] {
     return slim.flatMap((i) => {
       const product = allProducts.find((p) => p.stockNo === i.stockNo);
       if (!product) return [];
-      return [{ product, size: i.size, qty: i.qty }];
+      const addons = takesAddons(product.category) ? i.addons : undefined;
+      return [{ lineId: makeLineId(i.stockNo, i.size, addons), product, size: i.size, addons, qty: i.qty }];
     });
   } catch {
     return [];
@@ -94,10 +117,11 @@ interface CartContextValue {
   items: CartItem[];
   itemCount: number;
   subtotal: number;
-  addItem: (product: Product, size: string) => void;
-  removeItem: (stockNo: string, size: string) => void;
-  increment: (stockNo: string, size: string) => void;
-  decrement: (stockNo: string, size: string) => void;
+  addItem: (product: Product, size: string, addons?: BootAddons) => void;
+  removeItem: (lineId: string) => void;
+  increment: (lineId: string) => void;
+  decrement: (lineId: string) => void;
+  setAddons: (lineId: string, addons: BootAddons) => void;
   clear: () => void;
 }
 
@@ -118,7 +142,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [state.items]);
 
   const itemCount = state.items.reduce((s, i) => s + i.qty, 0);
-  const subtotal = state.items.reduce((s, i) => s + i.product.price * i.qty, 0);
+  const subtotal = state.items.reduce((s, i) => s + itemUnitPrice(i) * i.qty, 0);
 
   return (
     <CartContext.Provider
@@ -126,10 +150,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         items: state.items,
         itemCount,
         subtotal,
-        addItem: (product, size) => dispatch({ type: "ADD", product, size }),
-        removeItem: (stockNo, size) => dispatch({ type: "REMOVE", stockNo, size }),
-        increment: (stockNo, size) => dispatch({ type: "INCREMENT", stockNo, size }),
-        decrement: (stockNo, size) => dispatch({ type: "DECREMENT", stockNo, size }),
+        addItem: (product, size, addons) => dispatch({ type: "ADD", product, size, addons }),
+        removeItem: (lineId) => dispatch({ type: "REMOVE", lineId }),
+        increment: (lineId) => dispatch({ type: "INCREMENT", lineId }),
+        decrement: (lineId) => dispatch({ type: "DECREMENT", lineId }),
+        setAddons: (lineId, addons) => dispatch({ type: "SET_ADDONS", lineId, addons }),
         clear: () => dispatch({ type: "CLEAR" }),
       }}
     >

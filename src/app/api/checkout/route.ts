@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import bcrypt from "bcryptjs";
 import { getCatalogPrice } from "@/lib/catalog";
 import { products } from "@/data/products";
+import { decodeAddons, addonsSurcharge, addonsLabel, encodeAddons, takesAddons } from "@/lib/bootAddons";
 import { getAuthUserId, signToken, setAuthCookie } from "@/lib/authJwt";
 import { getUserByEmail, createUser } from "@/lib/userDb";
 import { tryUpsertCustomer } from "@/lib/customersDb";
@@ -34,7 +35,7 @@ async function getMiTaxRateId(): Promise<string> {
 
 export async function POST(req: NextRequest) {
   const { items, shippingMethod, billing } = await req.json() as {
-    items: { stockNo: string; name: string; size?: string; price: number; qty: number }[];
+    items: { stockNo: string; name: string; size?: string; price: number; qty: number; addons?: string }[];
     shippingMethod?: "ship" | "pickup";
     billing?: { firstName: string; lastName: string; email: string; phone: string; address?: string; city?: string; state?: string; zip?: string; country?: string; createAccount?: boolean; password?: string };
   };
@@ -85,12 +86,26 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Validate prices server-side — never trust client price (uses admin-edited catalog price)
+  // Validate prices server-side — never trust client price (uses admin-edited
+  // catalog price) or client add-on surcharge (recomputed from ADDON_PRICES).
   const validatedItems = await Promise.all(items.map(async (item) => {
     const product = await getCatalogPrice(item.stockNo);
     if (!product) throw new Error(`Unknown product: ${item.stockNo}`);
     if (item.qty < 1 || item.qty > 100) throw new Error("Invalid quantity");
-    return { stockNo: item.stockNo, name: item.name || product.name, size: item.size ?? "", price: product.price, qty: item.qty };
+    // Add-ons apply to boots only; ignore any sent for apparel.
+    const catalogItem = products.find((p) => p.stockNo === item.stockNo);
+    const addons = takesAddons(catalogItem?.category) ? decodeAddons(item.addons) : null;
+    const surcharge = addonsSurcharge(addons ?? undefined);
+    const label = addons ? addonsLabel(addons) : "";
+    const name = `${item.name || product.name}${label ? ` — ${label}` : ""}`;
+    return {
+      stockNo: item.stockNo,
+      name,
+      size: item.size ?? "",
+      price: product.price + surcharge,
+      qty: item.qty,
+      addons: addons ? encodeAddons(addons) : "",
+    };
   }));
 
   // Shipping: apparel-only orders pay a flat fee when shipped; free if any boot is in the cart or on pickup.
@@ -116,7 +131,7 @@ export async function POST(req: NextRequest) {
       price_data: {
         currency: "usd",
         unit_amount: item.price * 100,
-        product_data: { name: item.name, metadata: { stockNo: item.stockNo, size: item.size } },
+        product_data: { name: item.name, metadata: { stockNo: item.stockNo, size: item.size, addons: item.addons } },
       },
       quantity: item.qty,
       tax_rates: [taxRateId],

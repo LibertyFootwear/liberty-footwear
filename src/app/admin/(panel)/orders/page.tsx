@@ -85,7 +85,7 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
               return (
                 <tr key={o.id} className="hover:bg-gray-50 transition">
                   <td className="px-5 py-3 font-mono text-xs text-gray-500">#{o.id.slice(0, 8)}</td>
-                  <td className="px-5 py-3 text-gray-600">{new Date(o.created_at).toLocaleDateString()}</td>
+                  <td className="px-5 py-3 text-gray-600">{new Date(o.created_at).toLocaleDateString("en-US")}</td>
                   <td className="px-5 py-3">
                     {isStore
                       ? <span className="text-xs font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-700">🏪 Store</span>

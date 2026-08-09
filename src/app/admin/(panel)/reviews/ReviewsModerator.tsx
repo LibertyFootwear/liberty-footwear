@@ -52,7 +52,7 @@ export default function ReviewsModerator({ pending, approved }: { pending: Row[]
               {r.slug
                 ? <Link href={`/shop/${r.slug}`} target="_blank" className="hover:text-navy underline">{r.productName}</Link>
                 : r.productName}
-              {" · "}{new Date(r.createdAt).toLocaleDateString()}
+              {" · "}{new Date(r.createdAt).toLocaleDateString("en-US")}
             </p>
           </div>
         </div>
