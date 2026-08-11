@@ -23,7 +23,10 @@ const COLUMNS = [
   { key: "delivered",  label: "Delivered",  head: "bg-green-600" },
 ];
 const NEXT: Record<string, string> = { paid: "processing", processing: "shipped", shipped: "delivered" };
-const NEXT_LABEL: Record<string, string> = { paid: "Start processing", processing: "Mark shipped", shipped: "Mark delivered" };
+// Button labels differ for store-pickup orders — no "ship"/"deliver" wording.
+const SHIP_LABEL: Record<string, string> = { paid: "Start processing", processing: "Mark shipped", shipped: "Mark delivered" };
+const PICKUP_LABEL: Record<string, string> = { paid: "Start preparing", processing: "Mark ready for pickup", shipped: "Mark picked up" };
+const nextLabel = (o: BoardOrder) => (o.shipping_method === "pickup" ? PICKUP_LABEL : SHIP_LABEL)[o.status];
 
 export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
   const [orders, setOrders] = useState<BoardOrder[]>(initial);
@@ -50,6 +53,18 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
     if (dragId) setStatus(dragId, colKey);
     setDragId(null);
     setOverCol(null);
+  }
+
+  async function setMethod(id: string, shippingMethod: "ship" | "pickup") {
+    setBusy(id);
+    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, shipping_method: shippingMethod } : o)));
+    await fetch(`/api/admin/orders/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ shippingMethod }),
+    });
+    setBusy(null);
+    router.refresh();
   }
 
   async function archive(id: string) {
@@ -103,9 +118,10 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
                     <p className="text-sm font-semibold text-navy truncate">{o.shipping_name ?? "Guest"}</p>
                     <p className="text-xs text-gray-400">
                       {new Date(o.created_at).toLocaleDateString("en-US")} · {o.itemCount} item{o.itemCount !== 1 ? "s" : ""}
-                      {o.shipping_method === "pickup" ? " · 🏪 pickup" : ""}
+                      {o.shipping_method === "pickup" ? " · 🏪 pickup" : " · 📦 shipping"}
                     </p>
-                    {o.status === "shipped" && !o.tracking_number && (
+                    {/* Tracking reminder is for shipped orders only — pickup needs none. */}
+                    {o.status === "shipped" && o.shipping_method !== "pickup" && !o.tracking_number && (
                       <p className="text-[11px] text-amber-600 font-semibold mt-1">⚠ no tracking # yet</p>
                     )}
 
@@ -116,7 +132,7 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
                           disabled={busy === o.id}
                           className="flex-1 px-2 py-1.5 bg-navy text-white text-[11px] font-bold rounded-md hover:bg-navy/80 transition disabled:opacity-50"
                         >
-                          {busy === o.id ? "…" : `${NEXT_LABEL[o.status]} →`}
+                          {busy === o.id ? "…" : `${nextLabel(o)} →`}
                         </button>
                       ) : (
                         <button
@@ -124,13 +140,22 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
                           disabled={busy === o.id}
                           className="flex-1 px-2 py-1.5 bg-green-600 text-white text-[11px] font-bold rounded-md hover:bg-green-700 transition disabled:opacity-50"
                         >
-                          {busy === o.id ? "…" : "✓ File as done"}
+                          {busy === o.id ? "…" : (o.shipping_method === "pickup" ? "✓ Picked up — file" : "✓ File as done")}
                         </button>
                       )}
                       <Link href={`/admin/orders/${o.id}`} className="px-2 py-1.5 border border-gray-200 text-navy text-[11px] font-bold rounded-md hover:border-navy transition">
                         Detail
                       </Link>
                     </div>
+
+                    {/* Switch delivery method */}
+                    <button
+                      onClick={() => setMethod(o.id, o.shipping_method === "pickup" ? "ship" : "pickup")}
+                      disabled={busy === o.id}
+                      className="mt-1.5 w-full text-[11px] font-semibold text-gray-400 hover:text-navy transition disabled:opacity-50"
+                    >
+                      {o.shipping_method === "pickup" ? "Change to 📦 shipping" : "Change to 🏪 store pickup"}
+                    </button>
                   </div>
                 );
               })}

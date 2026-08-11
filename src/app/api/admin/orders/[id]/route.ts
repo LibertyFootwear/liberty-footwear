@@ -21,6 +21,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.carrier !== undefined) update.carrier = String(body.carrier).trim() || null;
   if (body.trackingNumber !== undefined) update.tracking_number = String(body.trackingNumber).trim() || null;
   if (body.archived !== undefined) update.archived = Boolean(body.archived);
+  if (body.shippingMethod !== undefined) {
+    if (!["ship", "pickup"].includes(body.shippingMethod)) return NextResponse.json({ error: "Invalid shipping method" }, { status: 400 });
+    update.shipping_method = body.shippingMethod;
+  }
 
   if (Object.keys(update).length === 0) return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
 
