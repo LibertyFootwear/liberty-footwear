@@ -8,6 +8,9 @@ import { getAuthUserId, signToken, setAuthCookie } from "@/lib/authJwt";
 import { getUserByEmail, createUser } from "@/lib/userDb";
 import { tryUpsertCustomer } from "@/lib/customersDb";
 import { getSiteSettings } from "@/lib/siteSettings";
+import { saveOrder } from "@/lib/ordersDb";
+import { decrementInventory } from "@/lib/inventoryDb";
+import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/orderEmail";
 import { env } from "@/lib/env";
 
 const APPAREL_SHIPPING_CENTS = 800; // $8 flat when the order is apparel-only
@@ -34,9 +37,10 @@ async function getMiTaxRateId(): Promise<string> {
 }
 
 export async function POST(req: NextRequest) {
-  const { items, shippingMethod, billing } = await req.json() as {
+  const { items, shippingMethod, billing, payAtPickup } = await req.json() as {
     items: { stockNo: string; name: string; size?: string; price: number; qty: number; addons?: string }[];
     shippingMethod?: "ship" | "pickup";
+    payAtPickup?: boolean;
     billing?: { firstName: string; lastName: string; email: string; phone: string; address?: string; city?: string; state?: string; zip?: string; country?: string; createAccount?: boolean; password?: string };
   };
 
@@ -112,6 +116,62 @@ export async function POST(req: NextRequest) {
   const hasBoot = validatedItems.some((it) => products.find((p) => p.stockNo === it.stockNo)?.category !== "Apparel");
   const hasApparel = validatedItems.some((it) => products.find((p) => p.stockNo === it.stockNo)?.category === "Apparel");
   const chargeApparelShipping = shippingMethod !== "pickup" && hasApparel && !hasBoot;
+
+  // ── Pay-at-pickup: create the order directly, no Stripe. Collected in store. ──
+  if (shippingMethod === "pickup" && payAtPickup) {
+    const subtotal = validatedItems.reduce((s, it) => s + it.price * it.qty, 0);
+    const tax = Math.round(subtotal * 0.06 * 100) / 100;
+    const total = Math.round((subtotal + tax) * 100) / 100;
+    const orderId = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
+    const shippingName = billing ? `${billing.firstName ?? ""} ${billing.lastName ?? ""}`.trim() || undefined : undefined;
+
+    const customerId = billing?.email || billing?.phone
+      ? await tryUpsertCustomer({
+          name: shippingName, email: billing?.email, phone: billing?.phone,
+          userId: userId || undefined, source: "web", purchaseAt: createdAt,
+        })
+      : undefined;
+
+    await saveOrder({
+      id: orderId,
+      stripeSessionId: `pickup-${orderId}`,
+      userId: userId || undefined,
+      customerId,
+      items: validatedItems.map((it) => ({ stockNo: it.stockNo, name: it.name, size: it.size, price: it.price, qty: it.qty })),
+      total,
+      status: "paid", // enters the board's "New" column; payment tracked separately via `paid`
+      paid: false,
+      shippingMethod: "pickup",
+      createdAt,
+      shippingName,
+      shippingEmail: billing?.email,
+      shippingPhone: billing?.phone,
+    });
+    await decrementInventory(validatedItems.map((it) => ({ stockNo: it.stockNo, size: it.size, qty: it.qty })));
+
+    if (billing?.email) {
+      try {
+        await sendOrderConfirmationEmail({
+          to: billing.email, name: shippingName,
+          items: validatedItems.map((it) => ({ stockNo: it.stockNo, name: it.name, size: it.size, price: it.price, qty: it.qty })),
+          total, orderId, payAtPickup: true,
+        });
+      } catch (err) { console.error("Pickup confirmation email failed:", err); }
+    }
+    try {
+      await sendNewOrderAdminEmail({
+        orderId,
+        items: validatedItems.map((it) => ({ stockNo: it.stockNo, name: it.name, size: it.size, price: it.price, qty: it.qty })),
+        total, customerName: shippingName, customerEmail: billing?.email, customerPhone: billing?.phone,
+        baseUrl: env.NEXT_PUBLIC_BASE_URL,
+      });
+    } catch (err) { console.error("Pickup admin email failed:", err); }
+
+    const res = NextResponse.json({ url: `${env.NEXT_PUBLIC_BASE_URL}/order/success?pickup=pending` });
+    if (authCookie) res.cookies.set(authCookie);
+    return res;
+  }
 
   const taxRateId = await getMiTaxRateId();
 

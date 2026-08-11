@@ -9,11 +9,12 @@ import type { GaItem } from "@/lib/gtag";
 import { env } from "@/lib/env";
 
 interface Props {
-  searchParams: Promise<{ session_id?: string }>;
+  searchParams: Promise<{ session_id?: string; pickup?: string }>;
 }
 
 export default async function SuccessPage({ searchParams }: Props) {
-  const { session_id } = await searchParams;
+  const { session_id, pickup } = await searchParams;
+  const payAtPickup = pickup === "pending";
 
   const bought = new Set<string>();
   // GA4 purchase payload — built from the Stripe session, fired client-side.
@@ -84,10 +85,17 @@ export default async function SuccessPage({ searchParams }: Props) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg>
           <h1 className="text-4xl font-black text-navy">Order Confirmed!</h1>
-          <p className="text-gray-600 max-w-md">
-            Thank you for your order. You&apos;ll receive a confirmation email and invoice shortly. Liberty Footwear
-            boots are handcrafted to order — please allow 4–6 weeks for delivery.
-          </p>
+          {payAtPickup ? (
+            <p className="text-gray-600 max-w-md">
+              Thank you! Your order is placed and we&apos;re preparing it for pickup at our Grand Rapids, MI store.
+              You&apos;ll <strong>pay when you collect it</strong> — we&apos;ll email you as soon as it&apos;s ready.
+            </p>
+          ) : (
+            <p className="text-gray-600 max-w-md">
+              Thank you for your order. You&apos;ll receive a confirmation email and invoice shortly. Liberty Footwear
+              boots are handcrafted to order — please allow 4–6 weeks for delivery.
+            </p>
+          )}
           <div className="flex gap-3 flex-wrap justify-center mt-2">
             <Link href="/account" className="px-8 py-3.5 bg-navy text-white font-black rounded-xl uppercase tracking-wide text-sm shadow-lg hover:bg-navy/80 transition">
               View My Orders

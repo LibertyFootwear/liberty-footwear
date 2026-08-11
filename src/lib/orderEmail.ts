@@ -96,6 +96,8 @@ export interface OrderConfirmationEmail {
   invoiceUrl?: string;
   /** Invoice PDF to attach directly to the email. */
   invoicePdf?: { filename: string; base64: string };
+  /** Store-pickup order that pays in store — no invoice, "pay at pickup" note. */
+  payAtPickup?: boolean;
   /** Value for the logo <img> src (a cid: ref for real mail, a data: URI for previews). */
   logoSrc?: string;
   /** Override the sender address (defaults to FROM). Used for testing before domain verification. */
@@ -103,13 +105,19 @@ export interface OrderConfirmationEmail {
 }
 
 export function buildOrderEmailHtml(o: OrderConfirmationEmail): string {
-  const invoiceLink = o.invoiceUrl
+  const invoiceLink = o.payAtPickup
+    ? `<p style="font-size:13px;color:#6b7280;margin:18px 0 0;">Please <strong>pay when you pick up</strong> your order at our Grand Rapids, MI store. We'll email you as soon as it's ready.</p>`
+    : o.invoiceUrl
     ? `<p style="font-size:13px;color:#6b7280;margin:18px 0 0;">Your invoice is attached to this email. You can also <a href="${esc(o.invoiceUrl)}" style="color:${RED};">view it online</a>.</p>`
     : `<p style="font-size:13px;color:#6b7280;margin:18px 0 0;">Your invoice is attached to this email.</p>`;
 
+  const intro = o.payAtPickup
+    ? "Your order is placed! We're preparing it for pickup — pay in store when you collect it."
+    : "We've received your payment and your order is confirmed. We'll email you again as soon as we start preparing it for shipment.";
+
   const inner = `
     <h1 style="margin:0 0 6px;color:${NAVY};font-size:22px;">Thank you${o.name ? `, ${esc(o.name.split(" ")[0])}` : ""}!</h1>
-    <p style="margin:0 0 4px;color:#374151;font-size:15px;">We've received your payment and your order is confirmed. We'll email you again as soon as we start preparing it for shipment.</p>
+    <p style="margin:0 0 4px;color:#374151;font-size:15px;">${intro}</p>
     <p style="margin:0 0 22px;color:#9ca3af;font-size:12px;">Order #${esc(o.orderId.slice(0, 8))}</p>
     ${itemsTable(o.items, o.total)}
     ${invoiceLink}`;

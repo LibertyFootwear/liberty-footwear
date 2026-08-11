@@ -90,6 +90,7 @@ function CheckoutForm() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [payAtPickup, setPayAtPickup] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const siteSettings = useSiteSettings();
   const salesPaused = siteSettings ? !siteSettings.salesEnabled : false;
@@ -221,6 +222,7 @@ function CheckoutForm() {
         coupon,
         discount,
         shippingMethod,
+        payAtPickup: shippingMethod === "pickup" && payAtPickup,
         billing: form,
       }),
     });
@@ -470,14 +472,45 @@ function CheckoutForm() {
                   </div>
                 ) : (
                   <>
+                    {/* Payment choice — store pickup can pay online or in store */}
+                    {shippingMethod === "pickup" && (
+                      <div className="space-y-2 mb-4">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Payment</p>
+                        {([
+                          { v: false, label: "Pay now", desc: "Secure card payment via Stripe" },
+                          { v: true, label: "Pay at pickup", desc: "Pay in store when you collect your order" },
+                        ] as const).map((opt) => (
+                          <button
+                            key={String(opt.v)}
+                            type="button"
+                            onClick={() => setPayAtPickup(opt.v)}
+                            className={`w-full flex items-start gap-3 rounded-xl border-2 p-3 text-left transition ${
+                              payAtPickup === opt.v ? "border-navy bg-navy/5" : "border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            <span className={`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${payAtPickup === opt.v ? "border-navy" : "border-gray-300"}`}>
+                              {payAtPickup === opt.v && <span className="w-2 h-2 rounded-full bg-navy" />}
+                            </span>
+                            <span>
+                              <span className="block text-sm font-bold text-navy">{opt.label}</span>
+                              <span className="block text-xs text-gray-500">{opt.desc}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <button
                       type="submit"
                       disabled={loading}
                       className="w-full py-4 text-base font-bold rounded-xl uppercase tracking-wide transition bg-amber-500 hover:bg-amber-400 text-white shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      {loading ? "Redirecting…" : "Continue to Payment →"}
+                      {loading ? "Placing…" : (shippingMethod === "pickup" && payAtPickup ? "Place Pickup Order →" : "Continue to Payment →")}
                     </button>
-                    <p className="text-xs text-gray-400 text-center mt-3">You&apos;ll be redirected to Stripe for secure payment.</p>
+                    <p className="text-xs text-gray-400 text-center mt-3">
+                      {shippingMethod === "pickup" && payAtPickup
+                        ? "Your order will be prepared for in-store pickup — pay when you collect it."
+                        : "You'll be redirected to Stripe for secure payment."}
+                    </p>
                   </>
                 )}
               </div>

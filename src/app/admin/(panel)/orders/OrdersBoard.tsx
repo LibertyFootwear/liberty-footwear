@@ -13,6 +13,7 @@ export interface BoardOrder {
   shipping_name?: string | null;
   shipping_method?: string | null;
   tracking_number?: string | null;
+  paid?: boolean | null;
   itemCount: number;
 }
 
@@ -116,6 +117,9 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
                       <span className="text-xs font-black text-gray-900 tabular-nums whitespace-nowrap flex-shrink-0">${o.total?.toFixed(2)}</span>
                     </div>
                     <p className="text-sm font-semibold text-navy truncate">{o.shipping_name ?? "Guest"}</p>
+                    {o.paid === false && (
+                      <span className="inline-block mt-1 px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wide">Unpaid · pay at pickup</span>
+                    )}
                     <p className="text-xs text-gray-400">
                       {new Date(o.created_at).toLocaleDateString("en-US")} · {o.itemCount} item{o.itemCount !== 1 ? "s" : ""}
                       {o.shipping_method === "pickup" ? " · 🏪 pickup" : " · 📦 shipping"}

@@ -110,6 +110,7 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
       postalCode: addr.postal_code,
       country: addr.country,
     } : undefined,
+    shippingMethod: session.metadata?.shippingMethod === "pickup" ? "pickup" : "ship",
   });
 
   await decrementInventory(items);

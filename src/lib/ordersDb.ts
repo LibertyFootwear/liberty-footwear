@@ -30,6 +30,9 @@ export interface Order {
   shippingEmail?: string;
   shippingPhone?: string;
   shippingAddress?: ShippingAddress;
+  shippingMethod?: "ship" | "pickup";
+  /** Payment received? Stripe orders are true; pay-at-pickup starts false. */
+  paid?: boolean;
   carrier?: string;
   trackingNumber?: string;
 }
@@ -48,6 +51,8 @@ function mapRow(row: Record<string, unknown>): Order {
     shippingEmail: (row.shipping_email as string) ?? undefined,
     shippingPhone: (row.phone as string) ?? undefined,
     shippingAddress: (row.shipping_address as ShippingAddress) ?? undefined,
+    shippingMethod: (row.shipping_method as "ship" | "pickup") ?? undefined,
+    paid: row.paid === false ? false : true,
     carrier: (row.carrier as string) ?? undefined,
     trackingNumber: (row.tracking_number as string) ?? undefined,
   };
@@ -96,5 +101,7 @@ export async function saveOrder(order: Order): Promise<void> {
     shipping_email: order.shippingEmail ?? null,
     phone: order.shippingPhone ?? null,
     shipping_address: order.shippingAddress ?? null,
+    ...(order.shippingMethod ? { shipping_method: order.shippingMethod } : {}),
+    ...(order.paid === false ? { paid: false } : {}),
   });
 }

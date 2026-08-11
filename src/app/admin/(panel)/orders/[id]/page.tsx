@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Stripe from "stripe";
 import OrderStatusForm from "./OrderStatusForm";
+import PaymentStatusForm from "./PaymentStatusForm";
 import TrackingForm from "./TrackingForm";
 import { env } from "@/lib/env";
 
@@ -22,7 +23,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
   let invoiceUrl: string | null = null;
   let invoicePdf: string | null = null;
   const sessionId = o.stripe_session_id as string | null;
-  if (sessionId && !sessionId.startsWith("store-")) {
+  if (sessionId && !sessionId.startsWith("store-") && !sessionId.startsWith("pickup-")) {
     try {
       const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
       const session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ["invoice"] });
@@ -114,6 +115,12 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
           </div>
         </div>
       )}
+
+      {/* Payment */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Payment</p>
+        <PaymentStatusForm orderId={o.id} paid={o.paid !== false} />
+      </div>
 
       {/* Status */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
