@@ -34,7 +34,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // gather the details (customer email, items, tracking) needed for the email.
   const { data: before } = await sb
     .from("orders")
-    .select("status, shipping_name, shipping_email, items, total, carrier, tracking_number")
+    .select("status, shipping_name, shipping_email, items, total, carrier, tracking_number, shipping_method")
     .eq("id", id)
     .single();
 
@@ -45,6 +45,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const statusChanged = newStatus && before && newStatus !== before.status;
   if (statusChanged && EMAIL_STATUSES.includes(newStatus) && before.shipping_email) {
     try {
+      const method = (body.shippingMethod as string) ?? (before.shipping_method as string);
       await sendOrderStatusEmail({
         to: before.shipping_email as string,
         name: (before.shipping_name as string) ?? undefined,
@@ -54,6 +55,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         total: (before.total as number) ?? undefined,
         carrier: (body.carrier as string) ?? (before.carrier as string) ?? undefined,
         trackingNumber: (body.trackingNumber as string) ?? (before.tracking_number as string) ?? undefined,
+        pickup: method === "pickup",
       });
     } catch (err) {
       console.error("Order status email failed (status still updated):", err);

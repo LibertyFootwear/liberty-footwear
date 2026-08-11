@@ -218,6 +218,8 @@ export interface OrderStatusEmail {
   carrier?: string;
   trackingNumber?: string;
   logoSrc?: string;
+  /** Store-pickup order — uses "ready for pickup / picked up" wording. */
+  pickup?: boolean;
   /** Override the sender address (defaults to FROM). Used for testing before domain verification. */
   from?: string;
 }
@@ -245,12 +247,35 @@ const STATUS_COPY: Record<OrderStatus, { subject: (n: string) => string; heading
   },
 };
 
+// Store-pickup wording for statuses that differ from shipping.
+const STATUS_COPY_PICKUP: Partial<Record<OrderStatus, { subject: (n: string) => string; heading: string; body: string }>> = {
+  processing: {
+    subject: (n) => `We're preparing your Liberty Footwear order #${n}`,
+    heading: "We've received your order",
+    body: "Thanks! Your order has been received and our team is preparing it. We'll email you as soon as it's ready to pick up in store.",
+  },
+  shipped: {
+    subject: (n) => `Your Liberty Footwear order #${n} is ready for pickup`,
+    heading: "Your order is ready for pickup!",
+    body: "Good news — your order is ready to collect at our Grand Rapids, MI store. Bring your order number and we'll have it waiting for you.",
+  },
+  delivered: {
+    subject: (n) => `Your Liberty Footwear order #${n} was picked up`,
+    heading: "Thanks for picking up your order",
+    body: "Your order has been picked up. We hope you love your new boots — thank you for choosing Liberty Footwear!",
+  },
+};
+
+function statusCopy(o: OrderStatusEmail) {
+  return (o.pickup && STATUS_COPY_PICKUP[o.status]) || STATUS_COPY[o.status];
+}
+
 export function buildStatusEmailHtml(o: OrderStatusEmail): string {
-  const copy = STATUS_COPY[o.status];
+  const copy = statusCopy(o);
   const shortId = o.orderId.slice(0, 8);
 
   let trackingBlock = "";
-  if (o.status === "shipped" && o.trackingNumber) {
+  if (o.status === "shipped" && !o.pickup && o.trackingNumber) {
     const link = trackingUrl(o.carrier, o.trackingNumber);
     trackingBlock = `
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0;">
@@ -300,7 +325,7 @@ export async function sendOrderStatusEmail(o: OrderStatusEmail): Promise<void> {
   await sendMail({
     to: o.to,
     from: o.from,
-    subject: STATUS_COPY[o.status].subject(o.orderId.slice(0, 8)),
+    subject: statusCopy(o).subject(o.orderId.slice(0, 8)),
     html: buildStatusEmailHtml({ ...o, logoSrc: logo ? `cid:${LOGO_CID}` : undefined }),
     attachments,
   });
