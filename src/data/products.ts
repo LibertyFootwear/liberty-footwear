@@ -68,6 +68,8 @@ const IMG_EXT: Record<string, string> = {
   "KS0572":"png","KS0672":"png",
   // Apparel
   "KS0010":"png","KS0011":"png",
+  // Insoles
+  "KS0005":"png",
 };
 
 function img(stockNo: string, ext?: string): string | null {
