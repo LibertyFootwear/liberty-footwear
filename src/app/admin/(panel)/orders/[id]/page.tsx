@@ -53,7 +53,9 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
         <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Delivery</p>
           <p className="font-bold text-navy">{o.shipping_method === "pickup" ? "🏪 Store Pickup" : "📦 Shipping"}</p>
-          {o.shipping_address && (
+          {o.shipping_method === "pickup" ? (
+            <p className="text-sm text-gray-500 mt-1">Liberty Footwear — Grand Rapids, MI</p>
+          ) : o.shipping_address && (
             <p className="text-sm text-gray-500 mt-1">
               {(o.shipping_address as Record<string, string>).address}, {(o.shipping_address as Record<string, string>).city}, {(o.shipping_address as Record<string, string>).state} {(o.shipping_address as Record<string, string>).zip}
             </p>
@@ -116,7 +118,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
       {/* Status */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Order Status</p>
-        <OrderStatusForm orderId={o.id} currentStatus={o.status} />
+        <OrderStatusForm orderId={o.id} currentStatus={o.status} pickup={o.shipping_method === "pickup"} />
       </div>
 
       {/* Tracking */}

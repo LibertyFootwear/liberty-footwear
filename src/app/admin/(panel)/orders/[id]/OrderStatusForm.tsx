@@ -13,7 +13,10 @@ const STATUS_COLOR: Record<string, string> = {
   cancelled:  "bg-red-100 text-red-700 border-red-300",
 };
 
-export default function OrderStatusForm({ orderId, currentStatus }: { orderId: string; currentStatus: string }) {
+// Store-pickup orders relabel the shipping stages.
+const PICKUP_LABEL: Record<string, string> = { shipped: "Ready for pickup", delivered: "Picked up" };
+
+export default function OrderStatusForm({ orderId, currentStatus, pickup }: { orderId: string; currentStatus: string; pickup?: boolean }) {
   const [status, setStatus] = useState(currentStatus);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -43,7 +46,7 @@ export default function OrderStatusForm({ orderId, currentStatus }: { orderId: s
             status === s ? STATUS_COLOR[s] : "bg-gray-50 text-gray-400 border-gray-200 hover:border-gray-400"
           }`}
         >
-          {s}
+          {(pickup && PICKUP_LABEL[s]) || s}
         </button>
       ))}
       <button
