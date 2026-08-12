@@ -56,11 +56,13 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
           <p className="font-bold text-navy">{o.shipping_method === "pickup" ? "🏪 Store Pickup" : "📦 Shipping"}</p>
           {o.shipping_method === "pickup" ? (
             <p className="text-sm text-gray-500 mt-1">Liberty Footwear — Grand Rapids, MI</p>
-          ) : o.shipping_address && (
-            <p className="text-sm text-gray-500 mt-1">
-              {(o.shipping_address as Record<string, string>).address}, {(o.shipping_address as Record<string, string>).city}, {(o.shipping_address as Record<string, string>).state} {(o.shipping_address as Record<string, string>).zip}
-            </p>
-          )}
+          ) : o.shipping_address && (() => {
+            const a = o.shipping_address as Record<string, string>;
+            // Stored shape is { line1, city, state, postalCode, country }.
+            const line = [a.line1, a.city, [a.state, a.postalCode].filter(Boolean).join(" "), a.country]
+              .map((s) => (s ?? "").trim()).filter(Boolean).join(", ");
+            return line ? <p className="text-sm text-gray-500 mt-1">{line}</p> : null;
+          })()}
           <p className="text-xs text-gray-400 mt-1">{new Date(o.created_at).toLocaleString("en-US")}</p>
         </div>
       </div>
