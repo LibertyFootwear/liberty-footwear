@@ -127,7 +127,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
       {/* Status */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Order Status</p>
-        <OrderStatusForm orderId={o.id} currentStatus={o.status} pickup={o.shipping_method === "pickup"} />
+        <OrderStatusForm orderId={o.id} currentStatus={o.status} pickup={o.shipping_method === "pickup"} trackingNumber={o.tracking_number ?? undefined} />
       </div>
 
       {/* Tracking */}

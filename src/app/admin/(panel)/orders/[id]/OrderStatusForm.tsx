@@ -16,18 +16,28 @@ const STATUS_COLOR: Record<string, string> = {
 // Store-pickup orders relabel the shipping stages.
 const PICKUP_LABEL: Record<string, string> = { shipped: "Ready for pickup", delivered: "Picked up" };
 
-export default function OrderStatusForm({ orderId, currentStatus, pickup }: { orderId: string; currentStatus: string; pickup?: boolean }) {
+export default function OrderStatusForm({ orderId, currentStatus, pickup, trackingNumber }: { orderId: string; currentStatus: string; pickup?: boolean; trackingNumber?: string }) {
   const [status, setStatus] = useState(currentStatus);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const router = useRouter();
 
   async function save() {
+    // Confirm the tracking number when shipping — entered → shown in the email, blank → omitted.
+    let tracking: string | undefined;
+    if (status === "shipped" && !pickup) {
+      const tn = window.prompt(
+        "Tracking number for this shipment?\n\nEnter it to include a tracking link in the customer's email, or leave blank to send the shipped email without tracking.",
+        trackingNumber ?? ""
+      );
+      if (tn === null) return; // cancelled
+      tracking = tn.trim();
+    }
     setSaving(true);
     await fetch(`/api/admin/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, ...(tracking !== undefined ? { trackingNumber: tracking } : {}) }),
     });
     setSaving(false);
     setSaved(true);

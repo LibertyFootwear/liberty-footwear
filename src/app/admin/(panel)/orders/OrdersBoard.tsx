@@ -39,12 +39,25 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
   async function setStatus(id: string, status: string) {
     const current = orders.find((o) => o.id === id);
     if (!current || current.status === status) return;
+
+    // Moving a shipment to "shipped" — confirm the tracking number first. Entered
+    // → it's included in the customer's email; left blank → email sends without it.
+    let trackingNumber: string | undefined;
+    if (status === "shipped" && current.shipping_method !== "pickup") {
+      const tn = window.prompt(
+        "Tracking number for this shipment?\n\nEnter it to include a tracking link in the customer's email, or leave blank to send the shipped email without tracking.",
+        current.tracking_number ?? ""
+      );
+      if (tn === null) return; // cancelled — leave the order where it is
+      trackingNumber = tn.trim();
+    }
+
     setBusy(id);
-    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status, ...(trackingNumber !== undefined ? { tracking_number: trackingNumber || null } : {}) } : o)));
     await fetch(`/api/admin/orders/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, ...(trackingNumber !== undefined ? { trackingNumber } : {}) }),
     });
     setBusy(null);
     router.refresh();
