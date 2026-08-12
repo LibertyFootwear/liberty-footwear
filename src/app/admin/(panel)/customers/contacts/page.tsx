@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/adminAuth";
+import Link from "next/link";
 import oldContacts from "@/data/oldContacts.json";
 
 interface Contact {
@@ -10,7 +11,8 @@ interface Contact {
 }
 
 const TABS = [
-  { href: "/admin/customers", label: "Registered" },
+  { href: "/admin/customers", label: "All Customers" },
+  { href: "/admin/customers/in-store", label: "From In-Store" },
   { href: "/admin/customers/old", label: "From Old Website" },
   { href: "/admin/customers/contacts", label: "Email Contacts from Old Website" },
 ];
@@ -27,10 +29,10 @@ export default async function ContactsPage() {
 
       <div className="flex gap-2 border-b border-gray-200 mb-6">
         {TABS.map((t) => (
-          <a key={t.href} href={t.href}
+          <Link key={t.href} href={t.href}
             className={`px-4 py-2 text-sm font-bold transition ${t.href === "/admin/customers/contacts" ? "text-navy border-b-2 border-navy -mb-px" : "text-gray-400 hover:text-navy"}`}>
             {t.label}
-          </a>
+          </Link>
         ))}
       </div>
 

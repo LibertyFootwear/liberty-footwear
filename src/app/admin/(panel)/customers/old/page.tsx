@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/adminAuth";
+import Link from "next/link";
 import oldCustomers from "@/data/oldCustomers.json";
 
 interface OldCustomer {
@@ -26,9 +27,10 @@ export default async function OldCustomers() {
       <h1 className="text-2xl font-black text-navy mb-4">Customers</h1>
 
       <div className="flex gap-2 border-b border-gray-200 mb-6">
-        <a href="/admin/customers" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">Registered</a>
-        <a href="/admin/customers/old" className="px-4 py-2 text-sm font-bold text-navy border-b-2 border-navy -mb-px">From Old Website</a>
-        <a href="/admin/customers/contacts" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">Email Contacts from Old Website</a>
+        <Link href="/admin/customers" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">All Customers</Link>
+        <Link href="/admin/customers/in-store" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">From In-Store</Link>
+        <Link href="/admin/customers/old" className="px-4 py-2 text-sm font-bold text-navy border-b-2 border-navy -mb-px">From Old Website</Link>
+        <Link href="/admin/customers/contacts" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">Email Contacts from Old Website</Link>
       </div>
 
       <p className="text-sm text-gray-400 mb-6">
