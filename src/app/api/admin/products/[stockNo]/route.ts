@@ -10,7 +10,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ stoc
     return NextResponse.json({ error: "Unknown product" }, { status: 404 });
   }
   const body = await req.json();
-  await getSupabase().from("product_overrides").upsert({
+  const { error } = await getSupabase().from("product_overrides").upsert({
     stock_no: stockNo,
     price: typeof body.price === "number" ? body.price : null,
     description: body.description ?? null,
@@ -20,12 +20,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ stoc
     hidden: typeof body.hidden === "boolean" ? body.hidden : null,
     updated_at: new Date().toISOString(),
   }, { onConflict: "stock_no" });
+  if (error) {
+    return NextResponse.json({ error: `Database save failed: ${error.message}` }, { status: 500 });
+  }
   return NextResponse.json({ ok: true });
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ stockNo: string }> }) {
   try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const { stockNo } = await params;
-  await getSupabase().from("product_overrides").delete().eq("stock_no", stockNo);
+  const { error } = await getSupabase().from("product_overrides").delete().eq("stock_no", stockNo);
+  if (error) {
+    return NextResponse.json({ error: `Database reset failed: ${error.message}` }, { status: 500 });
+  }
   return NextResponse.json({ ok: true });
 }
