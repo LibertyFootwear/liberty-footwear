@@ -173,7 +173,16 @@ export async function POST(req: NextRequest) {
     return res;
   }
 
-  const taxRateId = await getMiTaxRateId();
+  // US states with NO statewide sales tax ("NOMAD"): Delaware, Montana, New
+  // Hampshire, Oregon, Alaska — don't charge tax when the order goes there.
+  // Store pickups are always in Michigan, so those stay taxable.
+  const NO_TAX_STATES = new Set([
+    "de", "delaware", "mt", "montana", "nh", "new hampshire",
+    "or", "oregon", "ak", "alaska",
+  ]);
+  const destState = (shippingMethod === "pickup" ? "MI" : billing?.state ?? "").trim().toLowerCase();
+  const applyTax = destState !== "" ? !NO_TAX_STATES.has(destState) : true;
+  const taxRateId = applyTax ? await getMiTaxRateId() : null;
 
   const session = await stripe.checkout.sessions.create({
     // Omit payment_method_types so Stripe enables every method turned on in the
@@ -194,7 +203,7 @@ export async function POST(req: NextRequest) {
         product_data: { name: item.name, metadata: { stockNo: item.stockNo, size: item.size, addons: item.addons } },
       },
       quantity: item.qty,
-      tax_rates: [taxRateId],
+      ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
     })),
     shipping_options: [
       shippingMethod === "pickup"
