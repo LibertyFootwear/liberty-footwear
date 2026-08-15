@@ -19,6 +19,7 @@ interface Props {
 export default function ProductPageClient({ p, variants, related }: Props) {
   const { t } = useLang();
   const isApparel = p.category === "Apparel";
+  const isInsole = p.category === "Insoles";
   useEffect(() => {
     trackProduct(p.slug);
     trackViewItem({
@@ -77,8 +78,22 @@ export default function ProductPageClient({ p, variants, related }: Props) {
             )}
             <p className="text-gray-700 leading-relaxed mb-8">{p.description}</p>
 
+            {/* Specs — insoles: thickness + foam color instead of outsole fields */}
+            {isInsole && (
+              <div className="grid grid-cols-2 gap-3 mb-8 text-sm">
+                <div className="bg-cream rounded-lg p-4">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Thickness</p>
+                  <p className="font-semibold text-navy">{p.thickness}</p>
+                </div>
+                <div className="bg-cream rounded-lg p-4">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Foam Color</p>
+                  <p className="font-semibold text-navy">{p.colorFoam}</p>
+                </div>
+              </div>
+            )}
+
             {/* Specs — boots only */}
-            {!isApparel && (
+            {!isApparel && !isInsole && (
               <div className="grid grid-cols-2 gap-3 mb-8 text-sm">
                 <div className="bg-cream rounded-lg p-4">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{t.product.leatherColor}</p>

@@ -28,6 +28,9 @@ export interface Product {
   categoryOverride?: ProductCategory;
   /** Apparel sizing (S/M/L/…) — presence marks this as a non-boot apparel item. */
   apparelSizes?: string[];
+  /** Insole specs shown in place of the outsole fields (Insoles category only). */
+  thickness?: string;
+  colorFoam?: string;
 }
 
 function categoryOf(name: string, family: ProductFamily, safetyToe: boolean): ProductCategory {
@@ -577,9 +580,10 @@ const _raw: RawProduct[] = [
     name: "Removable Footbed — Regular", family: "Insoles", safetyToe: false,
     colorLeather: "Blue cushion", outsoleType: "", colorOutsole: "",
     categoryOverride: "Insoles",
+    thickness: "Regular · 5×7 mm", colorFoam: "Blue",
     shortDescription: "Regular thickness · 5×7 mm",
     description: "Removable lightweight cushion dual-density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control treatment — regular thickness. 5×7 mm profile: grey base with a light blue cushion layer and black lining. Fits any Liberty Footwear boot.",
-    apparelSizes: ["5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"],
+    apparelSizes: ["5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"],
     sizes: "", price: 11, isNew: true, image: img("KS0004"),
   },
   {
@@ -587,9 +591,10 @@ const _raw: RawProduct[] = [
     name: "Removable Footbed — High Cushion", family: "Insoles", safetyToe: false,
     colorLeather: "Green cushion", outsoleType: "", colorOutsole: "",
     categoryOverride: "Insoles",
+    thickness: "Extra · 7×9 mm", colorFoam: "Green",
     shortDescription: "Extra thickness · 7×9 mm",
     description: "Removable lightweight high-cushion dual-density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control treatment — extra thickness. 7×9 mm profile: grey base with a green cushion layer and black lining. Fits any Liberty Footwear boot.",
-    apparelSizes: ["5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"],
+    apparelSizes: ["5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12"],
     sizes: "", price: 15, isNew: true, image: img("KS0005"),
   },
 ];
