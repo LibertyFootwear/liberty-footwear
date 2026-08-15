@@ -341,6 +341,23 @@ const _raw: RawProduct[] = [
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0601-${i}.jpg`),
   },
   {
+    // New item. Same boot as Terry Hiker but with a Fornax work-hiker sole; "F" suffix
+    // keeps the stock no. unique. Placeholder image (reuses KS0501) until real photos.
+    stockNo: "KS0501F", slug: slug("KS0501F","terry-hiker-work-black"),
+    name: "Terry hiker work", family: "Terry", safetyToe: false,
+    colorLeather: "Black", outsoleType: "Fornax work hiker", colorOutsole: "Black",
+    description: '6" Plain Toe water resistant',
+    sizes: "M: 6–12, 13, 14, 15, 16 | EW: 6–12, 13, 14, 15, 16", price: 249, isNew: true, image: img("KS0501"),
+  },
+  {
+    // New item. Safety-toe version of Terry hiker work. Placeholder image (reuses KS0601).
+    stockNo: "KS0601F", slug: slug("KS0601F","terry-hiker-work-ct-black"),
+    name: "Terry hiker work CT", family: "Terry", safetyToe: true,
+    colorLeather: "Black", outsoleType: "Fornax work hiker", colorOutsole: "Black",
+    description: '6" Plain Toe water resistant safety toe EH',
+    sizes: "M: 6–12, 13, 14, 15, 16 | EW: 6–12, 13, 14, 15, 16", price: 259, isNew: true, image: img("KS0601"),
+  },
+  {
     stockNo: "KS0502", slug: slug("KS0502","terry-hiker-coffee"),
     name: "Terry Hiker", family: "Terry", safetyToe: false,
     colorLeather: "Coffee", outsoleType: "Andes outdoor hiker", colorOutsole: "Black",
