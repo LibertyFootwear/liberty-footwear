@@ -401,16 +401,16 @@ const _raw: RawProduct[] = [
     stockNo: "KS0502F", slug: slug("KS0502F","terry-hiker-work-coffee"),
     name: "Terry hiker work", family: "Terry", safetyToe: false,
     colorLeather: "Coffee", outsoleType: "Fornax work hiker", colorOutsole: "Black",
-    description: '6" Plain Toe water resistant',
-    sizes: "M & EW: 5–12, 13", price: 249, isNew: true, image: img("KS0502F"),
+    description: '6" Plain Toe water resistant hiker',
+    sizes: "M & EW: 5–12, 13, 14, 15, 16", price: 249, isNew: true, image: img("KS0502F"),
   },
   {
     // New item. Safety-toe version of the Coffee Terry hiker work.
-    stockNo: "KS0602F", slug: slug("KS0602F","terry-hiker-work-ct-coffee"),
-    name: "Terry hiker work CT", family: "Terry", safetyToe: true,
+    stockNo: "KS0602F", slug: slug("KS0602F","terry-ct-hiker-work-coffee"),
+    name: "Terry CT hiker work", family: "Terry", safetyToe: true,
     colorLeather: "Coffee", outsoleType: "Fornax work hiker", colorOutsole: "Black",
-    description: '6" Plain Toe water resistant safety toe EH',
-    sizes: "M & EW: 5–12, 13", price: 259, isNew: true, image: img("KS0602F"),
+    description: '6" Plain Toe water resistant hiker',
+    sizes: "M & EW: 5–12, 13, 14, 15, 16", price: 259, isNew: true, image: img("KS0602F"),
   },
   // ── Larry family ─────────────────────────────────────────────────────────────
   {
