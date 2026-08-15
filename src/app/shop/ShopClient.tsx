@@ -7,14 +7,14 @@ import ProductCard from "@/components/ProductCard";
 import { useLang } from "@/context/LanguageContext";
 import { Suspense, useState } from "react";
 
-const CATEGORIES: { id: ProductCategory; label: string }[] = [
-  { id: "Work",         label: "Work" },
-  { id: "Casual",       label: "Casual" },
-  { id: "Outdoors",     label: "Outdoors" },
-  { id: "Safety",       label: "Safety" },
-  { id: "One of a Kind", label: "One of a Kind" },
-  { id: "Insoles",      label: "Insoles" },
-  { id: "Apparel",      label: "Apparel" },
+const CATEGORIES: { id: ProductCategory; label: string; desc: string }[] = [
+  { id: "Work",          label: "Work",          desc: "Rugged everyday boots built for long shifts on hard surfaces." },
+  { id: "Casual",        label: "Casual",        desc: "Comfortable leather boots for off-the-clock, everyday wear." },
+  { id: "Outdoors",      label: "Outdoors",      desc: "Waterproof hikers with aggressive lug soles for the trail." },
+  { id: "Safety",        label: "Safety",        desc: "Composite safety-toe boots — ASTM-rated protection, all-day comfort." },
+  { id: "One of a Kind", label: "One of a Kind", desc: "Limited and special-edition pairs — here today, gone tomorrow." },
+  { id: "Insoles",       label: "Insoles",       desc: "Removable cushioned footbeds to refresh any pair." },
+  { id: "Apparel",       label: "Apparel",       desc: "Liberty Footwear tees and caps — wear the brand." },
 ];
 
 const PRICE_RANGES = [
@@ -279,7 +279,8 @@ function ShopContent({ products }: { products: Product[] }) {
                     className={`relative rounded-xl p-6 text-left transition hover:scale-[1.02] hover:shadow-lg ${BG[c.id]} ${isActive ? "ring-4 ring-offset-2 ring-navy" : ""}`}
                   >
                     <p className="font-black text-white text-lg leading-tight">{c.label}</p>
-                    <p className="text-white/60 text-xs mt-1">{count} styles</p>
+                    <p className="text-white/75 text-xs mt-2 leading-snug">{c.desc}</p>
+                    <p className="text-white/50 text-xs mt-2">{count} styles</p>
                     {isActive && (
                       <span className="absolute top-3 right-3 bg-white text-navy text-xs font-bold px-2 py-0.5 rounded-full">Active</span>
                     )}
@@ -295,6 +296,9 @@ function ShopContent({ products }: { products: Product[] }) {
               <h1 className="text-2xl font-black text-navy">
                 {cat ? `${cat} Boots` : t.shop.title}
               </h1>
+              {cat && (
+                <p className="text-gray-500 text-sm mt-1 max-w-xl">{CATEGORIES.find((c) => c.id === cat)?.desc}</p>
+              )}
               <p className="text-gray-400 text-sm mt-0.5">{filtered.length} styles</p>
             </div>
             <div className="flex items-center gap-3">

@@ -21,6 +21,17 @@ const hikers = (() => {
     return true;
   }).slice(0, 4);
 })();
+// Safety-toe boots — one representative per family for the safety section.
+const safety = (() => {
+  const seen = new Set<string>();
+  return products.filter((p) => {
+    if (!p.image || !p.safetyToe) return false;
+    const key = p.name.replace(/\bCT\b/i, "").replace(/\b(work|hiker|city)\b/gi, "").replace(/\s+/g, " ").trim().toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 4);
+})();
 const CATEGORY_IDS = ["Work", "Casual", "Outdoors", "Safety"];
 const CATEGORY_IMAGES = [
   "/products/KS0121.jpg",   // Work – Gary Black Cream
@@ -300,6 +311,35 @@ export default function HomePage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {hikers.map((p) => (
+                <ProductCard key={p.stockNo} product={withPrice(p)} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── SAFETY ── */}
+      {safety.length > 0 && (
+        <section className="bg-white py-20 lg:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
+              <div>
+                <p className="text-red text-xs font-black tracking-widest uppercase mb-2">Protection Built In</p>
+                <h2 className="text-3xl lg:text-4xl font-black text-navy">Safety on the Job</h2>
+                <div className="w-16 h-1 bg-red mt-4 mb-5" />
+                <p className="text-gray-500 max-w-xl leading-relaxed">
+                  Our composite safety toes are multilayer fiberglass with carbon nanotubes — 50% lighter than steel, non-metallic, and ASTM F2413 certified. Full protection without the heavy, cold feel of a steel toe.
+                </p>
+              </div>
+              <Link href="/shop?category=Safety" className="inline-flex items-center gap-2 bg-navy hover:bg-red text-white font-bold text-base px-7 py-3.5 rounded-lg shadow-md transition group whitespace-nowrap self-start">
+                Shop Safety
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {safety.map((p) => (
                 <ProductCard key={p.stockNo} product={withPrice(p)} />
               ))}
             </div>
