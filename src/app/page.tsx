@@ -235,33 +235,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── HOW IT'S MADE ── */}
-      <section className="bg-cream py-20 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-red text-xs font-black tracking-widest uppercase mb-3">The Process</p>
-            <h2 className="text-3xl lg:text-4xl font-black text-navy">Every Pair Built by Hand</h2>
-            <div className="w-16 h-1 bg-red mx-auto mt-4" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            {/* Connector line */}
-            <div className="hidden md:block absolute top-10 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-red/30 to-transparent" />
-            {PROCESS_STEPS.map((step, i) => (
-              <div key={step.n} className="relative text-center group">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-navy text-white rounded-2xl mb-6 mx-auto group-hover:bg-red transition-colors shadow-lg">
-                  {step.icon}
-                </div>
-                <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-2 bg-red text-white text-xs font-black w-6 h-6 rounded-full flex items-center justify-center">
-                  {i + 1}
-                </div>
-                <h3 className="text-xl font-black text-navy mb-3">{step.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed max-w-xs mx-auto">{step.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── FEATURED PRODUCTS ── */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -285,6 +258,33 @@ export default function HomePage() {
           </div>
           <div className="text-center mt-10 sm:hidden">
             <Link href="/shop" className="btn-secondary">{t.featured.viewAll}</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT'S MADE ── */}
+      <section className="bg-cream py-20 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <p className="text-red text-xs font-black tracking-widest uppercase mb-3">The Process</p>
+            <h2 className="text-3xl lg:text-4xl font-black text-navy">Every Pair Built by Hand</h2>
+            <div className="w-16 h-1 bg-red mx-auto mt-4" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            {/* Connector line */}
+            <div className="hidden md:block absolute top-10 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-red/30 to-transparent" />
+            {PROCESS_STEPS.map((step, i) => (
+              <div key={step.n} className="relative text-center group">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-navy text-white rounded-2xl mb-6 mx-auto group-hover:bg-red transition-colors shadow-lg">
+                  {step.icon}
+                </div>
+                <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-2 bg-red text-white text-xs font-black w-6 h-6 rounded-full flex items-center justify-center">
+                  {i + 1}
+                </div>
+                <h3 className="text-xl font-black text-navy mb-3">{step.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed max-w-xs mx-auto">{step.body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
