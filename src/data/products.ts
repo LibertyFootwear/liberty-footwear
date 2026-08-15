@@ -56,6 +56,7 @@ const IMG_EXT: Record<string, string> = {
   "KS0201":"jpeg","KS0201H":"jpeg",
   "KS0102":"jpg","KS0102HG":"jpg",
   "KS0502":"jpeg","KS0602":"jpg",
+  "KS0501F":"png","KS0601F":"png",
   // Larry
   "KS0111":"jpg","KS0211":"jpeg","KS0111H":"jpg",
   "KS0112":"jpg","KS0212":"jpeg","KS0112H":"jpg","KS0212HG":"jpeg",
@@ -347,7 +348,7 @@ const _raw: RawProduct[] = [
     name: "Terry hiker work", family: "Terry", safetyToe: false,
     colorLeather: "Black", outsoleType: "Fornax work hiker", colorOutsole: "Black",
     description: '6" Plain Toe water resistant',
-    sizes: "M: 6–12, 13, 14, 15, 16 | EW: 6–12, 13, 14, 15, 16", price: 249, isNew: true, image: img("KS0501"),
+    sizes: "M: 6–12, 13, 14, 15, 16 | EW: 6–12, 13, 14, 15, 16", price: 249, isNew: true, image: img("KS0501F"),
   },
   {
     // New item. Safety-toe version of Terry hiker work. Placeholder image (reuses KS0601).
@@ -355,7 +356,7 @@ const _raw: RawProduct[] = [
     name: "Terry hiker work CT", family: "Terry", safetyToe: true,
     colorLeather: "Black", outsoleType: "Fornax work hiker", colorOutsole: "Black",
     description: '6" Plain Toe water resistant safety toe EH',
-    sizes: "M: 6–12, 13, 14, 15, 16 | EW: 6–12, 13, 14, 15, 16", price: 259, isNew: true, image: img("KS0601"),
+    sizes: "M: 6–12, 13, 14, 15, 16 | EW: 6–12, 13, 14, 15, 16", price: 259, isNew: true, image: img("KS0601F"),
   },
   {
     stockNo: "KS0502", slug: slug("KS0502","terry-hiker-coffee"),
