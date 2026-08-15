@@ -58,7 +58,7 @@ const IMG_EXT: Record<string, string> = {
   "KS0101":"png", "KS0101H":"jpg",
   "KS0201":"jpeg","KS0201H":"jpeg",
   "KS0102":"jpg","KS0102HG":"jpg",
-  "KS0502":"jpeg","KS0602":"jpg",
+  "KS0502":"jpeg","KS0602":"jpg","KS0502F":"jpeg","KS0602F":"jpeg",
   "KS0501F":"png","KS0601F":"png",
   // Larry
   "KS0111":"jpg","KS0211":"jpeg","KS0111H":"jpg",
@@ -394,6 +394,23 @@ const _raw: RawProduct[] = [
     description: 'Oiled tumbled waterproof Nubuck leather — soft, breathable and care friendly, with WP-sealed seams. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber cup Andes outsole — abrasion, slip and oil resistant, non-marking. Aggressive lug design is most suitable for outdoor jobs. High-content nitrile rubber compound is long-wearing, diesel and fuel resistant, and heat resistant up to 500 °F. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
     sizes: "M & EW: 5–12, 13", price: 259, isNew: false, image: img("KS0602"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0602-${i}.jpg`),
+  },
+  {
+    // New item. Coffee Terry hiker on a Fornax work-hiker sole; "F" suffix keeps
+    // the stock no. unique against the Andes-soled KS0502.
+    stockNo: "KS0502F", slug: slug("KS0502F","terry-hiker-work-coffee"),
+    name: "Terry hiker work", family: "Terry", safetyToe: false,
+    colorLeather: "Coffee", outsoleType: "Fornax work hiker", colorOutsole: "Black",
+    description: '6" Plain Toe water resistant',
+    sizes: "M & EW: 5–12, 13", price: 249, isNew: true, image: img("KS0502F"),
+  },
+  {
+    // New item. Safety-toe version of the Coffee Terry hiker work.
+    stockNo: "KS0602F", slug: slug("KS0602F","terry-hiker-work-ct-coffee"),
+    name: "Terry hiker work CT", family: "Terry", safetyToe: true,
+    colorLeather: "Coffee", outsoleType: "Fornax work hiker", colorOutsole: "Black",
+    description: '6" Plain Toe water resistant safety toe EH',
+    sizes: "M & EW: 5–12, 13", price: 259, isNew: true, image: img("KS0602F"),
   },
   // ── Larry family ─────────────────────────────────────────────────────────────
   {
