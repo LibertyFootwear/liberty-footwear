@@ -579,7 +579,7 @@ const _raw: RawProduct[] = [
     shortDescription: "Built in America logo t-shirt",
     description: "Soft, durable cotton t-shirt with the classic Liberty Footwear “Built in America” logo printed across the chest. A comfortable everyday fit that shows your support for American-made craftsmanship.",
     apparelSizes: ["S", "M", "L", "XL", "XXL"],
-    sizes: "", price: 20, isNew: true, image: img("KS0010"),
+    sizes: "", price: 25, isNew: true, image: img("KS0010"),
   },
   {
     stockNo: "KS0011", slug: slug("KS0011","liberty-cap"),
