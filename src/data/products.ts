@@ -260,6 +260,23 @@ const _raw: RawProduct[] = [
     sizes: "M: 5–14, 15, 16 | EW: 5–14, 15, 16", price: 249, isNew: false, image: img("KS0623"),
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0623-${i}.jpg`),
   },
+  {
+    // New item. Russet Gary hiker on a Cacique rubber cup sole; "C" suffix keeps
+    // the stock no. unique against the Andes-soled KS0523.
+    stockNo: "KS0523C", slug: slug("KS0523C","gary-city-hiker-russet"),
+    name: "Gary city hiker", family: "Gary", safetyToe: false,
+    colorLeather: "Russet", outsoleType: "Cacique rubber cup", colorOutsole: "Black",
+    description: '6" Mocc Toe water resistant hiker',
+    sizes: "M: 5–12 | EW: 5–12", price: 239, isNew: true, image: img("KS0523C"),
+  },
+  {
+    // New item. Safety-toe version of Gary city hiker.
+    stockNo: "KS0623C", slug: slug("KS0623C","gary-city-hiker-ct-russet"),
+    name: "Gary CT city hiker", family: "Gary", safetyToe: true,
+    colorLeather: "Russet", outsoleType: "Cacique rubber cup", colorOutsole: "Black",
+    description: '6" Mocc Toe water resistant hiker CT EH',
+    sizes: "M: 5–12 | EW: 5–12", price: 249, isNew: true, image: img("KS0623C"),
+  },
   // ── Terry family ─────────────────────────────────────────────────────────────
   {
     stockNo: "KS0101", slug: slug("KS0101","terry-black-black"),
