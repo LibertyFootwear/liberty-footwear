@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/adminAuth";
 import { getCatalog } from "@/lib/catalog";
 import Image from "next/image";
 import Link from "next/link";
+import ScrollRestorer from "./ScrollRestorer";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ export default async function AdminProducts() {
 
   return (
     <div className="p-8">
+      <ScrollRestorer />
       <h1 className="text-2xl font-black text-navy mb-2">Products</h1>
       <p className="text-sm text-gray-400 mb-8">{products.length} products in catalog — click Edit to change price, description, or visibility</p>
 
