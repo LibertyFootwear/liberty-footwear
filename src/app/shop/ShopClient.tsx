@@ -175,7 +175,8 @@ function ShopContent({ products }: { products: Product[] }) {
   if (sort === "newest")     filtered = [...filtered].sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
 
   const activeCount = (cat ? 1 : 0) + colors.length + prices.length + outsoles.length + (safetyToe ? 1 : 0);
-  const uniqueColors = getUniqueColors(products);
+  // Leather-color filter is for boots only — exclude insoles (foam colors) and apparel.
+  const uniqueColors = getUniqueColors(products.filter((p) => p.category !== "Insoles" && p.category !== "Apparel"));
 
   const FiltersPanel = (
     <div>
@@ -246,7 +247,7 @@ function ShopContent({ products }: { products: Product[] }) {
 
         {/* Sidebar – desktop */}
         <aside className="hidden lg:block w-52 flex-shrink-0">
-          <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">
+          <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain pr-2">
             <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Filters</p>
             {FiltersPanel}
           </div>
@@ -254,6 +255,40 @@ function ShopContent({ products }: { products: Product[] }) {
 
         {/* Main */}
         <div className="flex-1 min-w-0">
+          {/* Category cards */}
+          <div className="mb-10">
+            <h2 className="text-xl font-black text-navy mb-6">{t.shopByCategory.h2}</h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {CATEGORIES.map((c) => {
+                const count = products.filter((p) => p.category === c.id).length;
+                const isActive = cat === c.id;
+                const BG: Record<string, string> = {
+                  Work:           "bg-navy",
+                  Casual:         "bg-[#6B3A2A]",
+                  Outdoors:       "bg-[#2D5016]",
+                  Safety:         "bg-[#8B1A1A]",
+                  "One of a Kind": "bg-[#8A6D3B]",
+                  Insoles:        "bg-[#3A5A6B]",
+                  Apparel:        "bg-[#1e3a5f]",
+                };
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setParam("category", isActive ? null : c.id)}
+                    className={`relative rounded-xl p-6 text-left transition hover:scale-[1.02] hover:shadow-lg ${BG[c.id]} ${isActive ? "ring-4 ring-offset-2 ring-navy" : ""}`}
+                  >
+                    <p className="font-black text-white text-lg leading-tight">{c.label}</p>
+                    <p className="text-white/60 text-xs mt-1">{count} styles</p>
+                    {isActive && (
+                      <span className="absolute top-3 right-3 bg-white text-navy text-xs font-bold px-2 py-0.5 rounded-full">Active</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Toolbar */}
           <div className="flex items-center justify-between gap-4 mb-6">
             <div>
@@ -344,40 +379,6 @@ function ShopContent({ products }: { products: Product[] }) {
             </div>
           )}
 
-          {/* Category cards */}
-          <div className="mt-16 border-t border-gray-100 pt-12">
-            <h2 className="text-xl font-black text-navy mb-6">{t.shopByCategory.h2}</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {CATEGORIES.map((c) => {
-                const count = products.filter((p) => p.category === c.id).length;
-                const isActive = cat === c.id;
-                const BG: Record<string, string> = {
-                  Work:           "bg-navy",
-                  Casual:         "bg-[#6B3A2A]",
-                  Outdoors:       "bg-[#2D5016]",
-                  Safety:         "bg-[#8B1A1A]",
-                  "One of a Kind": "bg-[#8A6D3B]",
-                  Insoles:        "bg-[#3A5A6B]",
-                  Apparel:        "bg-[#1e3a5f]",
-                };
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setParam("category", isActive ? null : c.id)}
-                    className={`relative rounded-xl p-6 text-left transition hover:scale-[1.02] hover:shadow-lg ${BG[c.id]} ${isActive ? "ring-4 ring-offset-2 ring-navy" : ""}`}
-                  >
-
-                    <p className="font-black text-white text-lg leading-tight">{c.label}</p>
-                    <p className="text-white/60 text-xs mt-1">{count} styles</p>
-                    {isActive && (
-                      <span className="absolute top-3 right-3 bg-white text-navy text-xs font-bold px-2 py-0.5 rounded-full">Active</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -385,7 +386,7 @@ function ShopContent({ products }: { products: Product[] }) {
       {mobileFiltersOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileFiltersOpen(false)} />
-          <div className="absolute right-0 top-0 h-full w-80 bg-white shadow-xl overflow-y-auto p-6">
+          <div className="absolute right-0 top-0 h-full w-80 bg-white shadow-xl overflow-y-auto overscroll-contain p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-black text-navy text-lg">Filters</h2>
               <button type="button" onClick={() => setMobileFiltersOpen(false)} className="text-gray-400 hover:text-navy text-2xl leading-none">&times;</button>
