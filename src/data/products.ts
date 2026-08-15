@@ -216,7 +216,8 @@ const _raw: RawProduct[] = [
     name: "Gary Hiker", family: "Gary", safetyToe: false,
     colorLeather: "Black", outsoleType: "Andes rubber cup", colorOutsole: "Cream",
     description: 'Oiled tumbled full grain leather — breathable, soft and easy care. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber cup Andes outsole — abrasion, slip and oil resistant, non-marking. Aggressive lug design is most suitable for outdoor jobs. High-content nitrile rubber compound is long-wearing, diesel and fuel resistant, and heat resistant up to 500 °F.',
-    sizes: "M: 9–12, 12.5, 13, 13.5 | EW: 9–12, 12.5, 13, 13.5", price: 239, isNew: false, image: img("KS0521"),
+    sizes: "M: 9–12, 12.5, 13, 13.5 | EW: 9–12, 12.5, 13, 13.5", price: 239, isNew: false, image: img("KS0621"),
+    gallery: [1,2,3,4,5,6].map(i => `/products/KS0621-${i}.jpg`),
   },
   {
     stockNo: "KS0621", slug: slug("KS0621","gary-hiker-ct-black"),
