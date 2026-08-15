@@ -266,7 +266,8 @@ const _raw: RawProduct[] = [
     stockNo: "KS0523C", slug: slug("KS0523C","gary-city-hiker-russet"),
     name: "Gary city hiker", family: "Gary", safetyToe: false,
     colorLeather: "Russet", outsoleType: "Cacique rubber cup", colorOutsole: "Black",
-    description: '6" Mocc Toe water resistant hiker',
+    shortDescription: '6" Mocc Toe water resistant hiker',
+    description: 'Oiled tumbled waterproof Nubuck — breathable, soft and easy care. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Cacique rubber cup outsole — abrasion, slip and oil resistant, non-marking, with a city-ready lug profile.',
     sizes: "M: 5–12 | EW: 5–12", price: 239, isNew: true, image: img("KS0523C"),
   },
   {
@@ -274,7 +275,8 @@ const _raw: RawProduct[] = [
     stockNo: "KS0623C", slug: slug("KS0623C","gary-city-hiker-ct-russet"),
     name: "Gary CT city hiker", family: "Gary", safetyToe: true,
     colorLeather: "Russet", outsoleType: "Cacique rubber cup", colorOutsole: "Black",
-    description: '6" Mocc Toe water resistant hiker CT EH',
+    shortDescription: '6" Mocc Toe water resistant hiker CT EH',
+    description: 'Oiled tumbled waterproof Nubuck — breathable, soft and easy care. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system guaranteed to prevent smell. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Cacique rubber cup outsole — abrasion, slip and oil resistant, non-marking, with a city-ready lug profile. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
     sizes: "M: 5–12 | EW: 5–12", price: 249, isNew: true, image: img("KS0623C"),
   },
   // ── Terry family ─────────────────────────────────────────────────────────────
