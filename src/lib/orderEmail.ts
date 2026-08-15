@@ -108,8 +108,8 @@ export function buildOrderEmailHtml(o: OrderConfirmationEmail): string {
   const invoiceLink = o.payAtPickup
     ? `<p style="font-size:13px;color:#6b7280;margin:18px 0 0;">Please <strong>pay when you pick up</strong> your order at our Grand Rapids, MI store. We'll email you as soon as it's ready.</p>`
     : o.invoiceUrl
-    ? `<p style="font-size:13px;color:#6b7280;margin:18px 0 0;">Your invoice is attached to this email. You can also <a href="${esc(o.invoiceUrl)}" style="color:${RED};">view it online</a>.</p>`
-    : `<p style="font-size:13px;color:#6b7280;margin:18px 0 0;">Your invoice is attached to this email.</p>`;
+    ? `<p style="font-size:13px;color:#6b7280;margin:18px 0 0;"><a href="${esc(o.invoiceUrl)}" style="color:${RED};font-weight:bold;">View &amp; print your invoice →</a></p>`
+    : "";
 
   const intro = o.payAtPickup
     ? "Your order is placed! We're preparing it for pickup — pay in store when you collect it."

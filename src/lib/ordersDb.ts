@@ -76,6 +76,15 @@ export async function getOrdersByUser(userId: string): Promise<Order[]> {
   return (data ?? []).map(mapRow);
 }
 
+export async function getOrderById(id: string): Promise<Order | undefined> {
+  const { data } = await getSupabase()
+    .from("orders")
+    .select("*")
+    .eq("id", id)
+    .single();
+  return data ? mapRow(data) : undefined;
+}
+
 export async function getOrderByStripeSession(stripeSessionId: string): Promise<Order | undefined> {
   const { data } = await getSupabase()
     .from("orders")

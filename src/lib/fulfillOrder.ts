@@ -4,34 +4,7 @@ import { decrementInventory } from "@/lib/inventoryDb";
 import { tryUpsertCustomer } from "@/lib/customersDb";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/orderEmail";
 import { products } from "@/data/products";
-import { env } from "@/lib/env";
 import { publicEnv } from "@/lib/publicEnv";
-
-/**
- * Fetch the Stripe invoice for a completed checkout session: the hosted URL and
- * the PDF downloaded as base64 for attaching. Best-effort — returns nulls if the
- * invoice or PDF isn't available yet, so the email still goes out without it.
- */
-async function getInvoice(
-  session: Stripe.Checkout.Session
-): Promise<{ url?: string; pdfBase64?: string }> {
-  try {
-    const invoiceRef = (session as unknown as { invoice?: string | Stripe.Invoice }).invoice;
-    if (!invoiceRef) return {};
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2026-06-24.dahlia" });
-    const invoice = typeof invoiceRef === "string" ? await stripe.invoices.retrieve(invoiceRef) : invoiceRef;
-    const url = invoice.hosted_invoice_url ?? undefined;
-    let pdfBase64: string | undefined;
-    if (invoice.invoice_pdf) {
-      const res = await fetch(invoice.invoice_pdf);
-      if (res.ok) pdfBase64 = Buffer.from(await res.arrayBuffer()).toString("base64");
-    }
-    return { url, pdfBase64 };
-  } catch (err) {
-    console.error("Invoice fetch failed (email will send without it):", err);
-    return {};
-  }
-}
 
 /**
  * Turn a paid Stripe Checkout Session into an order + inventory deduction.
@@ -120,17 +93,14 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
   // Best-effort: a mail failure must not fail fulfillment.
   if (shippingEmail) {
     try {
-      const invoice = await getInvoice(session);
       await sendOrderConfirmationEmail({
         to: shippingEmail,
         name: shippingName,
         items,
         total,
         orderId,
-        invoiceUrl: invoice.url,
-        invoicePdf: invoice.pdfBase64
-          ? { filename: `invoice-${orderId.slice(0, 8)}.pdf`, base64: invoice.pdfBase64 }
-          : undefined,
+        // Our own branded, printable invoice — no Stripe Invoicing fee.
+        invoiceUrl: `${publicEnv.NEXT_PUBLIC_BASE_URL}/invoice/${orderId}`,
       });
     } catch (err) {
       console.error("Order confirmation email failed (order still recorded):", err);
