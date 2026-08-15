@@ -230,6 +230,8 @@ export async function POST(req: NextRequest) {
             },
           },
     ],
+    // Force a full billing address (incl. state) so every generated invoice is complete.
+    billing_address_collection: "required",
     ...(shippingMethod !== "pickup" && {
       shipping_address_collection: { allowed_countries: ["US", "CA"] as ["US", "CA"] },
     }),
