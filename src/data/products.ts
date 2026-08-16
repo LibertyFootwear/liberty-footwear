@@ -73,7 +73,7 @@ const IMG_EXT: Record<string, string> = {
   // Apparel
   "KS0010":"png","KS0011":"png",
   // Care
-  "KS0012":"jpg",
+  "KS0012":"jpg","KS0013":"jpg",
   // Insoles
   "KS0004":"png","KS0005":"png",
 };
@@ -626,6 +626,17 @@ const _raw: RawProduct[] = [
     description: "All-natural leather seal and conditioner made with beeswax, eucalyptus oil, avocado oil, lavender oil and vitamin E. Cleans, conditions, waterproofs and protects your boots and other leather goods — restoring dry, cracked leather and guarding against the elements. Made in the USA. 5.5 oz (150 g) tin.",
     apparelSizes: ["5.5 oz (150 g)"],
     sizes: "", price: 20, isNew: true, image: img("KS0012"),
+  },
+  {
+    stockNo: "KS0013", slug: slug("KS0013","outback-leather-seal-1kg"),
+    name: "Outback Leather Seal — 1 kg Tub", family: "Care", safetyToe: false,
+    colorLeather: "", outsoleType: "", colorOutsole: "",
+    categoryOverride: "Care",
+    shortDescription: "All-natural leather conditioner & waterproofer · 1 kg value tub",
+    description: "The large 1 kg (35¼ oz) value tub of Outback Leather Seal — best for regular use and larger collections. All-natural beeswax blended with organic oils moisturizes and returns leather to its natural luster. Waterproofs, cleans, conditions and protects full-grain leather — boots, saddlery, jackets, gloves and oilskins. Won't rot stitching (no lanolin or mink oil), lets leather breathe, and is totally natural. Apply to dry, clean leather with a hand, rag or brush and buff off. Avoid on suede; will darken Nubuck. Made in the USA.",
+    apparelSizes: ["1 kg (35¼ oz)"],
+    sizes: "", price: 75, isNew: true, image: img("KS0013"),
+    gallery: ["/products/KS0013.jpg", "/products/KS0013-2.jpg"],
   },
 ];
 
