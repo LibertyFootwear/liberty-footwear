@@ -7,6 +7,7 @@ import { Product, parseSizes } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 import { BootAddons, DEFAULT_ADDONS, INSOLE_CHOICES, ADDON_PRICES, addonsSurcharge, takesAddons } from "@/lib/bootAddons";
+import { isBootCategory } from "@/lib/shipping";
 
 const LEATHER_COLORS: Record<string, string> = {
   "Jet Black":  "#1a1a1a",
@@ -47,7 +48,7 @@ interface Props {
 
 export default function ProductOptions({ product, variants }: Props) {
   const router = useRouter();
-  const { addItem } = useCart();
+  const { addItem, items } = useCart();
   const [added, setAdded] = useState(false);
   const siteSettings = useSiteSettings();
   const salesPaused = siteSettings ? !siteSettings.salesEnabled : false;
@@ -63,6 +64,9 @@ export default function ProductOptions({ product, variants }: Props) {
   const packageVariants = isCare
     ? [...variants].sort((a, b) => a.price - b.price)
     : [];
+
+  // Nudge shown after adding a non-boot item while the cart still has no boots.
+  const showShippingHint = !isBootCategory(product.category) && !items.some((i) => isBootCategory(i.product.category));
 
   const sizeMap = parseSizes(product.sizes);
   const widths = Object.keys(sizeMap);
@@ -339,18 +343,27 @@ export default function ProductOptions({ product, variants }: Props) {
 
       {/* Toast */}
       <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${added ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}>
-        <div className="flex items-center gap-4 bg-navy text-white px-5 py-4 rounded-2xl shadow-2xl min-w-72">
-          <span className="text-green-400 text-xl">✓</span>
-          <div className="flex-1">
-            <p className="font-bold text-sm">Added to cart!</p>
-            <p className="text-xs text-white/60">{product.name} · {sizeLabel}</p>
+        <div className="bg-navy text-white px-5 py-4 rounded-2xl shadow-2xl min-w-72 max-w-sm">
+          <div className="flex items-center gap-4">
+            <span className="text-green-400 text-xl">✓</span>
+            <div className="flex-1">
+              <p className="font-bold text-sm">Added to cart!</p>
+              <p className="text-xs text-white/60">{product.name} · {sizeLabel}</p>
+            </div>
+            <Link
+              href="/cart"
+              className="bg-amber-500 hover:bg-amber-400 text-white text-xs font-black px-4 py-2 rounded-lg transition whitespace-nowrap"
+            >
+              Go to Cart →
+            </Link>
           </div>
-          <Link
-            href="/cart"
-            className="bg-amber-500 hover:bg-amber-400 text-white text-xs font-black px-4 py-2 rounded-lg transition whitespace-nowrap"
-          >
-            Go to Cart →
-          </Link>
+          {showShippingHint && (
+            <div className="mt-3 pt-3 border-t border-white/15 flex items-center gap-2 text-xs text-white/80">
+              <span className="text-base leading-none">👢</span>
+              <span>Add a pair of boots for <span className="font-bold text-green-400">free shipping</span>.</span>
+              <Link href="/shop" className="ml-auto font-bold text-amber-400 hover:underline whitespace-nowrap">Shop →</Link>
+            </div>
+          )}
         </div>
       </div>
     </div>
