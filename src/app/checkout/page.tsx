@@ -10,6 +10,7 @@ import { useState, useEffect, useRef, Suspense, createContext, useContext } from
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 import { publicEnv } from "@/lib/publicEnv";
 import { trackBeginCheckout } from "@/lib/gtag";
+import { isBootCategory, SMALL_ITEM_SHIPPING } from "@/lib/shipping";
 
 interface FieldCtx {
   form: Record<string, string | boolean>;
@@ -61,10 +62,9 @@ function CheckoutForm() {
   const COUPONS: Record<string, number> = { LIBERTY10: 10, LIBERTY15: 15, WELCOME20: 20 };
   const discount = coupon ? (COUPONS[coupon] ?? 0) : 0;
 
-  // Apparel-only orders pay $8 shipping; free if any boot is in the cart or on pickup.
-  const hasBoot = items.some((i) => i.product.category !== "Apparel");
-  const hasApparel = items.some((i) => i.product.category === "Apparel");
-  const shippingFee = shippingMethod !== "pickup" && hasApparel && !hasBoot ? 8 : 0;
+  // Free shipping requires a boot; apparel / insoles / leather-care only pay a flat fee.
+  const hasBoot = items.some((i) => isBootCategory(i.product.category));
+  const shippingFee = shippingMethod !== "pickup" && items.length > 0 && !hasBoot ? SMALL_ITEM_SHIPPING : 0;
 
   const taxableAmount = Math.max(0, subtotal - discount);
   const tax = Math.round(taxableAmount * 0.06 * 100) / 100;
@@ -314,7 +314,7 @@ function CheckoutForm() {
                       <span className="text-2xl">📦</span>
                       <div>
                         <p className="font-bold text-navy text-sm">Ship to me</p>
-                        <p className="text-xs text-gray-500">Free · 3–7 business days</p>
+                        <p className="text-xs text-gray-500">{shippingFee > 0 ? `$${SMALL_ITEM_SHIPPING}` : "Free"} · 3–7 business days</p>
                       </div>
                     </div>
                     {user?.addresses && user.addresses.length > 0 && (

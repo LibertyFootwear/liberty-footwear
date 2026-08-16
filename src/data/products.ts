@@ -625,7 +625,7 @@ const _raw: RawProduct[] = [
     shortDescription: "All-natural leather conditioner & waterproofer · 5.5 oz",
     description: "All-natural leather seal and conditioner made with beeswax, eucalyptus oil, avocado oil, lavender oil and vitamin E. Cleans, conditions, waterproofs and protects your boots and other leather goods — restoring dry, cracked leather and guarding against the elements. Made in the USA. 5.5 oz (150 g) tin.",
     apparelSizes: ["5.5 oz (150 g)"],
-    sizes: "", price: 20, isNew: true, image: img("KS0012"),
+    sizes: "", price: 23, isNew: true, image: img("KS0012"),
   },
   {
     stockNo: "KS0013", slug: slug("KS0013","outback-leather-seal-1kg"),

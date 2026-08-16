@@ -12,6 +12,7 @@ import { saveOrder } from "@/lib/ordersDb";
 import { decrementInventory } from "@/lib/inventoryDb";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/orderEmail";
 import { env } from "@/lib/env";
+import { isBootCategory } from "@/lib/shipping";
 
 const APPAREL_SHIPPING_CENTS = 800; // $8 flat when the order is apparel-only
 
@@ -112,10 +113,13 @@ export async function POST(req: NextRequest) {
     };
   }));
 
-  // Shipping: apparel-only orders pay a flat fee when shipped; free if any boot is in the cart or on pickup.
-  const hasBoot = validatedItems.some((it) => products.find((p) => p.stockNo === it.stockNo)?.category !== "Apparel");
-  const hasApparel = validatedItems.some((it) => products.find((p) => p.stockNo === it.stockNo)?.category === "Apparel");
-  const chargeApparelShipping = shippingMethod !== "pickup" && hasApparel && !hasBoot;
+  // Shipping: boot-less orders (apparel, insoles, leather care) pay a flat fee when
+  // shipped; free if any boot is in the cart or on pickup.
+  const hasBoot = validatedItems.some((it) => {
+    const cat = products.find((p) => p.stockNo === it.stockNo)?.category;
+    return cat ? isBootCategory(cat) : false;
+  });
+  const chargeApparelShipping = shippingMethod !== "pickup" && !hasBoot;
 
   // ── Pay-at-pickup: create the order directly, no Stripe. Collected in store. ──
   if (shippingMethod === "pickup" && payAtPickup) {

@@ -9,6 +9,7 @@ import { trackProduct } from "@/hooks/useRecentlyViewed";
 import { trackViewItem } from "@/lib/gtag";
 import { useLang } from "@/context/LanguageContext";
 import type { Product } from "@/data/products";
+import { SMALL_ITEM_SHIPPING } from "@/lib/shipping";
 
 interface Props {
   p: Product;
@@ -116,8 +117,13 @@ export default function ProductPageClient({ p, variants, related }: Props) {
 
             <ProductOptions product={p} variants={variants} />
 
-            {!isApparel && (
+            {!isApparel && !isInsole ? (
               <p className="text-xs text-gray-400 mt-4 text-center">{t.product.freeShipping}</p>
+            ) : (
+              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-navy bg-tan/15 border border-tan/40 rounded-lg px-4 py-2.5">
+                <span className="text-base leading-none">👢</span>
+                <span>Ships for ${SMALL_ITEM_SHIPPING} on its own — <span className="font-bold text-green-700">free shipping</span> when you add a pair of boots.</span>
+              </div>
             )}
           </div>
         </div>

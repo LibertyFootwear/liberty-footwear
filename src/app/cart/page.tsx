@@ -9,6 +9,7 @@ import { useState } from "react";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
+import { isBootCategory, SMALL_ITEM_SHIPPING } from "@/lib/shipping";
 
 const POPULAR = products.filter((p) => p.image).slice(0, 4);
 
@@ -90,10 +91,9 @@ export default function CartPage() {
 
   const discount = appliedCoupon ? COUPONS[appliedCoupon] : 0;
 
-  // Apparel-only orders pay $8 shipping; free if any boot is in the cart or on pickup.
-  const hasBoot = items.some((i) => i.product.category !== "Apparel");
-  const hasApparel = items.some((i) => i.product.category === "Apparel");
-  const shippingFee = shippingMethod !== "pickup" && hasApparel && !hasBoot ? 8 : 0;
+  // Free shipping requires a boot; apparel / insoles / leather-care only pay a flat fee.
+  const hasBoot = items.some((i) => isBootCategory(i.product.category));
+  const shippingFee = shippingMethod !== "pickup" && items.length > 0 && !hasBoot ? SMALL_ITEM_SHIPPING : 0;
 
   const taxableAmount = Math.max(0, subtotal - discount);
   const tax = Math.round(taxableAmount * 0.06 * 100) / 100;
@@ -296,7 +296,7 @@ export default function CartPage() {
                   <span className="mt-0.5 text-xl">📦</span>
                   <div>
                     <p className="font-bold text-navy text-sm">Ship to me</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{hasApparel && !hasBoot ? "$8" : "Free"} · 3–7 business days</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{shippingFee > 0 ? `$${SMALL_ITEM_SHIPPING}` : "Free"} · 3–7 business days</p>
                   </div>
                   {shippingMethod === "ship" && (
                     <span className="ml-auto mt-0.5 w-4 h-4 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
@@ -356,6 +356,15 @@ export default function CartPage() {
                   <span>${total.toFixed(2)}</span>
                 </div>
               </div>
+              {shippingFee > 0 && (
+                <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-tan/15 border border-tan/40 px-4 py-3">
+                  <span className="text-lg leading-none">👢</span>
+                  <p className="text-xs text-navy leading-relaxed">
+                    <span className="font-bold">Add a pair of boots</span> to your order and shipping is <span className="font-bold text-green-700">free</span>.{" "}
+                    <Link href="/shop" className="font-bold text-red hover:underline">Shop boots →</Link>
+                  </p>
+                </div>
+              )}
               {salesPaused ? (
                 <div className="space-y-3">
                   <span className="w-full py-4 text-base font-bold rounded-lg uppercase tracking-wide bg-gray-200 text-gray-400 text-center block cursor-not-allowed">
