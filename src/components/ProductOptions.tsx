@@ -57,11 +57,21 @@ export default function ProductOptions({ product, variants }: Props) {
   const [addons, setAddons] = useState<BootAddons>(DEFAULT_ADDONS);
   const surcharge = showAddons ? addonsSurcharge(addons) : 0;
 
+  // Care products (e.g. leather seal) come in multiple package sizes, each its own
+  // product — offer them as a package selector that navigates between variants.
+  const isCare = product.category === "Care";
+  const packageVariants = isCare
+    ? [...variants].sort((a, b) => a.price - b.price)
+    : [];
+
   const sizeMap = parseSizes(product.sizes);
   const widths = Object.keys(sizeMap);
   const [selectedWidth, setSelectedWidth] = useState(widths[0] ?? "M");
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
-  const [apparelSize, setApparelSize] = useState<string | null>(null);
+  // Single-size apparel/care items auto-select their only size so Add to Cart is ready.
+  const [apparelSize, setApparelSize] = useState<string | null>(
+    product.apparelSizes?.length === 1 ? product.apparelSizes[0] : null
+  );
   const sizes = sizeMap[selectedWidth] ?? [];
 
   const sizeLabel = isApparel ? apparelSize : (selectedSize ? `${selectedWidth} ${selectedSize}` : null);
@@ -198,13 +208,30 @@ export default function ProductOptions({ product, variants }: Props) {
         </div>
       )}
 
-      {/* Size */}
+      {/* Size / Package */}
       <div>
         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">
-          Size{sizeLabel ? ` — ${sizeLabel}` : ""}
+          {isCare ? "Package" : "Size"}{sizeLabel ? ` — ${sizeLabel}` : ""}
         </p>
         <div className="flex flex-wrap gap-2">
-          {isApparel
+          {isCare && packageVariants.length > 1
+            ? packageVariants.map((v) => {
+                const label = v.apparelSizes?.[0] ?? v.name;
+                const active = v.slug === product.slug;
+                return (
+                  <button
+                    key={v.slug}
+                    type="button"
+                    onClick={() => { if (!active) router.push(`/shop/${v.slug}`); }}
+                    className={`h-12 px-4 rounded-lg text-sm font-semibold border-2 transition ${
+                      active ? "border-navy bg-navy text-white" : "border-gray-200 text-gray-700 hover:border-navy"
+                    }`}
+                  >
+                    {label} · ${v.price}
+                  </button>
+                );
+              })
+            : isApparel
             ? product.apparelSizes!.map((s) => (
                 <button
                   key={s}

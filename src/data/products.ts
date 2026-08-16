@@ -629,7 +629,7 @@ const _raw: RawProduct[] = [
   },
   {
     stockNo: "KS0013", slug: slug("KS0013","outback-leather-seal-1kg"),
-    name: "Outback Leather Seal — 1 kg Tub", family: "Care", safetyToe: false,
+    name: "Outback Leather Seal", family: "Care", safetyToe: false,
     colorLeather: "", outsoleType: "", colorOutsole: "",
     categoryOverride: "Care",
     shortDescription: "All-natural leather conditioner & waterproofer · 1 kg value tub",
