@@ -18,7 +18,7 @@ interface Props {
 
 export default function ProductPageClient({ p, variants, related }: Props) {
   const { t } = useLang();
-  const isApparel = p.category === "Apparel";
+  const isApparel = p.category === "Apparel" || p.category === "Care";
   const isInsole = p.category === "Insoles";
   useEffect(() => {
     trackProduct(p.slug);

@@ -1,5 +1,5 @@
-export type ProductFamily = "Gary" | "Terry" | "Larry" | "Kenny" | "Apparel" | "Insoles";
-export type ProductCategory = "Work" | "Casual" | "Outdoors" | "Safety" | "One of a Kind" | "Apparel" | "Insoles";
+export type ProductFamily = "Gary" | "Terry" | "Larry" | "Kenny" | "Apparel" | "Insoles" | "Care";
+export type ProductCategory = "Work" | "Casual" | "Outdoors" | "Safety" | "One of a Kind" | "Apparel" | "Insoles" | "Care";
 
 export interface Product {
   stockNo: string;
@@ -72,6 +72,8 @@ const IMG_EXT: Record<string, string> = {
   "KS0572":"png","KS0672":"png",
   // Apparel
   "KS0010":"png","KS0011":"png",
+  // Care
+  "KS0012":"jpg",
   // Insoles
   "KS0004":"png","KS0005":"png",
 };
@@ -613,6 +615,17 @@ const _raw: RawProduct[] = [
     description: "Removable lightweight high-cushion dual-density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control treatment — extra thickness. 7×9 mm profile: grey base with a green cushion layer and black lining. Fits any Liberty Footwear boot.",
     apparelSizes: ["5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "13", "14", "15", "16"],
     sizes: "", price: 15, isNew: true, image: img("KS0005"),
+  },
+  // ── Care ────────────────────────────────────────────────────────────────────
+  {
+    stockNo: "KS0012", slug: slug("KS0012","outback-leather-seal"),
+    name: "Outback Leather Seal", family: "Care", safetyToe: false,
+    colorLeather: "", outsoleType: "", colorOutsole: "",
+    categoryOverride: "Care",
+    shortDescription: "All-natural leather conditioner & waterproofer · 5.5 oz",
+    description: "All-natural leather seal and conditioner made with beeswax, eucalyptus oil, avocado oil, lavender oil and vitamin E. Cleans, conditions, waterproofs and protects your boots and other leather goods — restoring dry, cracked leather and guarding against the elements. Made in the USA. 5.5 oz (150 g) tin.",
+    apparelSizes: ["5.5 oz (150 g)"],
+    sizes: "", price: 20, isNew: true, image: img("KS0012"),
   },
 ];
 

@@ -15,6 +15,7 @@ const CATEGORIES: { id: ProductCategory; label: string; desc: string }[] = [
   { id: "One of a Kind", label: "One of a Kind", desc: "Limited and special-edition pairs — here today, gone tomorrow." },
   { id: "Insoles",       label: "Insoles",       desc: "Removable cushioned footbeds to refresh any pair." },
   { id: "Apparel",       label: "Apparel",       desc: "Liberty Footwear tees and caps — wear the brand." },
+  { id: "Care",          label: "Leather Care",  desc: "All-natural conditioners to clean, waterproof and protect your leather." },
 ];
 
 const PRICE_RANGES = [
@@ -176,7 +177,7 @@ function ShopContent({ products }: { products: Product[] }) {
 
   const activeCount = (cat ? 1 : 0) + colors.length + prices.length + outsoles.length + (safetyToe ? 1 : 0);
   // Leather-color filter is for boots only — exclude insoles (foam colors) and apparel.
-  const uniqueColors = getUniqueColors(products.filter((p) => p.category !== "Insoles" && p.category !== "Apparel"));
+  const uniqueColors = getUniqueColors(products.filter((p) => !["Insoles", "Apparel", "Care"].includes(p.category) && p.colorLeather));
 
   const FiltersPanel = (
     <div>
@@ -270,6 +271,7 @@ function ShopContent({ products }: { products: Product[] }) {
                   "One of a Kind": "bg-[#8A6D3B]",
                   Insoles:        "bg-[#3A5A6B]",
                   Apparel:        "bg-[#1e3a5f]",
+                  Care:           "bg-[#8A6A1F]",
                 };
                 return (
                   <button
