@@ -13,21 +13,71 @@ const HOURS = [
 export default function ContactPage() {
   const { t } = useLang();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [files, setFiles] = useState<File[]>([]);
+  const [fileError, setFileError] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+
+  const MAX_FILES = 3;
+  const MAX_EACH = 5 * 1024 * 1024; // 5 MB per file
+  const MAX_TOTAL = 10 * 1024 * 1024; // 10 MB total
+  const ACCEPT = "image/png,image/jpeg,image/webp,image/heic,application/pdf";
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
+  function addFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    setFileError("");
+    const chosen = Array.from(e.target.files ?? []);
+    e.target.value = ""; // allow re-selecting the same file
+    let next = [...files];
+    for (const f of chosen) {
+      if (next.length >= MAX_FILES) { setFileError(`You can attach up to ${MAX_FILES} files.`); break; }
+      if (f.size > MAX_EACH) { setFileError(`"${f.name}" is over 5 MB.`); continue; }
+      if (next.some((x) => x.name === f.name && x.size === f.size)) continue;
+      next.push(f);
+    }
+    if (next.reduce((s, f) => s + f.size, 0) > MAX_TOTAL) {
+      setFileError("Total attachments must be under 10 MB.");
+      return;
+    }
+    setFiles(next);
+  }
+
+  function removeFile(i: number) {
+    setFiles((fs) => fs.filter((_, idx) => idx !== i));
+    setFileError("");
+  }
+
+  function fileToBase64(f: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(",")[1] ?? "");
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(f);
+    });
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("loading");
-    const res = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    setStatus(res.ok ? "ok" : "error");
+    try {
+      const attachments = await Promise.all(
+        files.map(async (f) => ({
+          filename: f.name,
+          contentType: f.type || "application/octet-stream",
+          base64: await fileToBase64(f),
+        }))
+      );
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, attachments }),
+      });
+      setStatus(res.ok ? "ok" : "error");
+    } catch {
+      setStatus("error");
+    }
   }
 
   return (
@@ -79,6 +129,31 @@ export default function ContactPage() {
                   <textarea required rows={6} value={form.message} onChange={(e) => set("message", e.target.value)}
                     className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-navy transition resize-none" />
                 </div>
+
+                {/* Attachments */}
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Attachments <span className="normal-case font-normal text-gray-400">(optional — photos or PDF, up to 3 files / 5 MB each)</span></label>
+                  <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-200 rounded-lg px-4 py-4 text-sm text-gray-500 cursor-pointer hover:border-navy hover:text-navy transition">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+                    </svg>
+                    Choose files
+                    <input type="file" multiple accept={ACCEPT} onChange={addFiles} className="hidden" />
+                  </label>
+                  {files.length > 0 && (
+                    <ul className="mt-2 space-y-1.5">
+                      {files.map((f, i) => (
+                        <li key={i} className="flex items-center gap-2 text-sm bg-cream rounded-lg px-3 py-2">
+                          <span className="flex-1 truncate text-navy">{f.name}</span>
+                          <span className="text-xs text-gray-400">{(f.size / 1024 / 1024).toFixed(1)} MB</span>
+                          <button type="button" onClick={() => removeFile(i)} className="text-gray-400 hover:text-red text-lg leading-none">&times;</button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {fileError && <p className="text-red text-xs mt-1.5">{fileError}</p>}
+                </div>
+
                 {status === "error" && (
                   <p className="text-red text-sm">Something went wrong – please try again.</p>
                 )}
