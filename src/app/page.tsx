@@ -351,13 +351,13 @@ export default function HomePage() {
       {apparel.length > 0 && (
         <section className="py-20 bg-cream">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-12">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
               <div>
                 <p className="text-red text-xs font-black tracking-widest uppercase mb-2">Wear the Brand</p>
                 <h2 className="text-3xl lg:text-4xl font-black text-navy">Liberty Footwear Apparel</h2>
                 <div className="w-16 h-1 bg-red mt-4" />
               </div>
-              <Link href="/shop?category=Apparel" className="hidden sm:inline-flex items-center gap-2 bg-navy hover:bg-red text-white font-bold text-base px-7 py-3.5 rounded-lg shadow-md transition group whitespace-nowrap">
+              <Link href="/shop?category=Apparel" className="inline-flex items-center gap-2 bg-navy hover:bg-red text-white font-bold text-base px-7 py-3.5 rounded-lg shadow-md transition group whitespace-nowrap self-start">
                 Shop Apparel
                 <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -368,9 +368,6 @@ export default function HomePage() {
               {apparel.map((p) => (
                 <ProductCard key={p.stockNo} product={withPrice(p)} />
               ))}
-            </div>
-            <div className="text-center mt-10 sm:hidden">
-              <Link href="/shop?category=Apparel" className="btn-secondary">Shop Apparel</Link>
             </div>
           </div>
         </section>
