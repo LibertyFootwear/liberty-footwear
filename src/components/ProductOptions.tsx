@@ -8,6 +8,7 @@ import { useCart } from "@/context/CartContext";
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 import { BootAddons, DEFAULT_ADDONS, INSOLE_CHOICES, ADDON_PRICES, addonsSurcharge, takesAddons } from "@/lib/bootAddons";
 import { isBootCategory } from "@/lib/shipping";
+import { trackAddToCart } from "@/lib/gtag";
 
 const LEATHER_COLORS: Record<string, string> = {
   "Jet Black":  "#1a1a1a",
@@ -105,6 +106,14 @@ export default function ProductOptions({ product, variants }: Props) {
   function handleAdd() {
     if (!sizeLabel) return;
     addItem(product, sizeLabel, showAddons ? addons : undefined);
+    trackAddToCart({
+      item_id: product.stockNo,
+      item_name: product.name,
+      price: product.price + surcharge,
+      quantity: 1,
+      item_category: product.category,
+      item_variant: sizeLabel,
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 4000);
   }
