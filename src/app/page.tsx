@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
+import ProductRow from "@/components/ProductRow";
 import NewsletterForm from "@/components/NewsletterForm";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import { useLang } from "@/context/LanguageContext";
@@ -251,11 +252,7 @@ export default function HomePage() {
               </svg>
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featured.map((p) => (
-              <ProductCard key={p.stockNo} product={withPrice(p)} />
-            ))}
-          </div>
+          <ProductRow products={featured.map(withPrice)} />
           <div className="text-center mt-10 sm:hidden">
             <Link href="/shop" className="btn-secondary">{t.featured.viewAll}</Link>
           </div>
@@ -309,11 +306,7 @@ export default function HomePage() {
                 </svg>
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {hikers.map((p) => (
-                <ProductCard key={p.stockNo} product={withPrice(p)} />
-              ))}
-            </div>
+            <ProductRow products={hikers.map(withPrice)} />
           </div>
         </section>
       )}
@@ -338,11 +331,7 @@ export default function HomePage() {
                 </svg>
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {safety.map((p) => (
-                <ProductCard key={p.stockNo} product={withPrice(p)} />
-              ))}
-            </div>
+            <ProductRow products={safety.map(withPrice)} />
           </div>
         </section>
       )}
