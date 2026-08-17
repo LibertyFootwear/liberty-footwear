@@ -5,11 +5,12 @@ import { useAuth } from "@/context/AuthContext";
 import { DEFAULT_ADDONS, INSOLE_CHOICES, ADDON_PRICES, addonsSurcharge, takesAddons, type BootAddons } from "@/lib/bootAddons";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 import { isBootCategory, SMALL_ITEM_SHIPPING } from "@/lib/shipping";
+import { trackViewCart, trackRemoveFromCart } from "@/lib/gtag";
 
 const POPULAR = products.filter((p) => p.image).slice(0, 4);
 
@@ -80,6 +81,24 @@ function CartItemAddons({ item, onChange }: { item: CartItem; onChange: (a: Boot
 
 export default function CartPage() {
   const { items, subtotal, removeItem, increment, decrement, setAddons } = useCart();
+
+  const toGaItem = (i: CartItem) => ({
+    item_id: i.product.stockNo,
+    item_name: i.product.name,
+    price: itemUnitPrice(i),
+    quantity: i.qty,
+    item_category: i.product.category,
+    item_variant: i.size || undefined,
+  });
+
+  // GA4 view_cart — fire once as soon as the (persisted) cart has loaded.
+  const viewedRef = useRef(false);
+  useEffect(() => {
+    if (viewedRef.current || items.length === 0) return;
+    viewedRef.current = true;
+    trackViewCart({ value: subtotal, items: items.map(toGaItem) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, subtotal]);
   const { user } = useAuth();
   const siteSettings = useSiteSettings();
   const salesPaused = siteSettings ? !siteSettings.salesEnabled : false;
@@ -226,7 +245,7 @@ export default function CartPage() {
                       <button onClick={() => decrement(item.lineId)} className="w-8 h-8 rounded-full border border-gray-300 font-bold hover:border-navy transition">−</button>
                       <span className="font-bold w-6 text-center">{item.qty}</span>
                       <button onClick={() => increment(item.lineId)} className="w-8 h-8 rounded-full border border-gray-300 font-bold hover:border-navy transition">+</button>
-                      <button onClick={() => removeItem(item.lineId)} className="ml-4 text-xs text-red hover:underline">Remove</button>
+                      <button onClick={() => { trackRemoveFromCart(toGaItem(item)); removeItem(item.lineId); }} className="ml-4 text-xs text-red hover:underline">Remove</button>
                     </div>
                   </div>
                   <p className="font-black text-lg text-gray-900 flex-shrink-0 tabular-nums">${itemUnitPrice(item) * item.qty}</p>

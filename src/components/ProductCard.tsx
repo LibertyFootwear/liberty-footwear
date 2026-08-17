@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Product } from "@/data/products";
 import FavoriteButton from "./FavoriteButton";
 import { usePopular } from "@/lib/usePopular";
+import { trackSelectItem } from "@/lib/gtag";
 
 export default function ProductCard({ product: p }: { product: Product }) {
   const popularSet = usePopular();
@@ -12,6 +13,13 @@ export default function ProductCard({ product: p }: { product: Product }) {
   return (
     <Link
       href={`/shop/${p.slug}`}
+      onClick={() => trackSelectItem({
+        item_id: p.stockNo,
+        item_name: p.name,
+        price: p.price,
+        item_category: p.category,
+        item_variant: p.colorLeather || undefined,
+      })}
       className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:border-navy/20 hover:shadow-lg transition flex flex-col"
     >
       {/* Image */}

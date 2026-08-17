@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Product, ProductCategory } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import { useLang } from "@/context/LanguageContext";
-import { Suspense, useState } from "react";
+import { trackViewItemList } from "@/lib/gtag";
+import { Suspense, useState, useEffect } from "react";
 
 const CATEGORIES: { id: ProductCategory; label: string; desc: string }[] = [
   { id: "Work",          label: "Work",          desc: "Rugged everyday boots built for long shifts on hard surfaces." },
@@ -174,6 +175,23 @@ function ShopContent({ products }: { products: Product[] }) {
   if (sort === "price-asc")  filtered = [...filtered].sort((a, b) => a.price - b.price);
   if (sort === "price-desc") filtered = [...filtered].sort((a, b) => b.price - a.price);
   if (sort === "newest")     filtered = [...filtered].sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+
+  // GA4: report the (filtered) product list the shopper is looking at — re-fires
+  // whenever the result set changes. Capped at 20 items to keep the payload sane.
+  const listSignature = `${cat ?? "all"}|${filtered.map((p) => p.stockNo).join(",")}`;
+  useEffect(() => {
+    trackViewItemList(
+      filtered.slice(0, 20).map((p) => ({
+        item_id: p.stockNo,
+        item_name: p.name,
+        price: p.price,
+        item_category: p.category,
+        item_variant: p.colorLeather || undefined,
+      })),
+      cat ? `Shop — ${cat}` : "Shop — All"
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listSignature]);
 
   const activeCount = (cat ? 1 : 0) + colors.length + prices.length + outsoles.length + (safetyToe ? 1 : 0);
   // Leather-color filter is for boots only — exclude insoles (foam colors) and apparel.

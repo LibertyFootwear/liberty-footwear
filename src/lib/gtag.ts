@@ -44,6 +44,38 @@ export function trackAddToCart(item: GaItem) {
   });
 }
 
+export function trackSelectItem(item: GaItem, listName?: string) {
+  gtag("event", "select_item", {
+    ...(listName ? { item_list_name: listName } : {}),
+    items: [{ quantity: 1, ...item }],
+  });
+}
+
+export function trackViewItemList(items: GaItem[], listName?: string) {
+  if (!items.length) return;
+  gtag("event", "view_item_list", {
+    ...(listName ? { item_list_name: listName } : {}),
+    items,
+  });
+}
+
+export function trackViewCart(data: { value: number; items: GaItem[] }) {
+  gtag("event", "view_cart", {
+    currency: CURRENCY,
+    value: data.value,
+    items: data.items,
+  });
+}
+
+export function trackRemoveFromCart(item: GaItem) {
+  const quantity = item.quantity ?? 1;
+  gtag("event", "remove_from_cart", {
+    currency: CURRENCY,
+    value: (item.price ?? 0) * quantity,
+    items: [{ ...item, quantity }],
+  });
+}
+
 export function trackBeginCheckout(data: { value: number; items: GaItem[] }) {
   gtag("event", "begin_checkout", {
     currency: CURRENCY,
