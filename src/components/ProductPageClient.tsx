@@ -135,9 +135,9 @@ export default function ProductPageClient({ p, variants, related }: Props) {
         {related.length > 0 && (
           <div className="mt-20">
             <h2 className="text-2xl font-black text-navy mb-8">{isApparel ? "More Apparel" : `${t.product.moreFrom} ${p.family} ${t.product.family}`}</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {related.map((r) => (
-                <Link key={r.stockNo} href={`/shop/${r.slug}`} className="group bg-cream rounded-xl overflow-hidden hover:shadow-md transition">
+                <Link key={r.stockNo} href={`/shop/${r.slug}`} className="group bg-cream rounded-xl overflow-hidden hover:shadow-md transition snap-start shrink-0 w-56 sm:w-64 lg:w-auto">
                   <div className="relative aspect-square">
                     {r.image && (
                       <Image src={r.image} alt={`${r.name} work boot by Liberty Footwear`} fill className="object-contain p-4 group-hover:scale-105 transition-transform mix-blend-multiply" sizes="25vw" />
