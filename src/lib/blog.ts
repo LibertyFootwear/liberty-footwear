@@ -32,16 +32,33 @@ function parsePost(raw: string): { meta: Record<string, string>; body: string } 
   return { meta, body: fm[2] };
 }
 
-function mdToHtml(md: string): string {
-  return md
-    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+/** Inline markdown: links, bold, italic. */
+function inlineMd(s: string): string {
+  return s
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/\n\n/g, "</p><p>")
-    .replace(/^/, "<p>")
-    .replace(/$/, "</p>");
+    .replace(/\*(.+?)\*/g, "<em>$1</em>");
+}
+
+function mdToHtml(md: string): string {
+  // Block-level parse (split on blank lines) so lists render as real lists.
+  const blocks = md.trim().split(/\n{2,}/);
+  const out: string[] = [];
+  for (const block of blocks) {
+    const b = block.trim();
+    if (!b) continue;
+    if (/^###\s+/.test(b))      { out.push(`<h3>${inlineMd(b.replace(/^###\s+/, ""))}</h3>`); continue; }
+    if (/^##\s+/.test(b))       { out.push(`<h2>${inlineMd(b.replace(/^##\s+/, ""))}</h2>`); continue; }
+    if (/^#\s+/.test(b))        { out.push(`<h1>${inlineMd(b.replace(/^#\s+/, ""))}</h1>`); continue; }
+    const lines = b.split("\n");
+    if (lines.every((l) => /^\s*[-*•●]\s+/.test(l))) {
+      const items = lines.map((l) => `<li>${inlineMd(l.replace(/^\s*[-*•●]\s+/, ""))}</li>`).join("");
+      out.push(`<ul>${items}</ul>`);
+      continue;
+    }
+    out.push(`<p>${inlineMd(lines.join(" "))}</p>`);
+  }
+  return out.join("");
 }
 
 export function getAllPosts(): PostMeta[] {
