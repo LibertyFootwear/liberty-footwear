@@ -35,7 +35,7 @@ export default async function AdminSales() {
     <div className="p-8">
       <div className="flex items-start justify-between gap-4 flex-wrap mb-8">
         <div>
-          <h1 className="text-2xl font-black text-navy mb-2">Retail Sales</h1>
+          <h1 className="text-2xl font-black text-navy mb-2">Retail Sales <span className="text-gray-300 font-bold">· {rows.length.toLocaleString()} rows</span></h1>
           <p className="text-sm text-gray-400">
             In-store sales log — same columns as your spreadsheet. Add a row for each item sold at the counter.
           </p>

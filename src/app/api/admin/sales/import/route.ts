@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { assertAdmin } from "@/lib/adminAuth";
-import { syncBatchToSheet } from "@/lib/sheetsSync";
 
 export const maxDuration = 60;
 
@@ -107,21 +106,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No importable rows (each needs a valid date and stock #).", skipped }, { status: 400 });
   }
 
+  // DB insert only — no Google Sheet sync here. Mirroring thousands of rows into
+  // the Sheet inline blows the request timeout (Apps Script is slow at scale); the
+  // old history already lives in the sheet's original tab, and new sales still
+  // mirror one row at a time. Use "Sync all" separately if you need the mirror tab.
   const sb = getSupabase();
-  const inserted: Record<string, unknown>[] = [];
+  let imported = 0;
   const INS = 500;
   for (let i = 0; i < records.length; i += INS) {
-    const { data, error } = await sb.from("retail_sales").insert(records.slice(i, i + INS)).select("*");
+    const { data, error } = await sb.from("retail_sales").insert(records.slice(i, i + INS)).select("id");
     if (error) {
-      return NextResponse.json({ error: error.message, imported: inserted.length }, { status: 500 });
+      return NextResponse.json({ error: error.message, imported }, { status: 500 });
     }
-    if (data) inserted.push(...data);
+    imported += data?.length ?? 0;
   }
 
-  // Mirror the freshly imported rows into the Google Sheet (best-effort).
-  try {
-    for (let i = 0; i < inserted.length; i += 200) await syncBatchToSheet(inserted.slice(i, i + 200));
-  } catch (err) { console.error("import sheet sync failed", err); }
-
-  return NextResponse.json({ ok: true, imported: inserted.length, skipped });
+  return NextResponse.json({ ok: true, imported, skipped });
 }
