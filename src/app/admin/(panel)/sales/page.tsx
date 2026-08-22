@@ -3,6 +3,7 @@ import { getSupabase } from "@/lib/supabase";
 import { products } from "@/data/products";
 import SalesTable, { SaleRow, CatalogItem } from "./SalesTable";
 import SyncSheetButton from "./SyncSheetButton";
+import SalesImport from "./SalesImport";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,12 @@ export default async function AdminSales() {
             In-store sales log — same columns as your spreadsheet. Add a row for each item sold at the counter.
           </p>
         </div>
-        <SyncSheetButton />
+        <div className="flex flex-col items-end gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <SalesImport />
+            <SyncSheetButton />
+          </div>
+        </div>
       </div>
       <SalesTable rows={rows} catalog={catalog} />
     </div>
