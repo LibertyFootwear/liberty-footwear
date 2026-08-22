@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/adminAuth";
 import { getSubscribers } from "@/lib/newsletterDb";
 import { getSupabase } from "@/lib/supabase";
 import { defaultNotifications, Notifications } from "@/lib/userDb";
+import NewsletterSender from "./NewsletterSender";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +78,9 @@ export default async function AdminNewsletter() {
           </div>
         ))}
       </div>
+
+      {/* Compose & send */}
+      <NewsletterSender recipientCount={list.length} />
 
       {/* Copy-all box */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
