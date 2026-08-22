@@ -5,18 +5,18 @@ import { syncBatchToSheet } from "@/lib/sheetsSync";
 
 export const maxDuration = 60;
 
-/** Field → accepted header aliases (lowercased, non-alphanumerics stripped). */
+/** Field → accepted header aliases (lowercased, non-alphanumerics except # stripped). */
 const ALIASES: Record<string, string[]> = {
-  sale_date:        ["date", "saledate", "sold", "solddate", "day"],
+  sale_date:        ["date", "saledate", "sold", "solddate"],
   stock_no:         ["stock", "stockno", "stock#", "style", "styleno", "sku", "item", "itemno", "model"],
-  size:             ["size"],
+  size:             ["size", "sizelr", "sizelr#"],
   width:            ["width"],
   qty:              ["qty", "quantity", "pairs", "units"],
-  paid:             ["paid"],
-  total:            ["total", "price", "amount", "sale", "saleprice", "sellingprice"],
-  payment:          ["payment", "pay", "paymentmethod", "method", "tender"],
+  paid:             ["paid", "yesno"],
+  total:            ["total", "total$", "incltax", "price", "amount", "sale", "saleprice", "sellingprice"],
+  payment:          ["payment", "pay", "paymentmethod", "method", "tender", "ccdc", "cashcheck"],
   customer_name:    ["customer", "customername", "name", "buyer"],
-  phone:            ["phone", "tel", "telephone", "phonenumber", "cell"],
+  phone:            ["phone", "phone#", "tel", "telephone", "phonenumber", "cell"],
   customer_email:   ["email", "customeremail", "mail"],
   customer_address: ["address", "customeraddress"],
   customer_employer:["employer", "company", "customeremployer"],
@@ -51,18 +51,26 @@ function toDate(v: string): string | null {
 export async function POST(req: NextRequest) {
   try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
 
-  const { headers, rows } = await req.json() as { headers?: string[]; rows?: string[][] };
-  if (!Array.isArray(headers) || !Array.isArray(rows) || rows.length === 0) {
-    return NextResponse.json({ error: "Empty file or missing header row." }, { status: 400 });
+  const { rows: allRows } = await req.json() as { rows?: string[][] };
+  if (!Array.isArray(allRows) || allRows.length < 2) {
+    return NextResponse.json({ error: "Empty file or no data rows." }, { status: 400 });
   }
 
-  const map = mapHeaders(headers);
-  const mappedFields = new Set(Object.values(map));
-  if (!mappedFields.has("sale_date") || !mappedFields.has("stock_no")) {
+  // Header row may not be the first line (banners/titles above it). Scan the first
+  // several rows for the one that maps both a Date and a Stock # column.
+  let hIdx = -1;
+  let map: Record<number, string> = {};
+  for (let i = 0; i < Math.min(allRows.length, 8); i++) {
+    const m = mapHeaders(allRows[i]);
+    const fields = new Set(Object.values(m));
+    if (fields.has("sale_date") && fields.has("stock_no")) { hIdx = i; map = m; break; }
+  }
+  if (hIdx === -1) {
     return NextResponse.json({
-      error: `Couldn't find a Date and Stock # column. Detected headers: ${headers.join(", ")}`,
+      error: `Couldn't find a Date and Stock # column. First row headers: ${(allRows[0] ?? []).join(", ")}`,
     }, { status: 400 });
   }
+  const rows = allRows.slice(hIdx + 1);
 
   const records: Record<string, unknown>[] = [];
   let skipped = 0;
@@ -99,14 +107,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No importable rows (each needs a valid date and stock #).", skipped }, { status: 400 });
   }
 
-  const { data, error } = await getSupabase().from("retail_sales").insert(records).select("*");
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const sb = getSupabase();
+  const inserted: Record<string, unknown>[] = [];
+  const INS = 500;
+  for (let i = 0; i < records.length; i += INS) {
+    const { data, error } = await sb.from("retail_sales").insert(records.slice(i, i + INS)).select("*");
+    if (error) {
+      return NextResponse.json({ error: error.message, imported: inserted.length }, { status: 500 });
+    }
+    if (data) inserted.push(...data);
+  }
 
   // Mirror the freshly imported rows into the Google Sheet (best-effort).
   try {
-    const inserted = data ?? [];
     for (let i = 0; i < inserted.length; i += 200) await syncBatchToSheet(inserted.slice(i, i + 200));
   } catch (err) { console.error("import sheet sync failed", err); }
 
-  return NextResponse.json({ ok: true, imported: data?.length ?? 0, skipped });
+  return NextResponse.json({ ok: true, imported: inserted.length, skipped });
 }

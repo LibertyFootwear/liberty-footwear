@@ -29,7 +29,6 @@ export default function SalesImport() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [fileName, setFileName] = useState("");
-  const [headers, setHeaders] = useState<string[]>([]);
   const [rows, setRows] = useState<string[][]>([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -42,10 +41,11 @@ export default function SalesImport() {
     if (!f) return;
     setFileName(f.name);
     const text = await f.text();
-    const parsed = parseCsv(text);
-    if (parsed.length < 2) { setError("File has no data rows."); setHeaders([]); setRows([]); return; }
-    setHeaders(parsed[0]);
-    setRows(parsed.slice(1));
+    // Trim to the first 20 columns — the sales fields live there; the rest is
+    // side tables/analytics in the old sheet and just bloats the payload.
+    const parsed = parseCsv(text).map((r) => r.slice(0, 20));
+    if (parsed.length < 2) { setError("File has no data rows."); setRows([]); return; }
+    setRows(parsed);
   }
 
   async function doImport() {
@@ -57,12 +57,12 @@ export default function SalesImport() {
       const res = await fetch("/api/admin/sales/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ headers, rows }),
+        body: JSON.stringify({ rows }),
       });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(d.error || `Failed (${res.status})`);
       setMsg(`Imported ${d.imported} rows${d.skipped ? ` · ${d.skipped} skipped (missing date/stock #)` : ""}.`);
-      setHeaders([]); setRows([]); setFileName("");
+      setRows([]); setFileName("");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Import failed.");
@@ -93,7 +93,7 @@ export default function SalesImport() {
       </label>
 
       {rows.length > 0 && (
-        <p className="text-xs text-gray-600 mb-3">{rows.length} rows · {headers.length} columns detected.</p>
+        <p className="text-xs text-gray-600 mb-3">{rows.length} rows loaded (incl. header).</p>
       )}
       {error && <p className="text-red text-xs mb-2">{error}</p>}
       {msg && <p className="text-green-700 text-xs font-semibold mb-2">✓ {msg}</p>}
