@@ -19,6 +19,13 @@
 var SECRET = "CHANGE_ME_to_a_long_random_string";
 var TAB_NAME = "RetailSales";
 
+// For two-way sync (Sheet → admin). Set to your site's write-back endpoint:
+//   https://www.libertyfootwear.com/api/sheets/sales-pull
+// Then add an INSTALLABLE trigger: Apps Script → Triggers (clock icon) →
+//   Add Trigger → function: onSheetEdit, event source: From spreadsheet,
+//   event type: On edit. (A simple onEdit can't call the network — must be installable.)
+var ADMIN_PULL_URL = "https://www.libertyfootwear.com/api/sheets/sales-pull";
+
 // Must match SHEET_COLUMNS in src/lib/sheetsSync.ts (same order).
 var COLS = [
   "id", "sale_date", "stock_no", "size", "width", "qty", "paid", "total",
@@ -107,4 +114,52 @@ function json(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Two-way sync: push a manually edited RetailSales row back to the admin DB.
+ * Attach as an INSTALLABLE "On edit" trigger (see ADMIN_PULL_URL note above).
+ * Programmatic writes from the web app (admin → sheet) do NOT fire this, so
+ * there's no sync loop.
+ */
+function onSheetEdit(e) {
+  try {
+    if (!e || !e.range) return;
+    var sheet = e.range.getSheet();
+    if (sheet.getName() !== TAB_NAME) return;
+
+    var startRow = e.range.getRow();
+    var numRows = e.range.getNumRows();
+    if (startRow + numRows - 1 < 2) return; // header only
+
+    for (var r = Math.max(startRow, 2); r < startRow + numRows; r++) {
+      pushRowToAdmin(sheet, r);
+    }
+  } catch (err) {
+    // Never throw from a trigger — just log.
+    console.error("onSheetEdit failed: " + err);
+  }
+}
+
+function pushRowToAdmin(sheet, rowNum) {
+  var values = sheet.getRange(rowNum, 1, 1, COLS.length).getValues()[0];
+  var rowObj = {};
+  for (var i = 0; i < COLS.length; i++) rowObj[COLS[i]] = values[i];
+
+  // Skip blank rows (need at least a date and stock #).
+  if (!rowObj.sale_date && !rowObj.stock_no) return;
+
+  var res = UrlFetchApp.fetch(ADMIN_PULL_URL, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify({ secret: SECRET, row: rowObj }),
+    muteHttpExceptions: true,
+  });
+  var out = {};
+  try { out = JSON.parse(res.getContentText()); } catch (e2) { return; }
+
+  // New row created in admin → write its id back into column A so future edits update it.
+  if (out && out.id && !rowObj.id) {
+    sheet.getRange(rowNum, 1).setValue(out.id);
+  }
 }
