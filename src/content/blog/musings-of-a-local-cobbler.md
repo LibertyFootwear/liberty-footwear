@@ -2,37 +2,35 @@
 title: "Musings of a Local Cobbler"
 date: "2026-08-22"
 excerpt: "After years of repairing boots from every major brand, here's what our shop floor has taught us about what fails — and how to choose a pair that lasts."
-image: "/blog/right-boot-for-job.jpg"
+image: "/newsletter/img-5024.jpg"
 ---
 
-As part of our service to the West Michigan community, we at Liberty Footwear offer repairs of other boots and shoes right here in our own shoe factory. We only repair selected parts, based on our ability, equipment, and available materials.
+As part of our service to West Michigan community, Liberty Footwear offers repairs of other boots and shoes not made in our own shoe factory. We only repair selected parts, based on our ability, equipment & available materials.
 
-We'd like to share our experience with the issues our customers bring to us. The most common are:
+<img src="/newsletter/img-5024.jpg" alt="Boot resole in progress at the Liberty Footwear shop">
 
-- Outsole-to-upper bond failure
-- Prematurely worn-out outsoles
-- Outsoles or midsoles disintegrated because of age and material failure
-- Ripped threads in highly stressed seams — due to constant flexing or abrasion
-- Cracked upper plastic parts in flex areas like the ball of the foot or heel
+<img src="/newsletter/img-5025.jpg" alt="Liberty Footwear workshop">
+
+We'd like to share our experience with issues our customers bring to us. Most common are:
+
+- Outsole to upper bond (outsole peeling off the midsole or upper)
+- Prematurely worn out outsoles
+- Outsoles or midsoles disintegrated because of age & material failure
+- Ripped threads in highly stressed out seams - due to constant flexing or abrasion
+- Cracked upper plastic parts in flex areas like ball of the foot or heel
 - Broken speed hooks or lace loops
 
-These issues happen to **all major footwear brands**, despite an extensive process of laboratory testing and wear trials. Frankly, some of these failures are only revealed when the boots and shoes are used in unforeseen environments or worn in unintended ways.
+These issues happen to all major footwear brands, despite extensive process of laboratory testing and wear trials. Frankly, some of these failures are only revealed when the boots and shoes are used in unforeseen environments or worn in unintended ways.
 
-Still, we believe that when you're choosing a new pair you can avoid — even prevent — premature wear or failure. Here are our suggestions.
+Still, we believe that when you're choosing new pair you can avoid, even prevent, premature wear or failures. Here are our suggestions what to watch for when shopping for a new pair:
 
-## Suggestions & Things to Watch Out For
-
-- **Uppers using multiple materials** — leather, fabrics, synthetics, plastic parts (logos, etc.) may look nice on the shelf or in pictures, but they create too many opportunities for seam failure
-- **Too many upper parts** make sewing them correctly difficult
-- **Too fine (thin) threads** on uppers usually don't hold up long term. They're easily abraded when boots are worn in rough places — road construction, scrap yards, truck repair shops, industrial building sites, and farming (both livestock and crops)
-- **Work boots with only two rows of stitching** in the lower part of the uppers
-- **Upper parts sewn in the forepart flex area**
-- **D-rings or similar lace-holding attachments in the flex area** are extremely stressed during wear — especially for electricians, plumbers, HVAC technicians, and maintenance workers
-- **Zippers curved along the laces** instead of running straight
-- **Large plastic logos glued or sewn into highly stressed, constantly flexing parts** of the boot — the forepart or heel
-
-## How We Build Differently
-
-Every one of the failures above is something we designed around. Our boots are hand-built in Grand Rapids with full-grain leather, heavy-gauge stitching, and outsoles chosen for the job — not for the shelf. If you're on your feet 8–12 hours a day, that difference is the difference between a boot that quits and a boot that keeps going.
+- Shoes & boots w/ uppers using multiple materials - like leather, fabrics, synthetics, plastic parts (logos etc.) may look nice on shelves or pictures but have too many opportunities for seams failure
+- Too many upper parts make it difficult sewing them correctly
+- Too fine (thin) threads on uppers usually don't hold up long term. They are also easily abraded when boots are worn in rough places like road construction, scrap yards, truck repair shops, industrial buildings construction, farming (both livestock & crops)
+- Work boots with only 2 rows of stitching in lower part of uppers usually don't last, 3 rows are safer
+- Upper parts sewn in forepart flex area can crack during wear
+- D-rings or similar lace-holding attachments in flex area are extremely stressed during wear, especially if used by electricians, plumbers, HVAC technicians, maintenance persons
+- Zippers that are curved along the laces, instead of being straight, wear out fast
+- Large plastic logos that are glued or sewn in highly stressed parts of boots - those that are constantly flexing - in forepart or heel
 
 Ready for a pair built to last? **[Shop our work boots →](/shop)** — or **[come get custom fitted](/contact)** at our Grand Rapids factory outlet store.
