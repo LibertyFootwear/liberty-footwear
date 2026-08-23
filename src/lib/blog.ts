@@ -47,6 +47,7 @@ function mdToHtml(md: string): string {
   for (const block of blocks) {
     const b = block.trim();
     if (!b) continue;
+    if (b.startsWith("<"))      { out.push(b); continue; } // raw HTML block (img, button, …) — pass through
     if (/^###\s+/.test(b))      { out.push(`<h3>${inlineMd(b.replace(/^###\s+/, ""))}</h3>`); continue; }
     if (/^##\s+/.test(b))       { out.push(`<h2>${inlineMd(b.replace(/^##\s+/, ""))}</h2>`); continue; }
     if (/^#\s+/.test(b))        { out.push(`<h1>${inlineMd(b.replace(/^#\s+/, ""))}</h1>`); continue; }

@@ -43,7 +43,12 @@ export default async function BlogPost({ params }: Props) {
           className="prose prose-lg prose-headings:text-navy prose-a:text-red max-w-none"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.contentHtml, {
             allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img", "h1", "h2"]),
-            allowedAttributes: { ...sanitizeHtml.defaults.allowedAttributes, img: ["src", "alt"] },
+            allowedAttributes: {
+              ...sanitizeHtml.defaults.allowedAttributes,
+              img: ["src", "alt", "class", "style"],
+              a: ["href", "name", "target", "rel", "class", "style"],
+              "*": ["class", "style"],
+            },
           }) }}
         />
         <BlogComments slug={post.slug} />
