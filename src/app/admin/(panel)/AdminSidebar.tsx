@@ -7,9 +7,11 @@ import AdminLogoutButton from "./AdminLogoutButton";
 
 const NAV = [
   { href: "/admin",            label: "Dashboard",        icon: "📊" },
+  { href: "/admin/queue",      label: "Work Queue",       icon: "🧭" },
   { href: "/admin/analytics",  label: "Analytics",        icon: "📈" },
   { href: "/admin/orders",     label: "Orders",           icon: "📦" },
   { href: "/admin/open-orders",label: "Open Orders",      icon: "📝" },
+  { href: "/admin/repairs",    label: "Repairs",          icon: "🔧" },
   { href: "/admin/sales",      label: "Retail Sales",     icon: "🏪" },
   { href: "/admin/customers",  label: "Customers",        icon: "👤" },
   { href: "/admin/products",   label: "Products",         icon: "👢" },

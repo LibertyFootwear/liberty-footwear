@@ -91,17 +91,17 @@ export default async function AdminDashboard() {
 
       {/* New-orders alert */}
       {(newOrders > 0 || inProgress > 0) && (
-        <Link href="/admin/orders" className="flex items-center gap-4 bg-red/10 border-2 border-red/30 rounded-xl p-4 mb-8 hover:bg-red/15 transition">
+        <Link href="/admin/queue" className="flex items-center gap-4 bg-red/10 border-2 border-red/30 rounded-xl p-4 mb-8 hover:bg-red/15 transition">
           <span className="text-3xl">🔔</span>
           <div className="flex-1">
             <p className="font-black text-red">
               {newOrders > 0 ? `${newOrders} new order${newOrders !== 1 ? "s" : ""} waiting` : "Orders in progress"}
             </p>
             <p className="text-sm text-gray-600">
-              {newOrders > 0 && `${newOrders} to start`}{newOrders > 0 && inProgress > 0 && " · "}{inProgress > 0 && `${inProgress} being processed`} — go to the board to fulfil them.
+              {newOrders > 0 && `${newOrders} to start`}{newOrders > 0 && inProgress > 0 && " · "}{inProgress > 0 && `${inProgress} being processed`} — see the work queue to prioritise.
             </p>
           </div>
-          <span className="px-4 py-2 bg-red text-white text-sm font-black rounded-lg whitespace-nowrap">Open Orders →</span>
+          <span className="px-4 py-2 bg-red text-white text-sm font-black rounded-lg whitespace-nowrap">Work Queue →</span>
         </Link>
       )}
 
