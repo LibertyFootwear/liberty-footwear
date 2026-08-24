@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { assertAdmin } from "@/lib/adminAuth";
+import { reconcileWorkSale } from "@/lib/bookSale";
 
 /** Map the client payload (camelCase) to the repairs row (snake_case). */
 function toRow(b: Record<string, unknown>) {
@@ -35,8 +36,9 @@ export async function POST(req: NextRequest) {
   if (!row.first_name && !row.last_name && !row.tag_no && !row.details) {
     return NextResponse.json({ error: "Add at least a customer name, tag #, or details" }, { status: 400 });
   }
-  const { data, error } = await getSupabase().from("repairs").insert(row).select("id").single();
+  const { data, error } = await getSupabase().from("repairs").insert(row).select("*").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (data?.paid) await reconcileWorkSale("repair", "repairs", data); // prepaid at intake
   return NextResponse.json({ ok: true, id: data?.id });
 }
 
@@ -44,8 +46,10 @@ export async function PATCH(req: NextRequest) {
   try { await assertAdmin(); } catch { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const b = await req.json();
   if (!b.id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
-  const { error } = await getSupabase().from("repairs").update(toRow(b)).eq("id", b.id);
+  const { data, error } = await getSupabase().from("repairs").update(toRow(b)).eq("id", b.id).select("*").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // Paid flip → create/remove the matching Retail Sales row (idempotent via sale_id).
+  await reconcileWorkSale("repair", "repairs", data);
   return NextResponse.json({ ok: true });
 }
 
