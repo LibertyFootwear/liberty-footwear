@@ -5,6 +5,7 @@ import { tryUpsertCustomer } from "@/lib/customersDb";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/orderEmail";
 import { products } from "@/data/products";
 import { publicEnv } from "@/lib/publicEnv";
+import { redeemDiscount } from "@/lib/discounts";
 
 /**
  * Turn a paid Stripe Checkout Session into an order + inventory deduction.
@@ -87,6 +88,11 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
   });
 
   await decrementInventory(items);
+
+  // Count the discount-code redemption. Runs only here (new order just recorded),
+  // so webhook retries + success-page double-calls never over-count.
+  const discountCodeId = session.metadata?.discountCodeId;
+  if (discountCodeId) await redeemDiscount(discountCodeId);
 
   // Send the branded confirmation with the invoice PDF attached. Runs only here,
   // where a new order was just recorded, so webhook retries never double-send.

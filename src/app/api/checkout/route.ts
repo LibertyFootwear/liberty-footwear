@@ -13,12 +13,34 @@ import { decrementInventory } from "@/lib/inventoryDb";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/orderEmail";
 import { env } from "@/lib/env";
 import { isBootCategory } from "@/lib/shipping";
+import { validateDiscount, redeemDiscount } from "@/lib/discounts";
 
 const APPAREL_SHIPPING_CENTS = 800; // $8 flat when the order is apparel-only
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2026-06-24.dahlia",
 });
+
+// Percent/amount-off coupons are created once per value and reused (keyed by
+// metadata), the same way the tax rate is cached — avoids a new coupon per order.
+const couponCache = new Map<string, string>();
+async function getReusableCoupon(opts: { percentOff?: number; amountOffCents?: number }): Promise<string> {
+  const key = opts.percentOff != null ? `p${opts.percentOff}` : `a${opts.amountOffCents}`;
+  const cached = couponCache.get(key);
+  if (cached) return cached;
+  const existing = await stripe.coupons.list({ limit: 100 });
+  const found = existing.data.find((c) => c.metadata?.lf === key);
+  if (found) { couponCache.set(key, found.id); return found.id; }
+  const created = await stripe.coupons.create({
+    duration: "once",
+    ...(opts.percentOff != null
+      ? { percent_off: opts.percentOff }
+      : { amount_off: opts.amountOffCents, currency: "usd" }),
+    metadata: { lf: key },
+  });
+  couponCache.set(key, created.id);
+  return created.id;
+}
 
 // 6% Michigan sales tax — created once per Stripe mode, then reused.
 let cachedTaxRateId: string | null = null;
@@ -38,10 +60,11 @@ async function getMiTaxRateId(): Promise<string> {
 }
 
 export async function POST(req: NextRequest) {
-  const { items, shippingMethod, billing, payAtPickup } = await req.json() as {
+  const { items, shippingMethod, billing, payAtPickup, coupon } = await req.json() as {
     items: { stockNo: string; name: string; size?: string; price: number; qty: number; addons?: string }[];
     shippingMethod?: "ship" | "pickup";
     payAtPickup?: boolean;
+    coupon?: string;
     billing?: { firstName: string; lastName: string; email: string; phone: string; address?: string; city?: string; state?: string; zip?: string; country?: string; createAccount?: boolean; password?: string };
   };
 
@@ -121,11 +144,20 @@ export async function POST(req: NextRequest) {
   });
   const chargeApparelShipping = shippingMethod !== "pickup" && !hasBoot;
 
+  // Validate any discount code server-side (never trust the client's amount).
+  const cartSubtotal = validatedItems.reduce((s, it) => s + it.price * it.qty, 0);
+  const discountRes = coupon
+    ? await validateDiscount(coupon, { userId: userId || undefined, subtotal: cartSubtotal })
+    : { ok: false as const };
+  const appliedDiscount = discountRes.ok ? discountRes : null;
+
   // ── Pay-at-pickup: create the order directly, no Stripe. Collected in store. ──
   if (shippingMethod === "pickup" && payAtPickup) {
     const subtotal = validatedItems.reduce((s, it) => s + it.price * it.qty, 0);
-    const tax = Math.round(subtotal * 0.06 * 100) / 100;
-    const total = Math.round((subtotal + tax) * 100) / 100;
+    const discountAmt = appliedDiscount?.discount ?? 0;
+    const taxable = Math.max(0, subtotal - discountAmt);
+    const tax = Math.round(taxable * 0.06 * 100) / 100;
+    const total = Math.round((taxable + tax) * 100) / 100;
     const orderId = crypto.randomUUID();
     const createdAt = new Date().toISOString();
     const shippingName = billing ? `${billing.firstName ?? ""} ${billing.lastName ?? ""}`.trim() || undefined : undefined;
@@ -153,6 +185,7 @@ export async function POST(req: NextRequest) {
       shippingPhone: billing?.phone,
     });
     await decrementInventory(validatedItems.map((it) => ({ stockNo: it.stockNo, size: it.size, qty: it.qty })));
+    if (appliedDiscount?.code) await redeemDiscount(appliedDiscount.code.id); // count the redemption
 
     if (billing?.email) {
       try {
@@ -187,6 +220,19 @@ export async function POST(req: NextRequest) {
   const destState = (shippingMethod === "pickup" ? "MI" : billing?.state ?? "").trim().toLowerCase();
   const applyTax = destState !== "" ? !NO_TAX_STATES.has(destState) : true;
   const taxRateId = applyTax ? await getMiTaxRateId() : null;
+
+  // Turn a validated code into a reusable Stripe coupon so the discount (and tax
+  // on the reduced amount) is applied by Stripe itself.
+  let discounts: { coupon: string }[] | undefined;
+  if (appliedDiscount?.code) {
+    const c = appliedDiscount.code;
+    const couponId = await getReusableCoupon(
+      c.percent_off != null
+        ? { percentOff: c.percent_off }
+        : { amountOffCents: Math.round((c.amount_off ?? 0) * 100) },
+    );
+    discounts = [{ coupon: couponId }];
+  }
 
   const session = await stripe.checkout.sessions.create({
     // Omit payment_method_types so Stripe enables every method turned on in the
@@ -234,9 +280,11 @@ export async function POST(req: NextRequest) {
       shipping_address_collection: { allowed_countries: ["US", "CA"] as ["US", "CA"] },
     }),
     ...(billing?.email && { customer_email: billing.email }),
+    ...(discounts ? { discounts } : {}),
     metadata: {
       ...(userId ? { userId } : {}),
       ...(billing ? { name: `${billing.firstName} ${billing.lastName}`, phone: billing.phone, shippingMethod: shippingMethod ?? "ship" } : {}),
+      ...(appliedDiscount?.code ? { discountCode: appliedDiscount.code.code, discountCodeId: appliedDiscount.code.id } : {}),
     },
     success_url: `${env.NEXT_PUBLIC_BASE_URL}/order/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${env.NEXT_PUBLIC_BASE_URL}/cart`,

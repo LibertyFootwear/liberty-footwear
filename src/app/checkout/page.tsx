@@ -59,8 +59,23 @@ function CheckoutForm() {
   const shippingMethod = (params.get("shipping") ?? "ship") as "ship" | "pickup";
   const coupon = params.get("coupon");
 
-  const COUPONS: Record<string, number> = { LIBERTY10: 10, LIBERTY15: 15, WELCOME20: 20 };
-  const discount = coupon ? (COUPONS[coupon] ?? 0) : 0;
+  // The discount is validated server-side (source of truth is the DB); we fetch
+  // the dollar amount here just to display it. Checkout re-checks it regardless.
+  const [discount, setDiscount] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!coupon || subtotal <= 0) { setDiscount(0); return; }
+    fetch("/api/discount/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: coupon, subtotal }),
+    })
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setDiscount(d.ok ? (d.discount ?? 0) : 0); })
+      .catch(() => { if (!cancelled) setDiscount(0); });
+    return () => { cancelled = true; };
+  }, [coupon, subtotal]);
 
   // Free shipping requires a boot; apparel / insoles / leather-care only pay a flat fee.
   const hasBoot = items.some((i) => isBootCategory(i.product.category));

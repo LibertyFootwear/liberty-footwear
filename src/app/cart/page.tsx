@@ -14,12 +14,6 @@ import { trackViewCart, trackRemoveFromCart } from "@/lib/gtag";
 
 const POPULAR = products.filter((p) => p.image).slice(0, 4);
 
-const COUPONS: Record<string, number> = {
-  LIBERTY10: 10,
-  LIBERTY15: 15,
-  WELCOME20: 20,
-};
-
 /** In-cart prompt (boots only) to change insoles or add paid upgrades. */
 function CartItemAddons({ item, onChange }: { item: CartItem; onChange: (a: BootAddons) => void }) {
   const [open, setOpen] = useState(false);
@@ -107,8 +101,8 @@ export default function CartPage() {
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [couponError, setCouponError] = useState("");
-
-  const discount = appliedCoupon ? COUPONS[appliedCoupon] : 0;
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [discount, setDiscount] = useState(0);
 
   // Free shipping requires a boot; apparel / insoles / leather-care only pay a flat fee.
   const hasBoot = items.some((i) => isBootCategory(i.product.category));
@@ -118,14 +112,29 @@ export default function CartPage() {
   const tax = Math.round(taxableAmount * 0.06 * 100) / 100;
   const total = Math.round((taxableAmount + tax + shippingFee) * 100) / 100;
 
-  function applyCoupon() {
+  async function applyCoupon() {
     const code = couponInput.trim().toUpperCase();
-    if (COUPONS[code]) {
-      setAppliedCoupon(code);
-      setCouponError("");
-    } else {
-      setCouponError("Invalid coupon code.");
-      setAppliedCoupon(null);
+    if (!code) return;
+    setCouponBusy(true); setCouponError("");
+    try {
+      const res = await fetch("/api/discount/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const d = await res.json();
+      if (d.ok) {
+        setAppliedCoupon(d.code);
+        setDiscount(d.discount ?? 0);
+        setCouponError("");
+      } else {
+        setCouponError(d.error ?? "Invalid coupon code.");
+        setAppliedCoupon(null); setDiscount(0);
+      }
+    } catch {
+      setCouponError("Couldn't check that code. Try again.");
+    } finally {
+      setCouponBusy(false);
     }
   }
 
@@ -133,6 +142,7 @@ export default function CartPage() {
     setAppliedCoupon(null);
     setCouponInput("");
     setCouponError("");
+    setDiscount(0);
   }
 
 
@@ -277,7 +287,7 @@ export default function CartPage() {
               {appliedCoupon ? (
                 <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-4 py-3">
                   <span className="text-sm font-semibold text-green-700">
-                    ✓ <span className="font-mono">{appliedCoupon}</span> — ${discount} off applied
+                    ✓ <span className="font-mono">{appliedCoupon}</span> — ${discount.toFixed(2)} off applied
                   </span>
                   <button onClick={removeCoupon} className="text-xs text-gray-400 hover:text-red transition">Remove</button>
                 </div>
@@ -293,9 +303,10 @@ export default function CartPage() {
                   />
                   <button
                     onClick={applyCoupon}
-                    className="px-5 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy/80 transition"
+                    disabled={couponBusy}
+                    className="px-5 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy/80 transition disabled:opacity-50"
                   >
-                    Apply
+                    {couponBusy ? "…" : "Apply"}
                   </button>
                 </div>
               )}
