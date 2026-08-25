@@ -62,7 +62,7 @@ function ItemCombobox({ value, options, onSelect }: {
         className={cls}
       />
       {open && (
-        <div className="absolute z-30 mt-1 w-72 max-h-64 overflow-y-auto bg-white border-2 border-gray-200 rounded-lg shadow-xl">
+        <div className="absolute z-30 mt-1 left-0 w-full sm:w-72 max-h-64 overflow-y-auto bg-white border-2 border-gray-200 rounded-lg shadow-xl">
           {groups.length === 0 && <p className="px-3 py-2 text-xs text-gray-400">No matches</p>}
           {groups.map((g) => (
             <div key={g.group}>
@@ -369,7 +369,7 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
             <input type="date" value={form.saleDate} onChange={(e) => set("saleDate", e.target.value)} className={cls} />
           </div>
 
-          <div>
+          <div className="col-span-2 sm:col-span-1">
             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Stock # / Item</label>
             <ItemCombobox
               value={sn}
