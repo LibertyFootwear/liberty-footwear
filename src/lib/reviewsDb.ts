@@ -35,6 +35,19 @@ export async function getReviews(stockNo: string): Promise<Review[]> {
   return (data ?? []).map(mapRow);
 }
 
+/** Public: aggregate rating (approved reviews only) for stars + JSON-LD. */
+export async function getReviewStats(stockNo: string): Promise<{ count: number; average: number }> {
+  const { data } = await getSupabase()
+    .from("reviews")
+    .select("rating")
+    .eq("stock_no", stockNo)
+    .eq("approved", true);
+  const ratings = (data ?? []).map((r) => Number((r as { rating: number }).rating)).filter((n) => n >= 1 && n <= 5);
+  if (ratings.length === 0) return { count: 0, average: 0 };
+  const average = ratings.reduce((s, n) => s + n, 0) / ratings.length;
+  return { count: ratings.length, average: Math.round(average * 10) / 10 };
+}
+
 /** Account page: a user's own reviews (approved or pending). */
 export async function getReviewsByUser(userId: string): Promise<Review[]> {
   const { data } = await getSupabase()

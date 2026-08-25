@@ -8,6 +8,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import PublicChrome from "@/components/PublicChrome";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import ForceEnglishValidation from "@/components/ForceEnglishValidation";
 import { SITE_URL, jsonLd } from "@/lib/seo";
@@ -75,7 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LanguageProvider>
         <AuthProvider>
           <CartProvider>
-            <PublicChrome header={<Header />} footer={<Footer />} popup={<NewsletterPopup />}>
+            <PublicChrome banner={<AnnouncementBar />} header={<Header />} footer={<Footer />} popup={<NewsletterPopup />}>
               {children}
             </PublicChrome>
           </CartProvider>

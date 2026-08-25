@@ -15,9 +15,23 @@ interface Props {
   p: Product;
   variants: Product[];
   related: Product[];
+  reviewStats?: { count: number; average: number };
 }
 
-export default function ProductPageClient({ p, variants, related }: Props) {
+/** Compact read-only star row for the rating summary. */
+function RatingStars({ value }: { value: number }) {
+  return (
+    <div className="flex gap-0.5" aria-hidden>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <svg key={n} className={`w-4 h-4 ${value >= n - 0.25 ? "text-yellow-400" : "text-gray-300"}`} fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+export default function ProductPageClient({ p, variants, related, reviewStats }: Props) {
   const { t } = useLang();
   const isApparel = p.category === "Apparel" || p.category === "Care";
   const isInsole = p.category === "Insoles";
@@ -73,6 +87,14 @@ export default function ProductPageClient({ p, variants, related }: Props) {
               )}
             </div>
             <h1 className="text-4xl font-black text-navy mb-1">{p.name}</h1>
+            {reviewStats && reviewStats.count > 0 && (
+              <a href="#reviews" className="flex items-center gap-2 mb-2 group w-fit">
+                <RatingStars value={reviewStats.average} />
+                <span className="text-sm font-semibold text-gray-500 group-hover:text-navy transition">
+                  {reviewStats.average.toFixed(1)} · {reviewStats.count} review{reviewStats.count !== 1 ? "s" : ""}
+                </span>
+              </a>
+            )}
             <p className="text-3xl font-black text-gray-900 mb-2">${p.price}</p>
             {p.shortDescription && (
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-6">{p.shortDescription}</p>
@@ -129,7 +151,9 @@ export default function ProductPageClient({ p, variants, related }: Props) {
         </div>
 
         {/* Reviews */}
-        <ProductReviews stockNo={p.stockNo} />
+        <div id="reviews" className="scroll-mt-24">
+          <ProductReviews stockNo={p.stockNo} />
+        </div>
 
         {/* Related */}
         {related.length > 0 && (

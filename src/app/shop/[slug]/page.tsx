@@ -3,6 +3,7 @@ import { getCatalog, getCatalogBySlug, getCatalogVariantGroup } from "@/lib/cata
 import { notFound } from "next/navigation";
 import ProductPageClient from "@/components/ProductPageClient";
 import { SITE_URL, jsonLd } from "@/lib/seo";
+import { getReviewStats } from "@/lib/reviewsDb";
 import type { Metadata } from "next";
 
 // Render on every request so admin price / description overrides show immediately
@@ -43,6 +44,7 @@ export default async function ProductPage({ params }: Props) {
   if (!p || p.hidden) notFound();
 
   const variants = await getCatalogVariantGroup(p);
+  const reviewStats = await getReviewStats(p.stockNo);
   // Use the live catalog so related cards show current prices and skip hidden
   // products — not the static bundle prices baked at build.
   const catalog = await getCatalog();
@@ -67,6 +69,10 @@ export default async function ProductPage({ params }: Props) {
       availability: "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",
     },
+    // Only emit a rating Google will accept — real, approved reviews.
+    ...(reviewStats.count > 0
+      ? { aggregateRating: { "@type": "AggregateRating", ratingValue: reviewStats.average, reviewCount: reviewStats.count } }
+      : {}),
   };
   const breadcrumbLd = {
     "@context": "https://schema.org",
@@ -82,7 +88,7 @@ export default async function ProductPage({ params }: Props) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(productLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbLd) }} />
-      <ProductPageClient p={p} variants={variants} related={related} />
+      <ProductPageClient p={p} variants={variants} related={related} reviewStats={reviewStats} />
     </>
   );
 }
