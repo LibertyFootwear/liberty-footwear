@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useLang } from "@/context/LanguageContext";
+import Turnstile, { TURNSTILE_ENABLED } from "@/components/Turnstile";
 
 const HOURS = [
   { day: "Mon – Fri", time: "10 am – 6 pm" },
@@ -16,6 +17,10 @@ export default function ContactPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [fileError, setFileError] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  // Honeypot (bots fill it, humans never see it) + time the form was shown (fast submits = bots).
+  const [website, setWebsite] = useState("");
+  const renderedAt = useRef<number>(Date.now());
 
   const MAX_FILES = 3;
   const MAX_EACH = 5 * 1024 * 1024; // 5 MB per file
@@ -60,6 +65,8 @@ export default function ContactPage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    // Require the captcha only when it's enabled.
+    if (TURNSTILE_ENABLED && !captchaToken) { setStatus("error"); return; }
     setStatus("loading");
     try {
       const attachments = await Promise.all(
@@ -72,7 +79,12 @@ export default function ContactPage() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, attachments }),
+        body: JSON.stringify({
+          ...form, attachments,
+          website, // honeypot
+          renderedAt: renderedAt.current,
+          turnstileToken: captchaToken,
+        }),
       });
       setStatus(res.ok ? "ok" : "error");
     } catch {
@@ -107,6 +119,14 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={submit} className="space-y-5">
+                {/* Honeypot — hidden from real users; bots that fill it are dropped server-side. */}
+                <div aria-hidden className="absolute -left-[9999px] top-auto w-px h-px overflow-hidden">
+                  <label>Website
+                    <input type="text" tabIndex={-1} autoComplete="off" value={website}
+                      onChange={(e) => setWebsite(e.target.value)} />
+                  </label>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{t.contact.name}</label>
@@ -154,10 +174,17 @@ export default function ContactPage() {
                   {fileError && <p className="text-red text-xs mt-1.5">{fileError}</p>}
                 </div>
 
+                {/* Bot check — only visible once the Turnstile keys are configured. */}
+                <Turnstile onToken={setCaptchaToken} />
+
                 {status === "error" && (
-                  <p className="text-red text-sm">Something went wrong – please try again.</p>
+                  <p className="text-red text-sm">
+                    {TURNSTILE_ENABLED && !captchaToken
+                      ? "Please complete the verification check."
+                      : "Something went wrong – please try again."}
+                  </p>
                 )}
-                <button type="submit" disabled={status === "loading"} className="w-full py-4 text-lg font-black bg-red hover:bg-red/90 active:scale-[0.98] text-white rounded-xl transition shadow-lg shadow-red/30 disabled:opacity-60 tracking-wide uppercase">
+                <button type="submit" disabled={status === "loading" || (TURNSTILE_ENABLED && !captchaToken)} className="w-full py-4 text-lg font-black bg-red hover:bg-red/90 active:scale-[0.98] text-white rounded-xl transition shadow-lg shadow-red/30 disabled:opacity-60 tracking-wide uppercase">
                   {status === "loading" ? t.contact.sending : t.contact.send}
                 </button>
               </form>

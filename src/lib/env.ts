@@ -31,6 +31,8 @@ const requiredServerEnvSchema = z.object({
 const optionalServerEnvSchema = z.object({
   SHEETS_WEBHOOK_URL: optionalString,
   SHEETS_WEBHOOK_SECRET: optionalString,
+  /** Cloudflare Turnstile secret key — contact-form captcha is verified only when set. */
+  TURNSTILE_SECRET_KEY: optionalString,
 });
 
 function throwMissing(issues: { path: PropertyKey[] }[]): never {

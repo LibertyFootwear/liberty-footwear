@@ -21,6 +21,8 @@ const publicEnvSchema = z.object({
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: optionalString,
   /** Optional — GA4 Measurement ID (e.g. "G-XXXXXXXXXX"). Analytics is skipped when unset. */
   NEXT_PUBLIC_GA_MEASUREMENT_ID: optionalString,
+  /** Optional — Cloudflare Turnstile site key. The contact-form captcha is shown only when set. */
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: optionalString,
 });
 
 function parsePublicEnv() {
@@ -29,6 +31,7 @@ function parsePublicEnv() {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   });
   if (result.success) return result.data;
   const names = [

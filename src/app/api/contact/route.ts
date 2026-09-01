@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendMail, type MailAttachment } from "@/lib/mailer";
 import { checkRateLimit, clientIp } from "@/lib/rateLimit";
+import { verifyTurnstile } from "@/lib/turnstile";
+
+// A genuine human takes at least a couple seconds to fill the form; near-instant
+// submits are almost always scripted.
+const MIN_FILL_MS = 2500;
 
 const MAX_FILES = 3;
 const MAX_EACH = 5 * 1024 * 1024; // 5 MB decoded
@@ -46,7 +51,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Too many messages. Please try again in a minute." }, { status: 429 });
   }
 
-  const raw = await req.json() as { name: string; email: string; subject: string; message: string; attachments?: unknown };
+  const raw = await req.json() as {
+    name: string; email: string; subject: string; message: string; attachments?: unknown;
+    website?: string; renderedAt?: number; turnstileToken?: string;
+  };
+
+  // ── Bot filters ──
+  // 1) Honeypot: a hidden field real users never see. If filled, silently accept
+  //    (return ok so the bot moves on) but drop the message.
+  if (typeof raw.website === "string" && raw.website.trim() !== "") {
+    return NextResponse.json({ ok: true });
+  }
+  // 2) Timing: submitted implausibly fast → drop silently.
+  if (typeof raw.renderedAt === "number" && Date.now() - raw.renderedAt < MIN_FILL_MS) {
+    return NextResponse.json({ ok: true });
+  }
+  // 3) Cloudflare Turnstile (only enforced when TURNSTILE_SECRET_KEY is configured).
+  if (!(await verifyTurnstile(raw.turnstileToken, clientIp(req)))) {
+    return NextResponse.json({ error: "Verification failed. Please try again." }, { status: 400 });
+  }
+
   // Header-bound fields must be single-line; the message body may keep its newlines.
   const name = oneLine(raw.name ?? "");
   const email = (raw.email ?? "").trim();
