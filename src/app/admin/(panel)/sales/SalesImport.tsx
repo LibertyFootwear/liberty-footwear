@@ -51,7 +51,7 @@ export default function SalesImport() {
   async function doImport() {
     setError(""); setMsg(null);
     if (rows.length === 0) { setError("Choose a CSV file first."); return; }
-    if (!window.confirm(`Import ${rows.length} rows into Retail Sales? Tip: run this once — re-importing the same file will create duplicates.`)) return;
+    if (!window.confirm(`Import from ${rows.length} rows into Retail Sales? Rows already in the system are skipped automatically — only new sales are added, so it's safe to re-import the whole sheet.`)) return;
     setBusy(true);
     try {
       const res = await fetch("/api/admin/sales/import", {
@@ -61,7 +61,11 @@ export default function SalesImport() {
       });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(d.error || `Failed (${res.status})`);
-      setMsg(`Imported ${d.imported} rows${d.skipped ? ` · ${d.skipped} skipped (missing date/stock #)` : ""}.`);
+      setMsg(
+        `Imported ${d.imported} new row${d.imported !== 1 ? "s" : ""}` +
+        `${d.duplicates ? ` · ${d.duplicates} already in the system (skipped)` : ""}` +
+        `${d.skipped ? ` · ${d.skipped} skipped (missing date/stock #)` : ""}.`
+      );
       setRows([]); setFileName("");
       router.refresh();
     } catch (err) {
@@ -85,7 +89,7 @@ export default function SalesImport() {
         <p className="font-bold text-navy text-sm">Import old sales (CSV)</p>
         <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-navy text-xl leading-none">&times;</button>
       </div>
-      <p className="text-xs text-gray-500 mb-3">In Google Sheets: File → Download → Comma-separated values (.csv) for the old sales tab, then choose it here. Columns are matched automatically (Date, Stock #, Size, Qty, Total, Customer, …).</p>
+      <p className="text-xs text-gray-500 mb-3">In Google Sheets: File → Download → Comma-separated values (.csv), then choose it here. Columns are matched automatically (Date, Stock #, Size, Qty, Total, Customer, …). Sales already in the system are detected and skipped, so you can re-export &amp; re-import the whole sheet to pull in new sales without creating duplicates.</p>
 
       <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-500 cursor-pointer hover:border-navy transition mb-3">
         {fileName || "Choose CSV file"}

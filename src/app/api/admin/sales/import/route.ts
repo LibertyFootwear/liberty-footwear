@@ -106,20 +106,60 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No importable rows (each needs a valid date and stock #).", skipped }, { status: 400 });
   }
 
-  // DB insert only — no Google Sheet sync here. Mirroring thousands of rows into
-  // the Sheet inline blows the request timeout (Apps Script is slow at scale); the
-  // old history already lives in the sheet's original tab, and new sales still
-  // mirror one row at a time. Use "Sync all" separately if you need the mirror tab.
   const sb = getSupabase();
+
+  // ── Idempotent import ──────────────────────────────────────────────────────
+  // The sheet is re-exported and re-imported to add NEW sales, so we must not
+  // re-insert rows already in the table. Match on a normalised content key
+  // (case-insensitive name/payment, digits-only phone) so trivial differences
+  // like "Cash" vs "cash" don't sneak a duplicate back in.
+  const key = (r: Record<string, unknown>) => [
+    r.sale_date ?? "",
+    String(r.stock_no ?? "").trim().toLowerCase(),
+    String(r.size ?? "").trim().toLowerCase(),
+    String(r.width ?? "").trim().toLowerCase(),
+    r.qty ?? "",
+    r.total == null ? "" : String(r.total),
+    String(r.customer_name ?? "").trim().toLowerCase(),
+    String(r.phone ?? "").replace(/\D/g, ""),
+    String(r.payment ?? "").trim().toLowerCase(),
+  ].join("|");
+
+  // Load every existing content key (paged) so re-imports only add what's new.
+  const existing = new Set<string>();
+  const PAGE = 1000;
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await sb
+      .from("retail_sales")
+      .select("sale_date, stock_no, size, width, qty, total, customer_name, phone, payment")
+      .range(from, from + PAGE - 1);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data || data.length === 0) break;
+    for (const r of data) existing.add(key(r));
+    if (data.length < PAGE) break;
+  }
+
+  // Keep only genuinely new rows — skip ones already in the DB and duplicates
+  // within this same file.
+  const seen = new Set<string>();
+  const fresh: Record<string, unknown>[] = [];
+  let duplicates = 0;
+  for (const r of records) {
+    const k = key(r);
+    if (existing.has(k) || seen.has(k)) { duplicates++; continue; }
+    seen.add(k);
+    fresh.push(r);
+  }
+
   let imported = 0;
   const INS = 500;
-  for (let i = 0; i < records.length; i += INS) {
-    const { data, error } = await sb.from("retail_sales").insert(records.slice(i, i + INS)).select("id");
+  for (let i = 0; i < fresh.length; i += INS) {
+    const { data, error } = await sb.from("retail_sales").insert(fresh.slice(i, i + INS)).select("id");
     if (error) {
       return NextResponse.json({ error: error.message, imported }, { status: 500 });
     }
     imported += data?.length ?? 0;
   }
 
-  return NextResponse.json({ ok: true, imported, skipped });
+  return NextResponse.json({ ok: true, imported, skipped, duplicates });
 }
