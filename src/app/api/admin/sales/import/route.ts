@@ -6,6 +6,7 @@ export const maxDuration = 60;
 
 /** Field → accepted header aliases (lowercased, non-alphanumerics except # stripped). */
 const ALIASES: Record<string, string[]> = {
+  id:               ["id", "uuid"],
   sale_date:        ["date", "saledate", "sold", "solddate"],
   stock_no:         ["stock", "stockno", "stock#", "style", "styleno", "sku", "item", "itemno", "model"],
   size:             ["size", "sizelr", "sizelr#"],
@@ -71,7 +72,32 @@ export async function POST(req: NextRequest) {
   }
   const rows = allRows.slice(hIdx + 1);
 
-  const records: Record<string, unknown>[] = [];
+  // ── Content key ─────────────────────────────────────────────────────────────
+  // Two rows are "the same sale" when these normalised fields match: numeric
+  // total (so 80 == 80.00), qty defaulting to 1, case-insensitive name/payment,
+  // digits-only phone. This is the fallback match when a row has no id.
+  const numKey = (v: unknown) => {
+    if (v == null || v === "") return "";
+    const n = Number(v);
+    return Number.isNaN(n) ? "" : String(n);
+  };
+  const key = (r: Record<string, unknown>) => [
+    r.sale_date ?? "",
+    String(r.stock_no ?? "").trim().toLowerCase(),
+    String(r.size ?? "").trim().toLowerCase(),
+    String(r.width ?? "").trim().toLowerCase(),
+    String(Number(r.qty) || 1),
+    numKey(r.total),
+    String(r.customer_name ?? "").trim().toLowerCase(),
+    String(r.phone ?? "").replace(/\D/g, ""),
+    String(r.payment ?? "").trim().toLowerCase(),
+  ].join("|");
+
+  // Parse rows into insertable records, keeping each row's source id (column A of
+  // the mirror sheet, if present) for exact matching. The id is NEVER inserted —
+  // the DB always generates a fresh one — it's only used to detect "already here".
+  interface Item { row: Record<string, unknown>; srcId: string | null; k: string }
+  const items: Item[] = [];
   let skipped = 0;
   for (const cells of rows) {
     const r: Record<string, string> = {};
@@ -83,7 +109,7 @@ export async function POST(req: NextRequest) {
 
     const totalNum = parseFloat((r.total ?? "").replace(/[^0-9.\-]/g, ""));
     const paidRaw = (r.paid ?? "").toLowerCase();
-    records.push({
+    const row = {
       sale_date,
       stock_no,
       size: r.size || null,
@@ -99,10 +125,11 @@ export async function POST(req: NextRequest) {
       customer_employer: r.customer_employer || null,
       referral_source: r.referral_source || null,
       notes: r.notes || null,
-    });
+    };
+    items.push({ row, srcId: (r.id ?? "").trim() || null, k: key(row) });
   }
 
-  if (records.length === 0) {
+  if (items.length === 0) {
     return NextResponse.json({ error: "No importable rows (each needs a valid date and stock #).", skipped }, { status: 400 });
   }
 
@@ -110,45 +137,33 @@ export async function POST(req: NextRequest) {
 
   // ── Idempotent import ──────────────────────────────────────────────────────
   // The sheet is re-exported and re-imported to add NEW sales, so we must not
-  // re-insert rows already in the table. Match on a normalised content key
-  // (case-insensitive name/payment, digits-only phone) so trivial differences
-  // like "Cash" vs "cash" don't sneak a duplicate back in.
-  const key = (r: Record<string, unknown>) => [
-    r.sale_date ?? "",
-    String(r.stock_no ?? "").trim().toLowerCase(),
-    String(r.size ?? "").trim().toLowerCase(),
-    String(r.width ?? "").trim().toLowerCase(),
-    r.qty ?? "",
-    r.total == null ? "" : String(r.total),
-    String(r.customer_name ?? "").trim().toLowerCase(),
-    String(r.phone ?? "").replace(/\D/g, ""),
-    String(r.payment ?? "").trim().toLowerCase(),
-  ].join("|");
-
-  // Load every existing content key (paged) so re-imports only add what's new.
-  const existing = new Set<string>();
+  // re-insert rows already in the table. Load existing ids + content keys and
+  // insert only what isn't already there (and isn't repeated within this file).
+  const existingIds = new Set<string>();
+  const existingKeys = new Set<string>();
   const PAGE = 1000;
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await sb
       .from("retail_sales")
-      .select("sale_date, stock_no, size, width, qty, total, customer_name, phone, payment")
+      .select("id, sale_date, stock_no, size, width, qty, total, customer_name, phone, payment")
       .range(from, from + PAGE - 1);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     if (!data || data.length === 0) break;
-    for (const r of data) existing.add(key(r));
+    for (const r of data) { existingIds.add(String(r.id)); existingKeys.add(key(r)); }
     if (data.length < PAGE) break;
   }
 
-  // Keep only genuinely new rows — skip ones already in the DB and duplicates
-  // within this same file.
-  const seen = new Set<string>();
+  const seenKeys = new Set<string>();
+  const seenIds = new Set<string>();
   const fresh: Record<string, unknown>[] = [];
   let duplicates = 0;
-  for (const r of records) {
-    const k = key(r);
-    if (existing.has(k) || seen.has(k)) { duplicates++; continue; }
-    seen.add(k);
-    fresh.push(r);
+  for (const it of items) {
+    // Exact match by id (mirror rows) takes priority; else fall back to content.
+    if (it.srcId && (existingIds.has(it.srcId) || seenIds.has(it.srcId))) { duplicates++; continue; }
+    if (existingKeys.has(it.k) || seenKeys.has(it.k)) { duplicates++; continue; }
+    fresh.push(it.row);
+    seenKeys.add(it.k);
+    if (it.srcId) seenIds.add(it.srcId);
   }
 
   let imported = 0;
