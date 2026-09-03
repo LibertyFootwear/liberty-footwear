@@ -12,6 +12,7 @@ const NAV = [
   { href: "/admin/orders",     label: "Orders",           icon: "📦" },
   { href: "/admin/open-orders",label: "Open Orders",      icon: "📝" },
   { href: "/admin/repairs",    label: "Repairs",          icon: "🔧" },
+  { href: "/admin/messages",   label: "Messages",         icon: "📨" },
   { href: "/admin/sales",      label: "Retail Sales",     icon: "🏪" },
   { href: "/admin/customers",  label: "Customers",        icon: "👤" },
   { href: "/admin/products",   label: "Products",         icon: "👢" },
@@ -22,7 +23,7 @@ const NAV = [
   { href: "/admin/settings",   label: "Website Settings", icon: "⚙️" },
 ];
 
-export default function AdminSidebar({ pending }: { pending: number }) {
+export default function AdminSidebar({ pending, messages = 0 }: { pending: number; messages?: number }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -83,6 +84,11 @@ export default function AdminSidebar({ pending }: { pending: number }) {
                 {n.href === "/admin/orders" && pending > 0 && (
                   <span className="ml-auto bg-red text-white text-xs font-black rounded-full min-w-5 h-5 px-1.5 flex items-center justify-center animate-pulse">
                     {pending}
+                  </span>
+                )}
+                {n.href === "/admin/messages" && messages > 0 && (
+                  <span className="ml-auto bg-red text-white text-xs font-black rounded-full min-w-5 h-5 px-1.5 flex items-center justify-center">
+                    {messages}
                   </span>
                 )}
               </Link>

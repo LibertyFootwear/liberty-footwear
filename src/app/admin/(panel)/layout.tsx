@@ -17,13 +17,26 @@ async function pendingOrderCount(): Promise<number> {
   }
 }
 
+/** Count unread (new) contact-form messages. */
+async function unreadMessageCount(): Promise<number> {
+  try {
+    const { count } = await getSupabase()
+      .from("contact_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "new");
+    return count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
-  const pending = await pendingOrderCount();
+  const [pending, messages] = await Promise.all([pendingOrderCount(), unreadMessageCount()]);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminSidebar pending={pending} />
+      <AdminSidebar pending={pending} messages={messages} />
 
       {/* Main — full width on mobile (with room for the top bar), offset by the sidebar on desktop */}
       <main className="md:ml-56 min-h-screen pt-14 md:pt-0">

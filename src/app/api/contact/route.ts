@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendMail, type MailAttachment } from "@/lib/mailer";
 import { checkRateLimit, clientIp } from "@/lib/rateLimit";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { getSupabase } from "@/lib/supabase";
 
 // A genuine human takes at least a couple seconds to fill the form; near-instant
 // submits are almost always scripted.
@@ -100,6 +101,18 @@ export async function POST(req: NextRequest) {
     `,
     attachments: attachments.length ? attachments : undefined,
   });
+
+  // Log the message so it's never lost (searchable inbox in the admin). Best-effort:
+  // the email already went out, so a DB hiccup must not fail the request.
+  try {
+    await getSupabase().from("contact_messages").insert({
+      name, email, subject: subject || null, message,
+      attachment_count: attachments.length,
+      attachment_names: attachments.length ? attachments.map((a) => a.filename).join(", ") : null,
+    });
+  } catch (err) {
+    console.error("Contact message log failed (email already sent):", err);
+  }
 
   return NextResponse.json({ ok: true });
 }

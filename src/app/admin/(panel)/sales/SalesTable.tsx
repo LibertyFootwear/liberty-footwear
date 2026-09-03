@@ -206,7 +206,6 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
   const isApparel = !!apparelSizes?.length;
   const isBoot = !!cat && !isApparel;
   const isLaces = sn === LACES;
-  const isShoeHorn = sn === SHOE_HORN;
   const isCustom = sn === CUSTOM;
   const isSizedItem = SIZED_ITEMS.includes(sn);
   const isSizeWidthService = SIZE_WIDTH_SERVICES.includes(sn);
