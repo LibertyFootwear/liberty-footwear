@@ -3,6 +3,7 @@ import { getSubscribers } from "@/lib/newsletterDb";
 import { getSupabase } from "@/lib/supabase";
 import { defaultNotifications, Notifications } from "@/lib/userDb";
 import NewsletterSender from "./NewsletterSender";
+import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -66,8 +67,10 @@ export default async function AdminNewsletter() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-2">Newsletter</h1>
-      <p className="text-sm text-gray-400 mb-6">{list.length} subscribers · registered users show exactly which email types they opted into</p>
+      <PageHeader
+        title="Newsletter"
+        subtitle={`${list.length} subscribers · registered users show exactly which email types they opted into`}
+      />
 
       {/* Per-type summary */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

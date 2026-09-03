@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import OpenOrdersTable, { OpenOrderRow } from "./OpenOrdersTable";
+import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -24,11 +25,10 @@ export default async function AdminOpenOrders() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-2">Open Orders</h1>
-      <p className="text-sm text-gray-400 mb-8">
-        Custom orders from walk-in &amp; call-in customers — replaces the spreadsheet. Track each order from
-        ordered → made → picked up.
-      </p>
+      <PageHeader
+        title="Open Orders"
+        subtitle="Custom orders from walk-in & call-in customers — replaces the spreadsheet. Track each order from ordered → made → picked up."
+      />
       <OpenOrdersTable rows={rows} />
     </div>
   );

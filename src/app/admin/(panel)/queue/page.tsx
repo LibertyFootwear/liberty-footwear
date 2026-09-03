@@ -5,6 +5,7 @@ import { usDate } from "@/lib/formatDate";
 import {
   QueueItem, prioritize, parseDue, addDays, ageInDays, todayKey, WEB_SLA_DAYS,
 } from "@/lib/queue";
+import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -147,11 +148,10 @@ export default async function AdminQueue() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-2">Work Queue</h1>
-      <p className="text-sm text-gray-400 mb-6">
-        Everything that needs work, most urgent first — web orders, custom orders and repairs together,
-        ranked by promised date. <span className="text-red font-semibold">Overdue</span> jobs are at the top.
-      </p>
+      <PageHeader
+        title="Work Queue"
+        subtitle={<>Everything that needs work, most urgent first — web orders, custom orders and repairs together, ranked by promised date. <span className="text-red font-semibold">Overdue</span> jobs are at the top.</>}
+      />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stat("Needs work", work.length)}

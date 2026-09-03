@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import DiscountsTable, { CodeRow, AccountOption } from "./DiscountsTable";
+import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +19,10 @@ export default async function AdminDiscounts() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-2">Discount Codes</h1>
-      <p className="text-sm text-gray-400 mb-8">
-        Create promo codes (percent or dollar off), see how many times each was used, and optionally tie a
-        code to a single customer account. Codes apply automatically at checkout.
-      </p>
+      <PageHeader
+        title="Discount Codes"
+        subtitle="Create promo codes (percent or dollar off), see how many times each was used, and optionally tie a code to a single customer account. Codes apply automatically at checkout."
+      />
       <DiscountsTable codes={codes} accounts={accounts} />
     </div>
   );

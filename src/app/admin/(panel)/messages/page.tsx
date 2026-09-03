@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import MessagesInbox, { MessageRow } from "./MessagesInbox";
+import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +18,10 @@ export default async function AdminMessages() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-2">Messages</h1>
-      <p className="text-sm text-gray-400 mb-8">
-        Contact-form messages from the website. Files are attached to the email; this is the searchable log.
-      </p>
+      <PageHeader
+        title="Messages"
+        subtitle="Contact-form messages from the website. Files are attached to the email; this is the searchable log."
+      />
       <MessagesInbox messages={messages} />
     </div>
   );

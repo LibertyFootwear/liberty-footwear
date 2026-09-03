@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import CompaniesTable, { Company } from "./CompaniesTable";
+import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -93,11 +94,10 @@ export default async function AdminCompanies() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-2">Companies</h1>
-      <p className="text-sm text-gray-400 mb-8">
-        Employers across your customers &amp; sales — who buys for a crew. Click a company to see its people.
-        Built from the &quot;employer&quot; field on customers and sales.
-      </p>
+      <PageHeader
+        title="Companies"
+        subtitle={'Employers across your customers & sales — who buys for a crew. Click a company to see its people, or add details & notes.'}
+      />
       <CompaniesTable companies={companies} />
     </div>
   );
