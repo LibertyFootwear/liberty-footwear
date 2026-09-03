@@ -12,10 +12,11 @@ export default async function AdminCompanies() {
   await requireAdmin();
   const sb = getSupabase();
 
-  const [custRes, salesAgg] = await Promise.all([
+  const [custRes, storedRes, salesAgg] = await Promise.all([
     sb.from("customers")
       .select("id, name, email, phone, employer, newsletter, last_purchase_at")
       .order("last_purchase_at", { ascending: false, nullsFirst: false }),
+    sb.from("companies").select("*"),
     (async () => {
       // Page through retail_sales for employer + total to tally spend per company.
       const rows: { customer_employer: string | null; total: number | null }[] = [];
@@ -40,7 +41,13 @@ export default async function AdminCompanies() {
   const get = (label: string): Company => {
     const key = label.toLowerCase();
     let c = map.get(key);
-    if (!c) { c = { key, name: label, contactCount: 0, revenue: 0, newsletter: 0, contacts: [] }; map.set(key, c); }
+    if (!c) {
+      c = {
+        key, name: label, contactCount: 0, revenue: 0, newsletter: 0, contacts: [],
+        id: null, contactPerson: null, phone: null, email: null, address: null, notes: null, stored: false,
+      };
+      map.set(key, c);
+    }
     return c;
   };
 
@@ -64,6 +71,20 @@ export default async function AdminCompanies() {
     if (!isRealCompany(label)) continue;
     const total = typeof s.total === "number" ? s.total : 0;
     if (total > 0) get(label).revenue += total;
+  }
+
+  // Merge in the editable company records (details + companies with no sales yet).
+  for (const st of storedRes.data ?? []) {
+    const label = clean(st.name);
+    if (!label) continue;
+    const c = get(label);
+    c.id = st.id as string;
+    c.stored = true;
+    c.contactPerson = (st.contact_person as string) ?? null;
+    c.phone = (st.phone as string) ?? null;
+    c.email = (st.email as string) ?? null;
+    c.address = (st.address as string) ?? null;
+    c.notes = (st.notes as string) ?? null;
   }
 
   const companies = [...map.values()]
