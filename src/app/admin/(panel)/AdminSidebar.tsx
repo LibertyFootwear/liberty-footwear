@@ -15,6 +15,7 @@ const NAV = [
   { href: "/admin/messages",   label: "Messages",         icon: "📨" },
   { href: "/admin/sales",      label: "Retail Sales",     icon: "🏪" },
   { href: "/admin/customers",  label: "Customers",        icon: "👤" },
+  { href: "/admin/companies",  label: "Companies",        icon: "🏢" },
   { href: "/admin/products",   label: "Products",         icon: "👢" },
   { href: "/admin/inventory",  label: "Inventory",        icon: "🗃️" },
   { href: "/admin/discounts",  label: "Discount Codes",   icon: "🏷️" },
