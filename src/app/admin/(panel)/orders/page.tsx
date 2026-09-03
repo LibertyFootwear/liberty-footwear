@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import Link from "next/link";
 import OrdersBoard, { BoardOrder } from "./OrdersBoard";
+import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -50,9 +51,7 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
 
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-black text-navy">Orders</h1>
-      </div>
+      <PageHeader title="Orders" />
 
       {/* View toggle */}
       <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden mb-8 text-sm font-bold">

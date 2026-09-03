@@ -4,6 +4,7 @@ import { products } from "@/data/products";
 import SalesTable, { SaleRow, CatalogItem } from "./SalesTable";
 import SyncSheetButton from "./SyncSheetButton";
 import SalesImport from "./SalesImport";
+import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -33,20 +34,11 @@ export default async function AdminSales() {
 
   return (
     <div className="p-8">
-      <div className="flex items-start justify-between gap-4 flex-wrap mb-8">
-        <div>
-          <h1 className="text-2xl font-black text-navy mb-2">Retail Sales <span className="text-gray-300 font-bold">· {rows.length.toLocaleString()} rows</span></h1>
-          <p className="text-sm text-gray-400">
-            In-store sales log — same columns as your spreadsheet. Add a row for each item sold at the counter.
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-3">
-          <div className="flex items-center gap-3 flex-wrap">
-            <SalesImport />
-            <SyncSheetButton />
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title={<>Retail Sales <span className="text-gray-300 font-bold">· {rows.length.toLocaleString()} rows</span></>}
+        subtitle="In-store sales log — same columns as your spreadsheet. Add a row for each item sold at the counter."
+        actions={<><SalesImport /><SyncSheetButton /></>}
+      />
       <SalesTable rows={rows} catalog={catalog} />
     </div>
   );

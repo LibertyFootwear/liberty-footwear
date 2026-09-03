@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import Link from "next/link";
 import oldContacts from "@/data/oldContacts.json";
+import { PageHeader } from "../../ui";
 
 interface Contact {
   date: string;
@@ -25,7 +26,7 @@ export default async function ContactsPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-4">Customers</h1>
+      <PageHeader title="Customers" />
 
       <div className="flex gap-2 border-b border-gray-200 mb-6">
         {TABS.map((t) => (

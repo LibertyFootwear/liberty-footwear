@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import { isBootItem } from "@/lib/analytics";
 import Link from "next/link";
+import { PageHeader } from "../ui";
 
 export default async function AdminCustomers() {
   await requireAdmin();
@@ -48,7 +49,7 @@ export default async function AdminCustomers() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-4">Customers</h1>
+      <PageHeader title="Customers" />
 
       <div className="flex gap-2 border-b border-gray-200 mb-6">
         <Link href="/admin/customers" className="px-4 py-2 text-sm font-bold text-navy border-b-2 border-navy -mb-px">All Customers</Link>

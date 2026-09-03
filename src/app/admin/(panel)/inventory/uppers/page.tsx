@@ -3,6 +3,7 @@ import { getSupabase } from "@/lib/supabase";
 import uppersData from "@/data/uppers.json";
 import UppersEditor from "./UppersEditor";
 import InventoryTabs from "../InventoryTabs";
+import { PageHeader } from "../../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,7 @@ export default async function AdminUppers() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-4">Inventory</h1>
+      <PageHeader title="Inventory" />
 
       <InventoryTabs active="uppers" />
 

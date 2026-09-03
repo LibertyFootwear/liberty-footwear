@@ -4,6 +4,7 @@ import { getSupabase } from "@/lib/supabase";
 import { getRetailSales, retailAgg } from "@/lib/analytics";
 import AnalyticsGate from "@/components/AnalyticsGate";
 import Link from "next/link";
+import { PageHeader } from "./ui";
 
 export default async function AdminDashboard() {
   await requireAdmin();
@@ -87,7 +88,8 @@ export default async function AdminDashboard() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-6">Dashboard</h1>
+      <PageHeader title="Dashboard" />
+
 
       {/* New-orders alert */}
       {(newOrders > 0 || inProgress > 0) && (

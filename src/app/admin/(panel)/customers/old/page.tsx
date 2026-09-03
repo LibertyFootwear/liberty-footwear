@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import Link from "next/link";
 import oldCustomers from "@/data/oldCustomers.json";
+import { PageHeader } from "../../ui";
 
 interface OldCustomer {
   name: string;
@@ -24,7 +25,7 @@ export default async function OldCustomers() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-4">Customers</h1>
+      <PageHeader title="Customers" />
 
       <div className="flex gap-2 border-b border-gray-200 mb-6">
         <Link href="/admin/customers" className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-navy transition">All Customers</Link>

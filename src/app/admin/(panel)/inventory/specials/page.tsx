@@ -5,6 +5,7 @@ import InventoryEditor from "../InventoryEditor";
 import InventoryImport from "../InventoryImport";
 import InventoryTabs from "../InventoryTabs";
 import { buildInventoryRows, knownStocks, type DbInvRow } from "../buildRows";
+import { PageHeader } from "../../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export default async function AdminInventorySpecials() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-black text-navy mb-4">Inventory</h1>
+      <PageHeader title="Inventory" />
 
       <InventoryTabs active="specials" />
 
