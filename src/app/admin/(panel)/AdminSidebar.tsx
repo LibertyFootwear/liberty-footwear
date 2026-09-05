@@ -13,6 +13,7 @@ const NAV = [
   { href: "/admin/open-orders",label: "Open Orders",      icon: "📝" },
   { href: "/admin/repairs",    label: "Repairs",          icon: "🔧" },
   { href: "/admin/messages",   label: "Messages",         icon: "📨" },
+  { href: "/admin/communications", label: "Communications", icon: "📞" },
   { href: "/admin/sales",      label: "Retail Sales",     icon: "🏪" },
   { href: "/admin/customers",  label: "Customers",        icon: "👤" },
   { href: "/admin/companies",  label: "Companies",        icon: "🏢" },

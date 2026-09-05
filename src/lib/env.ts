@@ -33,6 +33,10 @@ const optionalServerEnvSchema = z.object({
   SHEETS_WEBHOOK_SECRET: optionalString,
   /** Cloudflare Turnstile secret key — contact-form captcha is verified only when set. */
   TURNSTILE_SECRET_KEY: optionalString,
+  /** Quo (OpenPhone) telephony — SMS + call logging are enabled only when set. */
+  QUO_API_KEY: optionalString,
+  QUO_PHONE_NUMBER: optionalString,   // default "from" number (E.164) or PN… id
+  QUO_WEBHOOK_SECRET: optionalString, // whsec_… for verifying inbound webhooks
 });
 
 function throwMissing(issues: { path: PropertyKey[] }[]): never {
