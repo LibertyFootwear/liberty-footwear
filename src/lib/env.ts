@@ -37,6 +37,10 @@ const optionalServerEnvSchema = z.object({
   QUO_API_KEY: optionalString,
   QUO_PHONE_NUMBER: optionalString,   // default "from" number (E.164) or PN… id
   QUO_WEBHOOK_SECRET: optionalString, // whsec_… for verifying inbound webhooks
+  /** Secret Vercel Cron sends as `Authorization: Bearer …`; required to run cron routes. */
+  CRON_SECRET: optionalString,
+  /** Days after pickup before the auto review-request SMS goes out (default 3). */
+  REVIEW_SMS_DELAY_DAYS: optionalString,
 });
 
 function throwMissing(issues: { path: PropertyKey[] }[]): never {

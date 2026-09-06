@@ -3,6 +3,7 @@ import { getSupabase } from "@/lib/supabase";
 import { quoEnabled } from "@/lib/quo";
 import { PageHeader } from "../ui";
 import CommsLog, { CommRow } from "./CommsLog";
+import QuoSyncButton from "./QuoSyncButton";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,7 @@ export default async function AdminCommunications() {
       <PageHeader
         title="Communications"
         subtitle="Calls & texts from your Quo business number, matched to customers. Send a text straight from here."
+        actions={quoEnabled ? <QuoSyncButton /> : undefined}
       />
       {!quoEnabled && (
         <div className="mb-6 rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">

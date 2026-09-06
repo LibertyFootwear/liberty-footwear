@@ -95,6 +95,27 @@ curl -X POST https://api.quo.com/v1/webhooks \
 
 ---
 
+## Contact sync + auto review SMS (added)
+
+**Push customers into Quo Contacts** — `/admin/communications` → *Sync customers → Quo*.
+Uploads customers with a phone, grouped by source **"Liberty Footwear"** (Quo has
+no folders; filter by this source). Idempotent via `customers.quo_contact_id`
+(migration `supabase/customers_quo.sql`) — safe to re-run; it also picks up new
+customers. Batched (~250/run); click again if it says "more left".
+
+**Auto review-request SMS** — daily Vercel Cron (`vercel.json` →
+`/api/cron/review-requests`) texts customers a review link a few days after pickup
+(repairs + open orders). Idempotent via `review_sms_at` (migration
+`supabase/review_sms.sql`); only fires within a 2-week trailing window so the
+first run doesn't blast old pickups. Extra env:
+```
+CRON_SECRET            = <random secret>     # Vercel sends it as Bearer; required for cron
+REVIEW_SMS_DELAY_DAYS  = 3                    # optional, default 3
+NEXT_PUBLIC_REVIEW_URL = <your Google review link>   # optional; SMS links here (else the site)
+```
+The manual "⭐ Review" button (repairs / open orders / delivered web orders) works
+regardless of the cron.
+
 ## Notes / gotchas
 - Auth is the **raw** API key in `Authorization` (no `Bearer`).
 - Webhook signatures are **svix** style over the *raw* body — the route reads
