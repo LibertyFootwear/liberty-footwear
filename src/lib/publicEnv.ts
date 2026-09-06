@@ -23,6 +23,8 @@ const publicEnvSchema = z.object({
   NEXT_PUBLIC_GA_MEASUREMENT_ID: optionalString,
   /** Optional — Cloudflare Turnstile site key. The contact-form captcha is shown only when set. */
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: optionalString,
+  /** Optional — where "leave a review" SMS links point (e.g. your Google review link). */
+  NEXT_PUBLIC_REVIEW_URL: optionalString,
 });
 
 function parsePublicEnv() {
@@ -32,6 +34,7 @@ function parsePublicEnv() {
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    NEXT_PUBLIC_REVIEW_URL: process.env.NEXT_PUBLIC_REVIEW_URL,
   });
   if (result.success) return result.data;
   const names = [

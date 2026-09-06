@@ -1,6 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { publicEnv } from "@/lib/publicEnv";
+
+/** Prefilled "please leave a review" text — links to NEXT_PUBLIC_REVIEW_URL (or the site). */
+export function reviewMessage(firstName?: string | null) {
+  const link = publicEnv.NEXT_PUBLIC_REVIEW_URL || publicEnv.NEXT_PUBLIC_BASE_URL;
+  const who = firstName ? `, ${firstName}` : "";
+  return `Thanks for choosing Liberty Footwear${who}! If you have a minute, we'd really appreciate a quick review: ${link}`;
+}
 
 /**
  * One-click SMS via Quo. Prefills a message the user can tweak in a prompt, then

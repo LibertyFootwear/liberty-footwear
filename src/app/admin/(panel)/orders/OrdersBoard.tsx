@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import SmsButton from "../SmsButton";
+import SmsButton, { reviewMessage } from "../SmsButton";
 
 export interface BoardOrder {
   id: string;
@@ -177,16 +177,20 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
                     </button>
 
                     {o.shipping_phone && (
-                      <div className="mt-1.5 text-center">
-                        <SmsButton
-                          phone={o.shipping_phone}
-                          label={o.shipping_method === "pickup" ? "Ready for pickup" : "Order update"}
-                          message={
-                            o.shipping_method === "pickup"
-                              ? `Hi ${o.shipping_name || "there"}, your Liberty Footwear order is ready for pickup. Thanks!`
-                              : `Hi ${o.shipping_name || "there"}, an update on your Liberty Footwear order: `
-                          }
-                        />
+                      <div className="mt-1.5 text-center flex items-center justify-center gap-3">
+                        {o.status === "delivered" ? (
+                          <SmsButton phone={o.shipping_phone} label="Review" message={reviewMessage(o.shipping_name?.split(" ")[0])} />
+                        ) : (
+                          <SmsButton
+                            phone={o.shipping_phone}
+                            label={o.shipping_method === "pickup" ? "Ready for pickup" : "Order update"}
+                            message={
+                              o.shipping_method === "pickup"
+                                ? `Hi ${o.shipping_name || "there"}, your Liberty Footwear order is ready for pickup. Thanks!`
+                                : `Hi ${o.shipping_name || "there"}, an update on your Liberty Footwear order: `
+                            }
+                          />
+                        )}
                       </div>
                     )}
                   </div>

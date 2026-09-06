@@ -3,7 +3,7 @@
 import { Fragment, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usDate } from "@/lib/formatDate";
-import SmsButton from "../SmsButton";
+import SmsButton, { reviewMessage } from "../SmsButton";
 
 export interface OpenOrderRow {
   id: string;
@@ -229,6 +229,9 @@ export default function OpenOrdersTable({ rows }: { rows: OpenOrderRow[] }) {
                             label="Ready"
                             message={`Hi ${r.first_name || "there"}, your order at Liberty Footwear is ready for pickup. Thanks!`}
                           />
+                        )}
+                        {st === "picked" && r.contact && (
+                          <SmsButton phone={r.contact} label="Review" message={reviewMessage(r.first_name)} />
                         )}
                         <button onClick={() => { setEditId(editing ? null : r.id); setAdding(false); }}
                           className="text-[11px] font-bold text-gray-500 hover:underline">{editing ? "Close" : "Edit"}</button>
