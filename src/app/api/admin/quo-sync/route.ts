@@ -31,6 +31,7 @@ export async function POST() {
   const more = (data ?? []).length > MAX_PER_RUN;
 
   let synced = 0, failed = 0;
+  let firstError: string | undefined;
   for (const c of batch) {
     const name = String(c.name ?? "").trim();
     const [firstName, ...rest] = name.split(/\s+/);
@@ -47,9 +48,10 @@ export async function POST() {
       synced++;
     } else {
       failed++;
+      if (!firstError) firstError = res.error;
     }
     await sleep(DELAY_MS);
   }
 
-  return NextResponse.json({ ok: true, synced, failed, more });
+  return NextResponse.json({ ok: true, synced, failed, more, candidates: batch.length, firstError });
 }

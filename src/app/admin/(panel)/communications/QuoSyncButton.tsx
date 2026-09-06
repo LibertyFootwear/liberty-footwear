@@ -14,7 +14,12 @@ export default function QuoSyncButton() {
       const res = await fetch("/api/admin/quo-sync", { method: "POST" });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { setMsg(d.error ?? "Sync failed."); return; }
-      setMsg(`Synced ${d.synced}${d.failed ? ` · ${d.failed} failed` : ""}${d.more ? " · more left — click again" : " · all done ✓"}`);
+      if (d.candidates === 0) { setMsg("No customers left to sync (all done, or none have a phone)."); return; }
+      setMsg(
+        `Synced ${d.synced}${d.failed ? ` · ${d.failed} failed` : ""}` +
+        `${d.more ? " · more left — click again" : d.failed ? "" : " · all done ✓"}` +
+        `${d.firstError ? ` — first error: ${d.firstError}` : ""}`
+      );
     } finally {
       setBusy(false);
     }
