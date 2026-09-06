@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import SmsButton from "../SmsButton";
 
 export interface BoardOrder {
   id: string;
@@ -11,6 +12,7 @@ export interface BoardOrder {
   status: string;
   source?: string | null;
   shipping_name?: string | null;
+  shipping_phone?: string | null;
   shipping_method?: string | null;
   tracking_number?: string | null;
   paid?: boolean | null;
@@ -173,6 +175,20 @@ export default function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
                     >
                       {o.shipping_method === "pickup" ? "Change to 📦 shipping" : "Change to 🏪 store pickup"}
                     </button>
+
+                    {o.shipping_phone && (
+                      <div className="mt-1.5 text-center">
+                        <SmsButton
+                          phone={o.shipping_phone}
+                          label={o.shipping_method === "pickup" ? "Ready for pickup" : "Order update"}
+                          message={
+                            o.shipping_method === "pickup"
+                              ? `Hi ${o.shipping_name || "there"}, your Liberty Footwear order is ready for pickup. Thanks!`
+                              : `Hi ${o.shipping_name || "there"}, an update on your Liberty Footwear order: `
+                          }
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}

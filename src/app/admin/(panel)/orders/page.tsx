@@ -35,7 +35,8 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
     .map((o) => ({
       id: o.id, created_at: o.created_at, total: o.total, status: o.status,
       source: o.source, shipping_name: o.shipping_name, shipping_method: o.shipping_method,
-      tracking_number: o.tracking_number, paid: o.paid, itemCount: (o.items as unknown[])?.length ?? 0,
+      shipping_phone: o.shipping_phone, tracking_number: o.tracking_number, paid: o.paid,
+      itemCount: (o.items as unknown[])?.length ?? 0,
     }));
 
   // Per-registered-customer order sequence numbers

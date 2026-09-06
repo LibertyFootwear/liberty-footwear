@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { usDate } from "@/lib/formatDate";
 import { parseDue, todayKey } from "@/lib/queue";
 import RepairsImport from "./RepairsImport";
+import SmsButton from "../SmsButton";
 
 export interface RepairRow {
   id: string;
@@ -224,6 +225,13 @@ export default function RepairsTable({ rows }: { rows: RepairRow[] }) {
                         {st !== "picked" && (
                           <button onClick={() => patch(r.id, { pickedUpDate: new Date().toISOString().slice(0, 10) }, r)} disabled={busy}
                             className="text-[11px] font-bold text-green-600 hover:underline">Picked up</button>
+                        )}
+                        {st !== "picked" && r.contact && (
+                          <SmsButton
+                            phone={r.contact}
+                            label="Ready"
+                            message={`Hi ${r.first_name || "there"}, your ${r.job || "repair"} at Liberty Footwear is ready for pickup. Thanks!`}
+                          />
                         )}
                         <button onClick={() => { setEditId(editing ? null : r.id); setAdding(false); }}
                           className="text-[11px] font-bold text-gray-500 hover:underline">{editing ? "Close" : "Edit"}</button>

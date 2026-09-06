@@ -4,6 +4,7 @@ import { products } from "@/data/products";
 import { isBootItem } from "@/lib/analytics";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import SmsButton from "../../../SmsButton";
 
 export const dynamic = "force-dynamic";
 
@@ -24,10 +25,11 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
   const { id } = await params;
   const sb = getSupabase();
 
-  const [custRes, ordersRes, salesRes] = await Promise.all([
+  const [custRes, ordersRes, salesRes, commsRes] = await Promise.all([
     sb.from("customers").select("*").eq("id", id).maybeSingle(),
     sb.from("orders").select("items, total, created_at, source, status").eq("customer_id", id).order("created_at", { ascending: false }),
     sb.from("retail_sales").select("stock_no, size, qty, total, sale_date").eq("customer_id", id).order("sale_date", { ascending: false }),
+    sb.from("communications").select("*").eq("customer_id", id).order("occurred_at", { ascending: false, nullsFirst: false }).limit(50),
   ]);
 
   const c = custRes.data;
@@ -35,6 +37,7 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
 
   const orders = ordersRes.data ?? [];
   const sales = salesRes.data ?? [];
+  const comms = commsRes.data ?? [];
 
   // Flatten every purchased product into a single line list, newest first.
   const lines: Line[] = [];
@@ -101,6 +104,17 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
         <p className="text-sm text-gray-500 mt-1">
           {c.email || "no email"} · {c.phone || "no phone"} · {channelLabel}
         </p>
+        {c.phone && (
+          <div className="mt-2">
+            <SmsButton
+              phone={c.phone as string}
+              customerId={id}
+              label="Send a text"
+              message={`Hi ${(c.name as string)?.split(" ")[0] || "there"}, `}
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-navy text-white text-xs font-bold rounded-lg hover:bg-navy/80 transition disabled:opacity-50"
+            />
+          </div>
+        )}
       </div>
 
       {/* Stats */}
@@ -156,6 +170,35 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
           </tbody>
         </table>
       </div>
+
+      {/* Calls & texts (Quo) */}
+      {comms.length > 0 && (
+        <>
+          <h2 className="font-black text-navy mb-3 mt-8">Calls &amp; texts</h2>
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm divide-y divide-gray-50">
+            {comms.map((m) => {
+              const out = m.direction === "outgoing";
+              const isCall = m.type === "call" || m.type === "voicemail";
+              const icon = m.type === "voicemail" ? "🎙️" : isCall ? (m.status === "missed" ? "📵" : "📞") : (out ? "💬→" : "💬");
+              const when = m.occurred_at || m.created_at;
+              return (
+                <div key={m.id as string} className="flex items-start gap-3 px-4 py-3">
+                  <span className="text-lg leading-none">{icon}</span>
+                  <div className="min-w-0 flex-1">
+                    {m.content ? <p className="text-sm text-gray-700">{m.content as string}</p> : <p className="text-sm text-gray-400 italic">{isCall ? "Call" : "Text"} · {(m.status as string) || ""}</p>}
+                    <p className="text-xs text-gray-400">
+                      {out ? "Outgoing" : "Incoming"}
+                      {m.duration ? ` · ${Math.floor((m.duration as number) / 60)}m ${(m.duration as number) % 60}s` : ""}
+                      {when ? ` · ${new Date(when as string).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : ""}
+                      {m.recording_url ? <> · <a href={m.recording_url as string} target="_blank" rel="noopener noreferrer" className="text-navy font-semibold hover:underline">recording</a></> : null}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }
