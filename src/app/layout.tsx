@@ -11,6 +11,7 @@ import PublicChrome from "@/components/PublicChrome";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import ForceEnglishValidation from "@/components/ForceEnglishValidation";
 import { SITE_URL, jsonLd } from "@/lib/seo";
 
@@ -84,6 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </AuthProvider>
         </LanguageProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
