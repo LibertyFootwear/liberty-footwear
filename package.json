@@ -19,6 +19,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^8.0.1",
     "@types/sanitize-html": "^2.16.1",
+    "@vercel/analytics": "^2.0.1",
     "bcryptjs": "^3.0.3",
     "gray-matter": "^4.0.3",
     "jose": "^6.2.3",
