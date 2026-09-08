@@ -25,6 +25,15 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Keep Vercel Image Optimization usage low: fewer breakpoints = fewer
+  // transformations per image, and a long cache TTL means each optimized
+  // variant is generated once and reused for a month (image files are
+  // content-addressed, so a changed photo gets a new URL anyway).
+  images: {
+    deviceSizes: [640, 828, 1080, 1200, 1920],
+    imageSizes: [64, 128, 256, 384],
+    minimumCacheTTL: 2678400, // 31 days
+  },
   async headers() {
     return [
       {
