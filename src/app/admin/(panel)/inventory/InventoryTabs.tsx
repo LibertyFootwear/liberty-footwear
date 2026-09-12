@@ -2,9 +2,10 @@ const TABS = [
   { key: "boots", href: "/admin/inventory", label: "Finished Boots" },
   { key: "specials", href: "/admin/inventory/specials", label: "Specials" },
   { key: "uppers", href: "/admin/inventory/uppers", label: "Uppers" },
+  { key: "reorder", href: "/admin/inventory/reorder", label: "Reorder Forecast" },
 ];
 
-export default function InventoryTabs({ active }: { active: "boots" | "specials" | "uppers" }) {
+export default function InventoryTabs({ active }: { active: "boots" | "specials" | "uppers" | "reorder" }) {
   return (
     <div className="flex gap-2 border-b border-gray-200 mb-8">
       {TABS.map((t) => (

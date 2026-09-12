@@ -32,6 +32,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Liberty Footwear" }],
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
+  verification: { google: "IwUKKXNzYl_5qFElWpdxT2sPAEBN0KWlsROW4XQncbg" },
   openGraph: {
     type: "website",
     siteName: "Liberty Footwear",
@@ -39,13 +40,14 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: "Liberty Footwear – Built in America",
     description: "Handcrafted work boots built in America.",
-    images: [{ url: "/logo/logo-800.png", alt: "Liberty Footwear" }],
+    // A product photo converts on social shares far better than a bare logo.
+    images: [{ url: "/images/hero-boots.jpg", width: 940, height: 788, alt: "Liberty Footwear handcrafted work boots" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Liberty Footwear – Built in America",
     description: "Handcrafted work boots built in America.",
-    images: ["/logo/logo-800.png"],
+    images: ["/images/hero-boots.jpg"],
   },
 };
 
