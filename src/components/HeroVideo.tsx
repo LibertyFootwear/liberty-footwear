@@ -1,39 +1,23 @@
-"use client";
-
-import { useEffect, useRef } from "react";
-
 /**
- * Hero background loop. Mobile browsers (esp. iOS Safari / Chrome) only autoplay
- * a video that is genuinely muted + inline — and React doesn't reliably set the
- * `muted` attribute on first render, so we force it on the element and kick off
- * play() ourselves. If autoplay is still blocked (e.g. iOS Low Power Mode), the
- * poster image shows instead.
+ * Hero background loop. iOS Safari decides whether to autoplay while it parses the
+ * page, and it ONLY autoplays a video whose `muted` + `playsinline` attributes are
+ * present in that initial HTML. React strips the `muted` attribute from its output
+ * (a long-standing quirk), which is exactly why autoplay failed on iPhone — so we
+ * emit the element as literal markup to guarantee the attributes are there at parse
+ * time. Static, trusted content (no user input) → dangerouslySetInnerHTML is safe.
+ * If autoplay is still blocked (iOS Low Power Mode), the poster image shows.
  */
 export default function HeroVideo() {
-  const ref = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    v.muted = true;
-    v.defaultMuted = true;
-    const p = v.play();
-    if (p && typeof p.catch === "function") p.catch(() => {});
-  }, []);
-
   return (
-    <video
-      ref={ref}
-      className="absolute inset-0 w-full h-full object-cover"
-      autoPlay
-      muted
-      loop
-      playsInline
-      preload="metadata"
-      poster="/video/hero-poster.jpg"
+    <div
+      className="absolute inset-0"
       aria-hidden="true"
-    >
-      <source src="/video/hero-loop.mp4" type="video/mp4" />
-    </video>
+      dangerouslySetInnerHTML={{
+        __html:
+          '<video class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline webkit-playsinline disablepictureinpicture preload="auto" poster="/video/hero-poster.jpg">' +
+          '<source src="/video/hero-loop.mp4" type="video/mp4" />' +
+          "</video>",
+      }}
+    />
   );
 }
