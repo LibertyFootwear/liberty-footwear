@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { products } from "@/data/products";
+import StoryVideo from "@/components/StoryVideo";
 import ProductCard from "@/components/ProductCard";
 import ProductRow from "@/components/ProductRow";
 import NewsletterForm from "@/components/NewsletterForm";
@@ -139,6 +140,20 @@ export default function HomePage() {
           backgroundPosition: "center",
         }}
       >
+        {/* Background craftsmanship loop (muted, autoplay); the bg image is the fallback/poster. */}
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/video/hero-poster.jpg"
+          aria-hidden="true"
+        >
+          <source src="/video/hero-loop.mp4" type="video/mp4" />
+        </video>
+
         <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/75 to-navy/40" />
 
         <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-20">
@@ -214,7 +229,7 @@ export default function HomePage() {
 
               {/* Pull quote */}
               <blockquote className="border-l-4 border-red pl-5 mb-8">
-                <p className="text-navy font-semibold italic leading-relaxed">"When leather work boots are comfy enough to wear on a date in a pinch, you know you have good boots."</p>
+                <p className="text-navy font-semibold italic leading-relaxed">&ldquo;When leather work boots are comfy enough to wear on a date in a pinch, you know you have good boots.&rdquo;</p>
                 <cite className="text-gray-400 text-sm not-italic mt-2 block">— Donny Soules, customer</cite>
               </blockquote>
 
@@ -283,6 +298,9 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+
+          {/* The film */}
+          <StoryVideo />
         </div>
       </section>
 
