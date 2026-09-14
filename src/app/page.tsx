@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { products } from "@/data/products";
+import HeroVideo from "@/components/HeroVideo";
 import ProductCard from "@/components/ProductCard";
 import ProductRow from "@/components/ProductRow";
 import NewsletterForm from "@/components/NewsletterForm";
@@ -140,18 +141,7 @@ export default function HomePage() {
         }}
       >
         {/* Background craftsmanship loop (muted, autoplay); the bg image is the fallback/poster. */}
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster="/video/hero-poster.jpg"
-          aria-hidden="true"
-        >
-          <source src="/video/hero-loop.mp4" type="video/mp4" />
-        </video>
+        <HeroVideo />
 
         <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/75 to-navy/40" />
 
