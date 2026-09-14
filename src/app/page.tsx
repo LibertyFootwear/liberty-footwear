@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { products } from "@/data/products";
-import StoryVideo from "@/components/StoryVideo";
 import ProductCard from "@/components/ProductCard";
 import ProductRow from "@/components/ProductRow";
 import NewsletterForm from "@/components/NewsletterForm";
@@ -298,9 +297,6 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-
-          {/* The film */}
-          <StoryVideo />
         </div>
       </section>
 
