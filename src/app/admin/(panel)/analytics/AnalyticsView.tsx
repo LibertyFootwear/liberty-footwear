@@ -3,10 +3,11 @@ import { Agg, MONTHS } from "@/lib/analytics";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const TABS = [
+export const TABS = [
   { key: "web", href: "/admin/analytics", label: "Web" },
   { key: "retail", href: "/admin/analytics/store", label: "Retail Sales" },
   { key: "all", href: "/admin/analytics/all", label: "All Combined" },
+  { key: "products", href: "/admin/analytics/products", label: "Products" },
 ];
 
 function Kpi({ label, value, sub }: { label: string; value: string; sub?: string }) {
