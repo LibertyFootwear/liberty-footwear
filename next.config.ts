@@ -42,6 +42,31 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // 301s for leftover URLs from the old WordPress/WooCommerce site (Google still
+  // has them; they were returning 404). Send them to the closest live page so no
+  // link 404s and the SEO value carries over. Old media (.mp4 streams) are gone
+  // for good and left to 404.
+  async redirects() {
+    return [
+      // Old WooCommerce product + category pages → the shop
+      { source: "/the-store/:slug*", destination: "/shop", permanent: true },
+      { source: "/product-category/:slug*", destination: "/shop", permanent: true },
+      { source: "/category/:slug*", destination: "/shop", permanent: true },
+      { source: "/shop-products", destination: "/shop", permanent: true },
+      { source: "/safety", destination: "/shop", permanent: true },
+      { source: "/hiking", destination: "/shop", permanent: true },
+      // Old portfolio galleries → gallery
+      { source: "/portfolio/:slug*", destination: "/gallery", permanent: true },
+      // Old blog/story articles → blog
+      { source: "/the-right-boot-for-your-job", destination: "/blog", permanent: true },
+      { source: "/why-american-built-still-rules", destination: "/blog", permanent: true },
+      { source: "/former-wolverine-employee-carves-out-niche", destination: "/blog", permanent: true },
+      // Old info pages → nearest equivalent
+      { source: "/privacy-policy", destination: "/privacy", permanent: true },
+      { source: "/contact-alternative", destination: "/contact", permanent: true },
+      { source: "/returns-refunds-exchanges", destination: "/faq", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
