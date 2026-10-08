@@ -3,7 +3,7 @@ export const metadata = {
   description: "How Liberty Footwear collects, uses and protects your personal information.",
 };
 
-const LAST_UPDATED = "July 1, 2026";
+const LAST_UPDATED = "October 8, 2026";
 
 export default function PrivacyPage() {
   return (
@@ -87,6 +87,45 @@ export default function PrivacyPage() {
               notifying you when you are about to encounter a cookie or for disabling cookies entirely.
               Please note that disabling cookies may affect the functionality of certain features on
               our website, such as the shopping cart.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-black text-navy mb-3 pb-2 border-b border-gray-100">Analytics &amp; Tracking Technologies</h2>
+            <p className="mb-3">
+              To understand how our website is used and to improve it, we rely on a small number of
+              analytics tools:
+            </p>
+            <ul className="space-y-2">
+              {[
+                <><strong>Google Analytics (GA4)</strong> — uses cookies to collect aggregate, non-identifying usage data such as pages viewed, device type and approximate region. This information is processed by Google under its own privacy policy.</>,
+                <><strong>Vercel Analytics &amp; Speed Insights</strong> — privacy-friendly, aggregated measurement that does <strong>not</strong> use cookies, does not track you across other websites, and does not collect personal information.</>,
+              ].map((item, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="text-red font-bold mt-0.5 flex-shrink-0">—</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4">
+              We do <strong>not</strong> use session-recording or &quot;session-replay&quot; tools, chat
+              transcript recording, or third-party advertising or retargeting pixels. You can opt out of
+              Google Analytics by installing Google&apos;s{" "}
+              <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-navy font-medium hover:underline">opt-out browser add-on</a>{" "}
+              or by blocking cookies in your browser settings. We also honor your browser&apos;s
+              &quot;Do Not Track&quot; signal where supported.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-black text-navy mb-3 pb-2 border-b border-gray-100">California Residents</h2>
+            <p>
+              If you are a California resident, you may have rights under the California Consumer Privacy
+              Act (CCPA/CPRA), including the right to know what personal information we collect, to request
+              its deletion, and to opt out of the &quot;sale&quot; or &quot;sharing&quot; of personal
+              information. Liberty Footwear Inc. does <strong>not</strong> sell or share your personal
+              information. To exercise any of these rights, please{" "}
+              <a href="/contact" className="text-navy font-medium hover:underline">contact us</a>.
             </p>
           </div>
 
