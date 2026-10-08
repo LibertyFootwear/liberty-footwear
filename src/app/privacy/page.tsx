@@ -21,7 +21,7 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-xl font-black text-navy mb-3 pb-2 border-b border-gray-100">Summary</h2>
             <p>
-              Because your privacy is very important to us, Liberty Footwear Inc. wants to build users'
+              Because your privacy is very important to us, Liberty Footwear Inc. wants to build users&apos;
               trust and confidence in our company and demonstrate our commitment to privacy by disclosing
               our privacy practices. As part of the normal operation of our website and business, we may
               collect certain information about you. This Privacy Policy describes what information we
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-black text-navy mb-3 pb-2 border-b border-gray-100">Cookies</h2>
             <p className="mb-3">
               We use cookies to record user-specific information on what pages users access or visit,
-              and to customize web page content based on visitors' browser type or other information
+              and to customize web page content based on visitors&apos; browser type or other information
               the visitor sends. We only use cookies to provide you with the most personalized
               experience we can offer.
             </p>
@@ -134,7 +134,7 @@ export default function PrivacyPage() {
             <p>
               All payments on our website are processed securely through <strong>Stripe</strong>, a
               PCI-DSS compliant payment processor. Liberty Footwear Inc. does not store your full
-              credit card details on our servers. Stripe's privacy policy governs the handling of
+              credit card details on our servers. Stripe&apos;s privacy policy governs the handling of
               your payment information.
             </p>
           </div>
