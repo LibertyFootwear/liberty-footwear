@@ -272,7 +272,7 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
     ...[...PLAIN_ITEMS, LACES, SHOE_HORN, CUSTOM].map((s) => ({ value: s, label: s, group: "Services & Accessories" })),
   ];
 
-  // Group by year, newest first (filtered is already sorted newest → oldest)
+  // Group by year (filtered is in Google Sheet order, newest first)
   const searching = !!search;
   const yearGroups: { year: string; rows: SaleRow[]; total: number }[] = [];
   for (const r of filtered) {
@@ -298,6 +298,7 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
     return (
       <Fragment key={r.id}>
         <tr className={`hover:bg-gray-50 transition ${isOpen ? "bg-navy/5" : ""}`}>
+          <td className="px-3 py-2 font-mono text-[10px] text-gray-400" title={r.id}>{r.id.slice(0, 8)}</td>
           <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{usDate(r.sale_date)}</td>
           <td className="px-3 py-2 text-gray-400">{p.day}</td>
           <td className="px-3 py-2 font-mono font-bold text-navy">
@@ -334,7 +335,7 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
         </tr>
         {isOpen && (
           <tr className="bg-navy/5">
-            <td colSpan={10} className="px-6 py-3">
+            <td colSpan={11} className="px-6 py-3">
               {hasExtras ? (
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-2 whitespace-normal">
                   {extras.filter(([, v]) => v).map(([label, v]) => (
@@ -524,21 +525,21 @@ export default function SalesTable({ rows, catalog }: { rows: SaleRow[]; catalog
         <table className="w-full text-xs whitespace-nowrap">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {["Date", "Day", "Item", "Size", "Width", "Paid", "Total $", "Payment", "Customer", ""].map((h) => (
+              {["ID", "Date", "Day", "Item", "Size", "Width", "Paid", "Total $", "Payment", "Customer", ""].map((h) => (
                 <th key={h} className="text-left px-3 py-2 font-bold text-gray-400 uppercase tracking-wide">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {filtered.length === 0 && (
-              <tr><td colSpan={10} className="px-3 py-10 text-center text-gray-400">No sales recorded yet.</td></tr>
+              <tr><td colSpan={11} className="px-3 py-10 text-center text-gray-400">No sales recorded yet.</td></tr>
             )}
             {yearGroups.map((g) => {
               const open = searching || openYears.has(g.year);
               return (
                 <Fragment key={g.year}>
                   <tr className="bg-gray-100/80 border-y border-gray-200 cursor-pointer" onClick={() => toggleYear(g.year)}>
-                    <td colSpan={10} className="px-3 py-2">
+                    <td colSpan={11} className="px-3 py-2">
                       <button type="button" className="inline-flex items-center gap-2 font-black text-navy">
                         <span className={`text-[10px] transition-transform ${open ? "rotate-90" : ""}`}>▶</span>
                         {g.year}

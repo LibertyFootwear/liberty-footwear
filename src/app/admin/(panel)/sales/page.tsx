@@ -19,8 +19,7 @@ export default async function AdminSales() {
     const { data, error } = await sb
       .from("retail_sales")
       .select("*")
-      .order("sale_date", { ascending: false })
-      .order("created_at", { ascending: false })
+      .order("seq", { ascending: false }) // insertion order = Google Sheet order, newest first
       .range(from, from + PAGE - 1);
     if (error || !data || data.length === 0) break;
     rows.push(...(data as SaleRow[]));
