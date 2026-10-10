@@ -162,7 +162,10 @@ export async function POST(req: NextRequest) {
   for (const it of items) {
     // Exact match by id (mirror rows) takes priority; else fall back to content.
     if (it.srcId && (existingIds.has(it.srcId) || seenIds.has(it.srcId))) { duplicates++; continue; }
-    if (existingKeys.has(it.k) || seenKeys.has(it.k)) { duplicates++; continue; }
+    // A row with its own valid UUID is a distinct sale even if its content matches another
+    // (two identical sales); content matching only applies to id-less rows.
+    const hasOwnId = !!it.srcId && UUID.test(it.srcId);
+    if (!hasOwnId && (existingKeys.has(it.k) || seenKeys.has(it.k))) { duplicates++; continue; }
     fresh.push(it.srcId && UUID.test(it.srcId) ? { id: it.srcId, ...it.row } : it.row);
     seenKeys.add(it.k);
     if (it.srcId) seenIds.add(it.srcId);

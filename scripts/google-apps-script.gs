@@ -174,7 +174,7 @@ function onSheetEdit(e) {
     var results = out.results || [];
     for (var j = 0; j < results.length; j++) {
       var r = results[j];
-      if (r && r.id && !rows[j].id) sheet.getRange(rowNums[j], 1).setValue(r.id);
+      if (r && r.id && String(r.id) !== String(rows[j].id)) sheet.getRange(rowNums[j], 1).setValue(r.id);
       if (r && r.error) sheet.getRange(rowNums[j], COLS.length + 1).setValue("⚠ " + r.error);
       else if (r) sheet.getRange(rowNums[j], COLS.length + 1).clearContent();
     }
