@@ -18,6 +18,8 @@ import { stockLine, isReturnRow, applyStock } from "@/lib/retailSalesStock";
  * clobber the user's in-progress edit.
  */
 
+const MAX_DELETE = 25;
+
 type Row = Record<string, unknown>;
 type Result = { id?: string; inserted?: boolean; error?: string };
 
@@ -114,6 +116,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (body.action === "delete") {
+    if ((body.ids ?? []).length > MAX_DELETE) {
+      return NextResponse.json({ error: `Refusing to delete more than ${MAX_DELETE} rows at once.` }, { status: 400 });
+    }
     const sb = getSupabase();
     let deleted = 0;
     for (const id of (body.ids ?? []).map(String).filter(Boolean)) {

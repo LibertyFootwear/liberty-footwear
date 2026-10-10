@@ -94,8 +94,9 @@ export async function POST(req: NextRequest) {
   ].join("|");
 
   // Parse rows into insertable records, keeping each row's source id (column A of
-  // the mirror sheet, if present) for exact matching. The id is NEVER inserted —
-  // the DB always generates a fresh one — it's only used to detect "already here".
+  // the mirror sheet, if present) for exact matching. A valid UUID id is kept on
+  // insert so the sheet stays linked to its DB row (restore after data loss);
+  // anything else is ignored and the DB generates a fresh id.
   interface Item { row: Record<string, unknown>; srcId: string | null; k: string }
   const items: Item[] = [];
   let skipped = 0;
@@ -155,13 +156,14 @@ export async function POST(req: NextRequest) {
 
   const seenKeys = new Set<string>();
   const seenIds = new Set<string>();
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const fresh: Record<string, unknown>[] = [];
   let duplicates = 0;
   for (const it of items) {
     // Exact match by id (mirror rows) takes priority; else fall back to content.
     if (it.srcId && (existingIds.has(it.srcId) || seenIds.has(it.srcId))) { duplicates++; continue; }
     if (existingKeys.has(it.k) || seenKeys.has(it.k)) { duplicates++; continue; }
-    fresh.push(it.row);
+    fresh.push(it.srcId && UUID.test(it.srcId) ? { id: it.srcId, ...it.row } : it.row);
     seenKeys.add(it.k);
     if (it.srcId) seenIds.add(it.srcId);
   }

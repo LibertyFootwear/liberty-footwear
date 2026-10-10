@@ -200,6 +200,7 @@ function deleteSelectedFromAdmin() {
   var first = Math.max(range.getRow(), 2);
   var last = range.getRow() + range.getNumRows() - 1;
   if (last < first) return;
+  if (last - first + 1 > 25) { ui.alert("Select at most 25 rows at a time."); return; }
   var ids = sheet.getRange(first, 1, last - first + 1, 1).getValues()
     .map(function (r) { return String(r[0]); }).filter(String);
   if (ui.alert("Delete " + (last - first + 1) + " row(s) from the sheet AND admin? Stock will be adjusted.",
