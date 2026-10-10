@@ -12,7 +12,7 @@ import { saveOrder } from "@/lib/ordersDb";
 import { decrementInventory } from "@/lib/inventoryDb";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/orderEmail";
 import { env } from "@/lib/env";
-import { isBootCategory } from "@/lib/shipping";
+import { isBootCategory, isGiftCardCategory } from "@/lib/shipping";
 import { validateDiscount, redeemDiscount } from "@/lib/discounts";
 
 const APPAREL_SHIPPING_CENTS = 800; // $8 flat when the order is apparel-only
@@ -136,13 +136,25 @@ export async function POST(req: NextRequest) {
     };
   }));
 
+  // Gift cards: emailed, never shipped, not taxed — and never bought with a discount code
+  // or paid for at pickup (they must be paid online so the code can be issued).
+  const isGiftLine = (stockNo: string) => isGiftCardCategory(products.find((p) => p.stockNo === stockNo)?.category);
+  const hasGift = validatedItems.some((it) => isGiftLine(it.stockNo));
+  const giftOnly = validatedItems.every((it) => isGiftLine(it.stockNo));
+  if (hasGift && coupon) {
+    return NextResponse.json({ error: "gift_card_discount", message: "Discount codes can't be used when buying a gift card. Remove the code and try again." }, { status: 400 });
+  }
+  if (hasGift && payAtPickup) {
+    return NextResponse.json({ error: "gift_card_pay_online", message: "Gift cards must be paid for online." }, { status: 400 });
+  }
+
   // Shipping: boot-less orders (apparel, insoles, leather care) pay a flat fee when
   // shipped; free if any boot is in the cart or on pickup.
   const hasBoot = validatedItems.some((it) => {
     const cat = products.find((p) => p.stockNo === it.stockNo)?.category;
     return cat ? isBootCategory(cat) : false;
   });
-  const chargeApparelShipping = shippingMethod !== "pickup" && !hasBoot;
+  const chargeApparelShipping = shippingMethod !== "pickup" && !hasBoot && !giftOnly;
 
   // Validate any discount code server-side (never trust the client's amount).
   const cartSubtotal = validatedItems.reduce((s, it) => s + it.price * it.qty, 0);
@@ -247,9 +259,9 @@ export async function POST(req: NextRequest) {
         product_data: { name: item.name, metadata: { stockNo: item.stockNo, size: item.size, addons: item.addons } },
       },
       quantity: item.qty,
-      ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
+      ...(taxRateId && !isGiftLine(item.stockNo) ? { tax_rates: [taxRateId] } : {}),
     })),
-    shipping_options: [
+    ...(giftOnly ? {} : { shipping_options: [
       shippingMethod === "pickup"
         ? {
             shipping_rate_data: {
@@ -273,10 +285,10 @@ export async function POST(req: NextRequest) {
               },
             },
           },
-    ],
+    ] }),
     // Force a full billing address (incl. state) so every generated invoice is complete.
     billing_address_collection: "required",
-    ...(shippingMethod !== "pickup" && {
+    ...(shippingMethod !== "pickup" && !giftOnly && {
       shipping_address_collection: { allowed_countries: ["US", "CA"] as ["US", "CA"] },
     }),
     ...(billing?.email && { customer_email: billing.email }),

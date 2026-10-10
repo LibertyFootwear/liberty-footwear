@@ -17,6 +17,7 @@ const CATEGORIES: { id: ProductCategory; label: string; desc: string }[] = [
   { id: "Insoles",       label: "Insoles",       desc: "Removable cushioned footbeds to refresh any pair." },
   { id: "Apparel",       label: "Apparel",       desc: "Liberty Footwear tees and caps — wear the brand." },
   { id: "Care",          label: "Leather Care",  desc: "All-natural conditioners to clean, waterproof and protect your leather." },
+  { id: "Gift Cards",    label: "Gift Cards",    desc: "Give the gift of American-made boots — delivered by email, printable at home." },
 ];
 
 const PRICE_RANGES = [
@@ -195,7 +196,7 @@ function ShopContent({ products }: { products: Product[] }) {
 
   const activeCount = (cat ? 1 : 0) + colors.length + prices.length + outsoles.length + (safetyToe ? 1 : 0);
   // Leather-color filter is for boots only — exclude insoles (foam colors) and apparel.
-  const uniqueColors = getUniqueColors(products.filter((p) => !["Insoles", "Apparel", "Care"].includes(p.category) && p.colorLeather));
+  const uniqueColors = getUniqueColors(products.filter((p) => !["Insoles", "Apparel", "Care", "Gift Cards"].includes(p.category) && p.colorLeather));
 
   const FiltersPanel = (
     <div>

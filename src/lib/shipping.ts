@@ -10,3 +10,8 @@ const BOOT_CATEGORIES: ProductCategory[] = ["Work", "Casual", "Outdoors", "Safet
 export function isBootCategory(category: ProductCategory): boolean {
   return BOOT_CATEGORIES.includes(category);
 }
+
+/** Gift cards are delivered by email, never shipped, and carry no sales tax at purchase. */
+export function isGiftCardCategory(category: ProductCategory | undefined | null): boolean {
+  return category === "Gift Cards";
+}

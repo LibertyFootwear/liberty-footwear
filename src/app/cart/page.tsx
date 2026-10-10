@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from "react";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
-import { isBootCategory, SMALL_ITEM_SHIPPING } from "@/lib/shipping";
+import { isBootCategory, isGiftCardCategory, SMALL_ITEM_SHIPPING } from "@/lib/shipping";
 import { trackViewCart, trackRemoveFromCart } from "@/lib/gtag";
 
 const POPULAR = products.filter((p) => p.image).slice(0, 4);
@@ -106,15 +106,22 @@ export default function CartPage() {
 
   // Free shipping requires a boot; apparel / insoles / leather-care only pay a flat fee.
   const hasBoot = items.some((i) => isBootCategory(i.product.category));
-  const shippingFee = shippingMethod !== "pickup" && items.length > 0 && !hasBoot ? SMALL_ITEM_SHIPPING : 0;
+  // Gift cards are emailed (no shipping) and not taxed; a cart of only gift cards ships nothing.
+  const hasGift = items.some((i) => isGiftCardCategory(i.product.category));
+  const giftOnly = items.length > 0 && items.every((i) => isGiftCardCategory(i.product.category));
+  const giftSubtotal = items
+    .filter((i) => isGiftCardCategory(i.product.category))
+    .reduce((s, i) => s + itemUnitPrice(i) * i.qty, 0);
+  const shippingFee = shippingMethod !== "pickup" && items.length > 0 && !hasBoot && !giftOnly ? SMALL_ITEM_SHIPPING : 0;
 
-  const taxableAmount = Math.max(0, subtotal - discount);
+  const taxableAmount = Math.max(0, subtotal - giftSubtotal - discount);
   const tax = Math.round(taxableAmount * 0.06 * 100) / 100;
-  const total = Math.round((taxableAmount + tax + shippingFee) * 100) / 100;
+  const total = Math.round((taxableAmount + tax + giftSubtotal + shippingFee) * 100) / 100;
 
   async function applyCoupon() {
     const code = couponInput.trim().toUpperCase();
     if (!code) return;
+    if (hasGift) { setCouponError("Discount codes can't be used when buying a gift card."); return; }
     setCouponBusy(true); setCouponError("");
     try {
       const res = await fetch("/api/discount/validate", {
@@ -313,6 +320,15 @@ export default function CartPage() {
               {couponError && <p className="text-xs text-red mt-2">{couponError}</p>}
             </div>
             {/* Shipping method */}
+            {giftOnly ? (
+              <div className="border border-gray-200 rounded-xl p-5 flex items-center gap-3">
+                <span className="text-2xl">🎁</span>
+                <div>
+                  <p className="font-bold text-navy text-sm">Delivered by email</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Your gift card code and a printable card arrive within minutes of payment.</p>
+                </div>
+              </div>
+            ) : (
             <div className="border border-gray-200 rounded-xl p-5">
               <p className="text-sm font-bold text-navy mb-3">Delivery method</p>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -354,6 +370,7 @@ export default function CartPage() {
                 </button>
               </div>
             </div>
+            )}
           </div>
 
           {/* Summary */}

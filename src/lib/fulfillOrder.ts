@@ -6,6 +6,8 @@ import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/orderE
 import { products } from "@/data/products";
 import { publicEnv } from "@/lib/publicEnv";
 import { redeemDiscount } from "@/lib/discounts";
+import { createGiftCardCode } from "@/lib/giftCards";
+import { isGiftCardCategory } from "@/lib/shipping";
 
 /**
  * Turn a paid Stripe Checkout Session into an order + inventory deduction.
@@ -65,6 +67,17 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
   const orderId = crypto.randomUUID();
   const total = (session.amount_total ?? 0) / 100;
 
+  // Gift cards: issue one single-use code per card bought, before the order is saved
+  // (a failure here throws → no order row → the webhook retries cleanly).
+  const isGift = (stockNo: string) => isGiftCardCategory(products.find((p) => p.stockNo === stockNo)?.category);
+  const giftItems = items.filter((it) => isGift(it.stockNo));
+  const giftOnly = giftItems.length > 0 && giftItems.length === items.length;
+  const giftCards: { code: string; amount: number }[] = [];
+  for (const it of giftItems) {
+    const amount = Math.round(it.price);
+    for (let n = 0; n < it.qty; n++) giftCards.push({ amount, code: await createGiftCardCode(amount, orderId) });
+  }
+
   await saveOrder({
     id: orderId,
     stripeSessionId: sessionId,
@@ -72,7 +85,8 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
     customerId,
     items,
     total,
-    status: "paid",
+    // Gift-card-only orders are fulfilled instantly by email, so they skip the shipping queue.
+    status: giftOnly && shippingEmail ? "delivered" : "paid",
     createdAt,
     shippingName,
     shippingEmail,
@@ -107,6 +121,9 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
         orderId,
         // Our own branded, printable invoice — no Stripe Invoicing fee.
         invoiceUrl: `${publicEnv.NEXT_PUBLIC_BASE_URL}/invoice/${orderId}`,
+        giftCards,
+        giftOnly,
+        baseUrl: publicEnv.NEXT_PUBLIC_BASE_URL,
       });
     } catch (err) {
       console.error("Order confirmation email failed (order still recorded):", err);

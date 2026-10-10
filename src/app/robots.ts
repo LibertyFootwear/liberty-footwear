@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         // Keep private / non-content routes out of the index.
-        disallow: ["/admin", "/account", "/api/", "/cart", "/checkout", "/order/"],
+        disallow: ["/admin", "/account", "/api/", "/cart", "/checkout", "/order/", "/gift-card/"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

@@ -24,6 +24,7 @@ const BASE = canonicalBase(SITE_URL);
 
 function googleCategory(category: string): string {
   if (category === "Apparel") return "Apparel & Accessories > Clothing";
+  if (category === "Gift Cards") return "Arts & Entertainment > Party & Celebration > Gift Giving > Gift Cards & Certificates";
   if (category === "Insoles") return "Apparel & Accessories > Shoes > Shoe Accessories > Shoe Insoles";
   return "Apparel & Accessories > Shoes";
 }

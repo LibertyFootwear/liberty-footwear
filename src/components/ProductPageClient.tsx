@@ -9,7 +9,7 @@ import { trackProduct } from "@/hooks/useRecentlyViewed";
 import { trackViewItem } from "@/lib/gtag";
 import { useLang } from "@/context/LanguageContext";
 import type { Product } from "@/data/products";
-import { SMALL_ITEM_SHIPPING } from "@/lib/shipping";
+import { SMALL_ITEM_SHIPPING, isGiftCardCategory } from "@/lib/shipping";
 
 interface Props {
   p: Product;
@@ -33,7 +33,8 @@ function RatingStars({ value }: { value: number }) {
 
 export default function ProductPageClient({ p, variants, related, reviewStats }: Props) {
   const { t } = useLang();
-  const isApparel = p.category === "Apparel" || p.category === "Care";
+  const isGift = isGiftCardCategory(p.category);
+  const isApparel = p.category === "Apparel" || p.category === "Care" || isGift;
   const isInsole = p.category === "Insoles";
   useEffect(() => {
     trackProduct(p.slug);
@@ -81,7 +82,7 @@ export default function ProductPageClient({ p, variants, related, reviewStats }:
           {/* Details */}
           <div className="flex flex-col">
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-xs font-bold text-red uppercase tracking-widest">{isApparel ? "Apparel" : `${p.family} Family`}</span>
+              <span className="text-xs font-bold text-red uppercase tracking-widest">{isGift ? "Gift Card" : isApparel ? "Apparel" : `${p.family} Family`}</span>
               {p.safetyToe && (
                 <span className="text-xs font-bold bg-navy text-white px-2 py-0.5 rounded uppercase">Safety Toe EH</span>
               )}
@@ -139,7 +140,12 @@ export default function ProductPageClient({ p, variants, related, reviewStats }:
 
             <ProductOptions product={p} variants={variants} />
 
-            {!isApparel && !isInsole ? (
+            {isGift ? (
+              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-navy bg-tan/15 border border-tan/40 rounded-lg px-4 py-2.5">
+                <span className="text-base leading-none">🎁</span>
+                <span>Delivered by email within minutes — <span className="font-bold text-green-700">no shipping</span>, with a card you can print and give.</span>
+              </div>
+            ) : !isApparel && !isInsole ? (
               <p className="text-xs text-gray-400 mt-4 text-center">{t.product.freeShipping}</p>
             ) : (
               <div className="mt-4 flex items-center justify-center gap-2 text-xs text-navy bg-tan/15 border border-tan/40 rounded-lg px-4 py-2.5">
@@ -156,7 +162,7 @@ export default function ProductPageClient({ p, variants, related, reviewStats }:
         </div>
 
         {/* Related */}
-        {related.length > 0 && (
+        {related.length > 0 && !isGift && (
           <div className="mt-20">
             <h2 className="text-2xl font-black text-navy mb-8">{isApparel ? "More Apparel" : `${t.product.moreFrom} ${p.family} ${t.product.family}`}</h2>
             <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

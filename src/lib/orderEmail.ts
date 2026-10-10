@@ -98,6 +98,12 @@ export interface OrderConfirmationEmail {
   invoicePdf?: { filename: string; base64: string };
   /** Store-pickup order that pays in store — no invoice, "pay at pickup" note. */
   payAtPickup?: boolean;
+  /** Gift cards bought in this order — each gets a redemption code box + printable-card link. */
+  giftCards?: { code: string; amount: number }[];
+  /** Site origin used to build the printable-card links. */
+  baseUrl?: string;
+  /** Order contains only gift cards (nothing ships). */
+  giftOnly?: boolean;
   /** Value for the logo <img> src (a cid: ref for real mail, a data: URI for previews). */
   logoSrc?: string;
   /** Override the sender address (defaults to FROM). Used for testing before domain verification. */
@@ -113,12 +119,32 @@ export function buildOrderEmailHtml(o: OrderConfirmationEmail): string {
 
   const intro = o.payAtPickup
     ? "Your order is placed! We're preparing it for pickup — pay in store when you collect it."
+    : o.giftOnly
+    ? "We've received your payment — your gift card is ready below. Print it or forward this email to the lucky person."
     : "We've received your payment and your order is confirmed. We'll email you again as soon as we start preparing it for shipment.";
+
+  const giftBlock = (o.giftCards ?? [])
+    .map((g) => {
+      const printUrl = `${o.baseUrl ?? ""}/gift-card/print?code=${encodeURIComponent(g.code)}`;
+      return `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;border:2px dashed ${NAVY};border-radius:10px;">
+      <tr><td style="padding:22px;text-align:center;">
+        <p style="margin:0 0 4px;color:#6b7280;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Liberty Footwear Gift Card</p>
+        <p style="margin:0 0 12px;color:${NAVY};font-size:34px;font-weight:800;">${money(g.amount)}</p>
+        <p style="margin:0 0 4px;color:#6b7280;font-size:12px;">Your code</p>
+        <p style="margin:0 0 16px;color:${RED};font-size:26px;font-weight:800;letter-spacing:3px;font-family:'Courier New',monospace;">${esc(g.code)}</p>
+        <a href="${esc(printUrl)}" style="display:inline-block;background:${RED};color:#ffffff;text-decoration:none;font-weight:bold;font-size:14px;padding:12px 24px;border-radius:6px;">View &amp; print your card →</a>
+        <p style="margin:14px 0 0;color:#6b7280;font-size:12px;line-height:1.6;">Enter the code in the <strong>discount code</strong> box at checkout on libertyfootwear.com, or show it in our Grand Rapids store. Single use — apply the full amount to one order.</p>
+      </td></tr>
+    </table>`;
+    })
+    .join("");
 
   const inner = `
     <h1 style="margin:0 0 6px;color:${NAVY};font-size:22px;">Thank you${o.name ? `, ${esc(o.name.split(" ")[0])}` : ""}!</h1>
     <p style="margin:0 0 4px;color:#374151;font-size:15px;">${intro}</p>
     <p style="margin:0 0 22px;color:#9ca3af;font-size:12px;">Order #${esc(o.orderId.slice(0, 8))}</p>
+    ${giftBlock}
     ${itemsTable(o.items, o.total)}
     ${invoiceLink}`;
   return shell(o.logoSrc, inner);

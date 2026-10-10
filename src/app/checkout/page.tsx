@@ -10,7 +10,7 @@ import { useState, useEffect, useRef, Suspense, createContext, useContext } from
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 import { publicEnv } from "@/lib/publicEnv";
 import { trackBeginCheckout } from "@/lib/gtag";
-import { isBootCategory, SMALL_ITEM_SHIPPING } from "@/lib/shipping";
+import { isBootCategory, isGiftCardCategory, SMALL_ITEM_SHIPPING } from "@/lib/shipping";
 
 interface FieldCtx {
   form: Record<string, string | boolean>;
@@ -79,11 +79,17 @@ function CheckoutForm() {
 
   // Free shipping requires a boot; apparel / insoles / leather-care only pay a flat fee.
   const hasBoot = items.some((i) => isBootCategory(i.product.category));
-  const shippingFee = shippingMethod !== "pickup" && items.length > 0 && !hasBoot ? SMALL_ITEM_SHIPPING : 0;
+  // Gift cards are emailed (no shipping) and not taxed; a cart of only gift cards ships nothing.
+  const hasGift = items.some((i) => isGiftCardCategory(i.product.category));
+  const giftOnly = items.length > 0 && items.every((i) => isGiftCardCategory(i.product.category));
+  const giftSubtotal = items
+    .filter((i) => isGiftCardCategory(i.product.category))
+    .reduce((s, i) => s + itemUnitPrice(i) * i.qty, 0);
+  const shippingFee = shippingMethod !== "pickup" && items.length > 0 && !hasBoot && !giftOnly ? SMALL_ITEM_SHIPPING : 0;
 
-  const taxableAmount = Math.max(0, subtotal - discount);
+  const taxableAmount = Math.max(0, subtotal - giftSubtotal - discount);
   const tax = Math.round(taxableAmount * 0.06 * 100) / 100;
-  const total = Math.round((taxableAmount + tax + shippingFee) * 100) / 100;
+  const total = Math.round((taxableAmount + tax + giftSubtotal + shippingFee) * 100) / 100;
 
   const [form, setForm] = useState({
     firstName: user?.name?.split(" ")[0] ?? "",
@@ -116,7 +122,7 @@ function CheckoutForm() {
     if (beginCheckoutFired.current || items.length === 0) return;
     beginCheckoutFired.current = true;
     trackBeginCheckout({
-      value: taxableAmount,
+      value: taxableAmount + giftSubtotal,
       items: items.map((i) => ({
         item_id: i.product.stockNo,
         item_name: i.product.name,
@@ -126,7 +132,7 @@ function CheckoutForm() {
         item_variant: `${i.product.colorLeather} · ${i.size}`,
       })),
     });
-  }, [items, taxableAmount]);
+  }, [items, taxableAmount, giftSubtotal]);
 
   // Prefill from the logged-in account once it loads (only empty fields, don't clobber typing).
   useEffect(() => {
@@ -201,7 +207,7 @@ function CheckoutForm() {
     if (!form.lastName.trim()) e.lastName = "Required";
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = "Valid email required";
     if (!form.phone.trim()) e.phone = "Required";
-    if (shippingMethod === "ship") {
+    if (shippingMethod === "ship" && !giftOnly) {
       if (!form.address.trim()) e.address = "Required";
       if (!form.city.trim()) e.city = "Required";
       if (!form.state.trim()) e.state = "Required";
@@ -237,7 +243,7 @@ function CheckoutForm() {
         coupon,
         discount,
         shippingMethod,
-        payAtPickup: shippingMethod === "pickup" && payAtPickup,
+        payAtPickup: shippingMethod === "pickup" && payAtPickup && !hasGift,
         billing: form,
       }),
     });
@@ -247,7 +253,7 @@ function CheckoutForm() {
     else if (data.error === "sales_paused") {
       alert(`${data.message}${data.phone ? `\n\nCall us: ${data.phone}` : ""}`);
       setLoading(false);
-    } else { alert("Checkout error. Please try again."); setLoading(false); }
+    } else { alert(data.message ?? "Checkout error. Please try again."); setLoading(false); }
   }
 
   if (items.length === 0) {
@@ -315,7 +321,15 @@ function CheckoutForm() {
                   <h2 className="font-black text-navy text-lg">Delivery</h2>
                   <Link href="/cart" className="text-xs text-navy hover:text-red font-semibold">Change</Link>
                 </div>
-                {shippingMethod === "pickup" ? (
+                {giftOnly ? (
+                  <div className="flex items-center gap-3 bg-cream rounded-xl p-4">
+                    <span className="text-2xl">🎁</span>
+                    <div>
+                      <p className="font-bold text-navy text-sm">Delivered by email</p>
+                      <p className="text-xs text-gray-500">Your gift card code and printable card are sent to the email above right after payment.</p>
+                    </div>
+                  </div>
+                ) : shippingMethod === "pickup" ? (
                   <div className="flex items-center gap-3 bg-cream rounded-xl p-4">
                     <span className="text-2xl">🏪</span>
                     <div>
@@ -488,7 +502,7 @@ function CheckoutForm() {
                 ) : (
                   <>
                     {/* Payment choice — store pickup can pay online or in store */}
-                    {shippingMethod === "pickup" && (
+                    {shippingMethod === "pickup" && !hasGift && (
                       <div className="space-y-2 mb-4">
                         <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Payment</p>
                         {([
@@ -519,10 +533,10 @@ function CheckoutForm() {
                       disabled={loading}
                       className="w-full py-4 text-base font-bold rounded-xl uppercase tracking-wide transition bg-amber-500 hover:bg-amber-400 text-white shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      {loading ? "Placing…" : (shippingMethod === "pickup" && payAtPickup ? "Place Pickup Order →" : "Continue to Payment →")}
+                      {loading ? "Placing…" : (shippingMethod === "pickup" && payAtPickup && !hasGift ? "Place Pickup Order →" : "Continue to Payment →")}
                     </button>
                     <p className="text-xs text-gray-400 text-center mt-3">
-                      {shippingMethod === "pickup" && payAtPickup
+                      {shippingMethod === "pickup" && payAtPickup && !hasGift
                         ? "Your order will be prepared for in-store pickup — pay when you collect it."
                         : "You'll be redirected to Stripe for secure payment."}
                     </p>

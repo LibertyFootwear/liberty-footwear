@@ -20,7 +20,8 @@ export default function PublicChrome({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAdmin = pathname?.startsWith("/admin") ?? false;
+  // Admin has its own shell; the printable gift card is a standalone sheet (nothing else should print).
+  const isAdmin = (pathname?.startsWith("/admin") || pathname?.startsWith("/gift-card/print")) ?? false;
 
   return (
     <>

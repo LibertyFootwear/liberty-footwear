@@ -1,5 +1,5 @@
-export type ProductFamily = "Gary" | "Terry" | "Larry" | "Kenny" | "Apparel" | "Insoles" | "Care";
-export type ProductCategory = "Work" | "Casual" | "Outdoors" | "Safety" | "One of a Kind" | "Apparel" | "Insoles" | "Care";
+export type ProductFamily = "Gary" | "Terry" | "Larry" | "Kenny" | "Apparel" | "Insoles" | "Care" | "Gift Card";
+export type ProductCategory = "Work" | "Casual" | "Outdoors" | "Safety" | "One of a Kind" | "Apparel" | "Insoles" | "Care" | "Gift Cards";
 
 export interface Product {
   stockNo: string;
@@ -76,6 +76,8 @@ const IMG_EXT: Record<string, string> = {
   "KS0012":"jpg","KS0013":"jpg",
   // Insoles
   "KS0004":"png","KS0005":"png",
+  // Gift cards
+  "KS0020":"png","KS0021":"png","KS0022":"png",
 };
 
 function img(stockNo: string, ext?: string): string | null {
@@ -637,6 +639,37 @@ const _raw: RawProduct[] = [
     apparelSizes: ["1 kg (35¼ oz)"],
     sizes: "", price: 75, isNew: true, image: img("KS0013"),
     gallery: ["/products/KS0013.jpg", "/products/KS0013-2.jpg"],
+  },
+  // ── Gift cards ──────────────────────────────────────────────────────────────
+  {
+    stockNo: "KS0020", slug: slug("KS0020","liberty-gift-card-100"),
+    name: "Liberty Footwear Gift Card", family: "Gift Card", safetyToe: false,
+    colorLeather: "$100", outsoleType: "", colorOutsole: "",
+    categoryOverride: "Gift Cards",
+    shortDescription: "$100 e-gift card · delivered by email · print at home",
+    description: "Give the gift of American-made boots. Your $100 Liberty Footwear Gift Card is delivered to your email within minutes of purchase, with a unique redemption code and a ready-to-print card you can hand to someone special. Redeem it on libertyfootwear.com by entering the code at checkout, or show it in our Grand Rapids store. Good toward boots, apparel, insoles and leather care. Applies to a single order — use the full amount in one purchase. Never expires.",
+    apparelSizes: ["E-gift card"],
+    sizes: "", price: 100, isNew: false, image: img("KS0020"),
+  },
+  {
+    stockNo: "KS0021", slug: slug("KS0021","liberty-gift-card-200"),
+    name: "Liberty Footwear Gift Card", family: "Gift Card", safetyToe: false,
+    colorLeather: "$200", outsoleType: "", colorOutsole: "",
+    categoryOverride: "Gift Cards",
+    shortDescription: "$200 e-gift card · delivered by email · print at home",
+    description: "Give the gift of American-made boots. Your $200 Liberty Footwear Gift Card is delivered to your email within minutes of purchase, with a unique redemption code and a ready-to-print card you can hand to someone special. Redeem it on libertyfootwear.com by entering the code at checkout, or show it in our Grand Rapids store. Good toward boots, apparel, insoles and leather care. Applies to a single order — use the full amount in one purchase. Never expires.",
+    apparelSizes: ["E-gift card"],
+    sizes: "", price: 200, isNew: false, image: img("KS0021"),
+  },
+  {
+    stockNo: "KS0022", slug: slug("KS0022","liberty-gift-card-300"),
+    name: "Liberty Footwear Gift Card", family: "Gift Card", safetyToe: false,
+    colorLeather: "$300", outsoleType: "", colorOutsole: "",
+    categoryOverride: "Gift Cards",
+    shortDescription: "$300 e-gift card · delivered by email · print at home",
+    description: "Give the gift of American-made boots. Your $300 Liberty Footwear Gift Card is delivered to your email within minutes of purchase, with a unique redemption code and a ready-to-print card you can hand to someone special. Redeem it on libertyfootwear.com by entering the code at checkout, or show it in our Grand Rapids store. Good toward boots, apparel, insoles and leather care. Applies to a single order — use the full amount in one purchase. Never expires.",
+    apparelSizes: ["E-gift card"],
+    sizes: "", price: 300, isNew: false, image: img("KS0022"),
   },
 ];
 

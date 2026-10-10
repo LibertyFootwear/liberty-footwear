@@ -7,7 +7,7 @@ import { Product, parseSizes } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 import { BootAddons, DEFAULT_ADDONS, INSOLE_CHOICES, ADDON_PRICES, addonsSurcharge, takesAddons } from "@/lib/bootAddons";
-import { isBootCategory } from "@/lib/shipping";
+import { isBootCategory, isGiftCardCategory } from "@/lib/shipping";
 import { trackAddToCart } from "@/lib/gtag";
 
 const LEATHER_COLORS: Record<string, string> = {
@@ -61,13 +61,14 @@ export default function ProductOptions({ product, variants }: Props) {
 
   // Care products (e.g. leather seal) come in multiple package sizes, each its own
   // product — offer them as a package selector that navigates between variants.
-  const isCare = product.category === "Care";
+  const isGift = isGiftCardCategory(product.category);
+  const isCare = product.category === "Care" || isGift;
   const packageVariants = isCare
     ? [...variants].sort((a, b) => a.price - b.price)
     : [];
 
   // Nudge shown after adding a non-boot item while the cart still has no boots.
-  const showShippingHint = !isBootCategory(product.category) && !items.some((i) => isBootCategory(i.product.category));
+  const showShippingHint = !isGift && !isBootCategory(product.category) && !items.some((i) => isBootCategory(i.product.category));
 
   const sizeMap = parseSizes(product.sizes);
   const widths = Object.keys(sizeMap);
@@ -122,7 +123,7 @@ export default function ProductOptions({ product, variants }: Props) {
     <div className="space-y-6">
 
       {/* Leather color */}
-      {leatherColors.length > 1 && (
+      {leatherColors.length > 1 && !isGift && (
         <div>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">
             {isApparel ? "Color" : "Leather Color"} — <span className="text-navy normal-case font-semibold">{product.colorLeather}</span>
@@ -224,7 +225,7 @@ export default function ProductOptions({ product, variants }: Props) {
       {/* Size / Package */}
       <div>
         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">
-          {isCare ? "Package" : "Size"}{sizeLabel ? ` — ${sizeLabel}` : ""}
+          {isGift ? "Amount" : isCare ? "Package" : "Size"}{sizeLabel && !isGift ? ` — ${sizeLabel}` : ""}
         </p>
         <div className="flex flex-wrap gap-2">
           {isCare && packageVariants.length > 1
@@ -240,7 +241,7 @@ export default function ProductOptions({ product, variants }: Props) {
                       active ? "border-navy bg-navy text-white" : "border-gray-200 text-gray-700 hover:border-navy"
                     }`}
                   >
-                    {label} · ${v.price}
+                    {isGift ? `$${v.price}` : `${label} · $${v.price}`}
                   </button>
                 );
               })
