@@ -1,52 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { env } from "@/lib/env";
+import { tryUpsertCustomer } from "@/lib/customersDb";
+import { stockLine, isReturnRow, applyStock } from "@/lib/retailSalesStock";
 
 /**
  * Google Sheet → admin write-back. Called by the RetailSales tab's installable
  * onEdit trigger (see scripts/google-apps-script.gs). Authenticated by the shared
- * SHEETS_WEBHOOK_SECRET, not an admin cookie. Upserts a single row into
- * retail_sales, keyed by id; a new (id-less) row is inserted and its id returned
- * so the sheet can write it back into column A.
+ * SHEETS_WEBHOOK_SECRET, not an admin cookie.
  *
- * Note: this path intentionally does NOT mirror back to the Sheet — the row is
- * already what the user typed there, and re-writing it could clobber their edit.
+ * Bodies:
+ *  - { row }   / { rows }  upsert by id (id-less row = insert, id returned so the sheet can store it)
+ *  - { action: "delete", ids } delete rows (stock effect reversed)
+ *
+ * Mirrors what /api/admin/sales does: links the customer registry and reconciles
+ * inventory. It intentionally does NOT mirror back to the Sheet — that would
+ * clobber the user's in-progress edit.
  */
-export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => ({})) as { secret?: string; row?: Record<string, unknown> };
 
-  if (!env.SHEETS_WEBHOOK_SECRET || body.secret !== env.SHEETS_WEBHOOK_SECRET) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
-  const row = body.row ?? {};
+type Row = Record<string, unknown>;
+type Result = { id?: string; inserted?: boolean; error?: string };
 
-  const str = (v: unknown) => {
-    const s = v == null ? "" : String(v).trim();
-    return s === "" ? null : s;
-  };
-  const toDate = (v: unknown): string | null => {
-    const s = v == null ? "" : String(v).trim();
-    if (!s) return null;
-    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
-    const d = new Date(s);
-    return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
-  };
-  const toBool = (v: unknown): boolean => {
-    const s = String(v ?? "").trim().toLowerCase();
-    if (s === "") return true;
-    return !["no", "false", "0", "unpaid", "n"].includes(s);
-  };
-  const toNum = (v: unknown): number | null => {
-    if (v == null || String(v).trim() === "") return null;
-    const n = parseFloat(String(v).replace(/[^0-9.\-]/g, ""));
-    return isNaN(n) ? null : n;
-  };
+const str = (v: unknown) => {
+  const s = v == null ? "" : String(v).trim();
+  return s === "" ? null : s;
+};
+const toDate = (v: unknown): string | null => {
+  const s = v == null ? "" : String(v).trim();
+  if (!s) return null;
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+};
+const toBool = (v: unknown): boolean => {
+  if (typeof v === "boolean") return v;
+  const s = String(v ?? "").trim().toLowerCase();
+  if (s === "") return true;
+  return !["no", "false", "0", "unpaid", "n"].includes(s);
+};
+const toNum = (v: unknown): number | null => {
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  if (v == null || String(v).trim() === "") return null;
+  const n = parseFloat(String(v).replace(/[^0-9.\-]/g, ""));
+  return isNaN(n) ? null : n;
+};
 
+async function saveRow(row: Row): Promise<Result> {
   const sale_date = toDate(row.sale_date);
   const stock_no = str(row.stock_no);
-  if (!sale_date || !stock_no) {
-    return NextResponse.json({ error: "Row needs a valid date and stock #." }, { status: 400 });
-  }
+  if (!sale_date || !stock_no) return { error: "Row needs a valid date and stock #." };
 
   const fields = {
     sale_date,
@@ -66,17 +68,73 @@ export async function POST(req: NextRequest) {
     notes: str(row.notes),
   };
 
+  const customer_id =
+    fields.customer_name || fields.phone || fields.customer_email
+      ? (await tryUpsertCustomer({
+          name: fields.customer_name ?? undefined,
+          phone: fields.phone ?? undefined,
+          email: fields.customer_email ?? undefined,
+          employer: fields.customer_employer ?? undefined,
+          referralSource: fields.referral_source ?? undefined,
+          source: "store",
+          purchaseAt: new Date(sale_date + "T12:00:00").toISOString(),
+        })) ?? null
+      : null;
+
   const sb = getSupabase();
   const id = str(row.id);
 
   if (id) {
-    const { data, error } = await sb.from("retail_sales").update(fields).eq("id", id).select("id");
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    // If the id wasn't found (deleted?), fall through to insert a fresh row.
-    if (data && data.length > 0) return NextResponse.json({ ok: true, id });
+    const { data: old } = await sb.from("retail_sales")
+      .select("stock_no, size, width, qty, total").eq("id", id).maybeSingle();
+    if (old) {
+      const { error } = await sb.from("retail_sales").update({ ...fields, customer_id }).eq("id", id);
+      if (error) return { error: error.message };
+      // Reverse the old row's stock effect, apply the edited row's (net zero if unchanged).
+      await applyStock(stockLine(old.stock_no, old.size, old.width, old.qty), !isReturnRow(old.total));
+      await applyStock(stockLine(fields.stock_no, fields.size, fields.width, fields.qty), isReturnRow(fields.total));
+      return { id };
+    }
+    // Unknown id (deleted in admin?) → fall through and insert as a fresh row.
   }
 
-  const { data, error } = await sb.from("retail_sales").insert(fields).select("id").single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true, id: data?.id, inserted: true });
+  const { data, error } = await sb.from("retail_sales").insert({ ...fields, customer_id }).select("id").single();
+  if (error) return { error: error.message };
+  await applyStock(stockLine(fields.stock_no, fields.size, fields.width, fields.qty), isReturnRow(fields.total));
+  return { id: data?.id, inserted: true };
+}
+
+export async function POST(req: NextRequest) {
+  const body = (await req.json().catch(() => ({}))) as {
+    secret?: string; action?: string; ids?: unknown[]; row?: Row; rows?: Row[];
+  };
+
+  if (!env.SHEETS_WEBHOOK_SECRET || body.secret !== env.SHEETS_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  if (body.action === "delete") {
+    const sb = getSupabase();
+    let deleted = 0;
+    for (const id of (body.ids ?? []).map(String).filter(Boolean)) {
+      const { data: old } = await sb.from("retail_sales")
+        .select("stock_no, size, width, qty, total").eq("id", id).maybeSingle();
+      if (!old) continue;
+      const { error } = await sb.from("retail_sales").delete().eq("id", id);
+      if (error) continue;
+      await applyStock(stockLine(old.stock_no, old.size, old.width, old.qty), !isReturnRow(old.total));
+      deleted++;
+    }
+    return NextResponse.json({ ok: true, deleted });
+  }
+
+  if (Array.isArray(body.rows)) {
+    const results: Result[] = [];
+    for (const r of body.rows) results.push(await saveRow(r));
+    return NextResponse.json({ ok: true, results });
+  }
+
+  const r = await saveRow(body.row ?? {});
+  if (r.error) return NextResponse.json({ error: r.error }, { status: 400 });
+  return NextResponse.json({ ok: true, ...r });
 }

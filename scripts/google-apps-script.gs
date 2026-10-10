@@ -26,6 +26,7 @@ var TAB_NAME = "RetailSales";
 //   event type: On edit. (A simple onEdit can't call the network — must be installable.)
 var ADMIN_PULL_URL = "https://www.libertyfootwear.com/api/sheets/sales-pull";
 
+// Column R (right after the data) shows a "⚠ error" if admin rejected an edited row.
 // Must match SHEET_COLUMNS in src/lib/sheetsSync.ts (same order).
 var COLS = [
   "id", "sale_date", "stock_no", "size", "width", "qty", "paid", "total",
@@ -116,50 +117,93 @@ function json(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+/** Cell value → plain JSON value (Dates become yyyy-MM-dd in the sheet's timezone, no UTC shift). */
+function normalize(v) {
+  if (v instanceof Date) {
+    return Utilities.formatDate(v, SpreadsheetApp.getActive().getSpreadsheetTimeZone(), "yyyy-MM-dd");
+  }
+  return v;
+}
+
+function rowToObj(values) {
+  var o = {};
+  for (var i = 0; i < COLS.length; i++) o[COLS[i]] = normalize(values[i]);
+  return o;
+}
+
+function callAdmin(payload) {
+  payload.secret = SECRET;
+  var res = UrlFetchApp.fetch(ADMIN_PULL_URL, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true,
+  });
+  try { return JSON.parse(res.getContentText()); } catch (e) { return {}; }
+}
+
 /**
- * Two-way sync: push a manually edited RetailSales row back to the admin DB.
+ * Two-way sync: push manually edited/pasted RetailSales rows back to the admin DB.
  * Attach as an INSTALLABLE "On edit" trigger (see ADMIN_PULL_URL note above).
  * Programmatic writes from the web app (admin → sheet) do NOT fire this, so
- * there's no sync loop.
+ * there's no sync loop. New rows get their id written back into column A.
  */
 function onSheetEdit(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
   try {
     if (!e || !e.range) return;
     var sheet = e.range.getSheet();
     if (sheet.getName() !== TAB_NAME) return;
 
-    var startRow = e.range.getRow();
-    var numRows = e.range.getNumRows();
-    if (startRow + numRows - 1 < 2) return; // header only
+    var first = Math.max(e.range.getRow(), 2); // never the header
+    var last = e.range.getRow() + e.range.getNumRows() - 1;
+    if (last < first) return;
 
-    for (var r = Math.max(startRow, 2); r < startRow + numRows; r++) {
-      pushRowToAdmin(sheet, r);
+    var data = sheet.getRange(first, 1, last - first + 1, COLS.length).getValues();
+    var rows = [], rowNums = [];
+    for (var i = 0; i < data.length; i++) {
+      var o = rowToObj(data[i]);
+      if (!o.sale_date && !o.stock_no) continue; // blank row
+      rows.push(o);
+      rowNums.push(first + i);
+    }
+    if (!rows.length) return;
+
+    var out = callAdmin({ rows: rows });
+    var results = out.results || [];
+    for (var j = 0; j < results.length; j++) {
+      var r = results[j];
+      if (r && r.id && !rows[j].id) sheet.getRange(rowNums[j], 1).setValue(r.id);
+      if (r && r.error) sheet.getRange(rowNums[j], COLS.length + 1).setValue("⚠ " + r.error);
+      else if (r) sheet.getRange(rowNums[j], COLS.length + 1).clearContent();
     }
   } catch (err) {
-    // Never throw from a trigger — just log.
-    console.error("onSheetEdit failed: " + err);
+    console.error("onSheetEdit failed: " + err); // never throw from a trigger
+  } finally {
+    lock.releaseLock();
   }
 }
 
-function pushRowToAdmin(sheet, rowNum) {
-  var values = sheet.getRange(rowNum, 1, 1, COLS.length).getValues()[0];
-  var rowObj = {};
-  for (var i = 0; i < COLS.length; i++) rowObj[COLS[i]] = values[i];
+/** Menu: Liberty → Delete selected rows from admin (also reverses their stock effect). */
+function onOpen() {
+  SpreadsheetApp.getUi().createMenu("Liberty")
+    .addItem("Delete selected rows from admin", "deleteSelectedFromAdmin")
+    .addToUi();
+}
 
-  // Skip blank rows (need at least a date and stock #).
-  if (!rowObj.sale_date && !rowObj.stock_no) return;
-
-  var res = UrlFetchApp.fetch(ADMIN_PULL_URL, {
-    method: "post",
-    contentType: "application/json",
-    payload: JSON.stringify({ secret: SECRET, row: rowObj }),
-    muteHttpExceptions: true,
-  });
-  var out = {};
-  try { out = JSON.parse(res.getContentText()); } catch (e2) { return; }
-
-  // New row created in admin → write its id back into column A so future edits update it.
-  if (out && out.id && !rowObj.id) {
-    sheet.getRange(rowNum, 1).setValue(out.id);
-  }
+function deleteSelectedFromAdmin() {
+  var ui = SpreadsheetApp.getUi();
+  var sheet = SpreadsheetApp.getActiveSheet();
+  if (sheet.getName() !== TAB_NAME) { ui.alert("Open the " + TAB_NAME + " tab first."); return; }
+  var range = sheet.getActiveRange();
+  var first = Math.max(range.getRow(), 2);
+  var last = range.getRow() + range.getNumRows() - 1;
+  if (last < first) return;
+  var ids = sheet.getRange(first, 1, last - first + 1, 1).getValues()
+    .map(function (r) { return String(r[0]); }).filter(String);
+  if (ui.alert("Delete " + (last - first + 1) + " row(s) from the sheet AND admin? Stock will be adjusted.",
+      ui.ButtonSet.OK_CANCEL) !== ui.Button.OK) return;
+  if (ids.length) callAdmin({ action: "delete", ids: ids });
+  sheet.deleteRows(first, last - first + 1);
 }
