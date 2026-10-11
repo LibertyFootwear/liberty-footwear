@@ -320,15 +320,6 @@ export default function CartPage() {
               {couponError && <p className="text-xs text-red mt-2">{couponError}</p>}
             </div>
             {/* Shipping method */}
-            {giftOnly ? (
-              <div className="border border-gray-200 rounded-xl p-5 flex items-center gap-3">
-                <span className="text-2xl">🎁</span>
-                <div>
-                  <p className="font-bold text-navy text-sm">Delivered by email</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Your gift card code and a printable card arrive within minutes of payment.</p>
-                </div>
-              </div>
-            ) : (
             <div className="border border-gray-200 rounded-xl p-5">
               <p className="text-sm font-bold text-navy mb-3">Delivery method</p>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -339,10 +330,14 @@ export default function CartPage() {
                     shippingMethod === "ship" ? "border-navy bg-navy/5" : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
-                  <span className="mt-0.5 text-xl">📦</span>
+                  <span className="mt-0.5 text-xl">{giftOnly ? "📧" : "📦"}</span>
                   <div>
-                    <p className="font-bold text-navy text-sm">Ship to me</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{shippingFee > 0 ? `$${SMALL_ITEM_SHIPPING}` : "Free"} · 3–7 business days</p>
+                    <p className="font-bold text-navy text-sm">{giftOnly ? "Send by email" : "Ship to me"}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {giftOnly
+                        ? "Free · gift card code + printable card emailed within minutes"
+                        : `${shippingFee > 0 ? `$${SMALL_ITEM_SHIPPING}` : "Free"} · 3–7 business days`}
+                    </p>
                   </div>
                   {shippingMethod === "ship" && (
                     <span className="ml-auto mt-0.5 w-4 h-4 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
@@ -360,7 +355,11 @@ export default function CartPage() {
                   <span className="mt-0.5 text-xl">🏪</span>
                   <div>
                     <p className="font-bold text-navy text-sm">Pick up in store</p>
-                    <p className="text-xs text-gray-500 mt-0.5">Free · Grand Rapids, MI · You&apos;ll be notified when ready</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {hasGift
+                        ? "Free · Grand Rapids, MI · Your gift card is handed to you in store — no email with the code"
+                        : "Free · Grand Rapids, MI · You'll be notified when ready"}
+                    </p>
                   </div>
                   {shippingMethod === "pickup" && (
                     <span className="ml-auto mt-0.5 w-4 h-4 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
@@ -370,7 +369,6 @@ export default function CartPage() {
                 </button>
               </div>
             </div>
-            )}
           </div>
 
           {/* Summary */}

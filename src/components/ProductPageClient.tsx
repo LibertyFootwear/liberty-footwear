@@ -143,7 +143,7 @@ export default function ProductPageClient({ p, variants, related, reviewStats }:
             {isGift ? (
               <div className="mt-4 flex items-center justify-center gap-2 text-xs text-navy bg-tan/15 border border-tan/40 rounded-lg px-4 py-2.5">
                 <span className="text-base leading-none">🎁</span>
-                <span>Delivered by email within minutes — <span className="font-bold text-green-700">no shipping</span>, with a card you can print and give.</span>
+                <span>Emailed within minutes with a card you can print — or <span className="font-bold text-green-700">pick it up in store</span> at checkout. No shipping.</span>
               </div>
             ) : !isApparel && !isInsole ? (
               <p className="text-xs text-gray-400 mt-4 text-center">{t.product.freeShipping}</p>

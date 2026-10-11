@@ -72,6 +72,8 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
   const isGift = (stockNo: string) => isGiftCardCategory(products.find((p) => p.stockNo === stockNo)?.category);
   const giftItems = items.filter((it) => isGift(it.stockNo));
   const giftOnly = giftItems.length > 0 && giftItems.length === items.length;
+  // Picked up in store → staff hand over the card, so the code is not emailed to the customer.
+  const giftPickup = giftItems.length > 0 && session.metadata?.shippingMethod === "pickup";
   const giftCards: { code: string; amount: number }[] = [];
   for (const it of giftItems) {
     const amount = Math.round(it.price);
@@ -85,8 +87,9 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
     customerId,
     items,
     total,
-    // Gift-card-only orders are fulfilled instantly by email, so they skip the shipping queue.
-    status: giftOnly && shippingEmail ? "delivered" : "paid",
+    // Gift-card-only orders emailed to the customer are fulfilled instantly, so they skip the
+    // queue. In-store pickups stay "paid" so staff see them and hand over the card.
+    status: giftOnly && !giftPickup && shippingEmail ? "delivered" : "paid",
     createdAt,
     shippingName,
     shippingEmail,
@@ -121,8 +124,9 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
         orderId,
         // Our own branded, printable invoice — no Stripe Invoicing fee.
         invoiceUrl: `${publicEnv.NEXT_PUBLIC_BASE_URL}/invoice/${orderId}`,
-        giftCards,
+        giftCards: giftPickup ? undefined : giftCards,
         giftOnly,
+        giftPickup,
         baseUrl: publicEnv.NEXT_PUBLIC_BASE_URL,
       });
     } catch (err) {
@@ -148,6 +152,8 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
         country: addr.country,
       } : undefined,
       baseUrl: publicEnv.NEXT_PUBLIC_BASE_URL,
+      giftCards,
+      giftPickup,
     });
   } catch (err) {
     console.error("New-order admin email failed (order still recorded):", err);

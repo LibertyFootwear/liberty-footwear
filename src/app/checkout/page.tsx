@@ -321,7 +321,7 @@ function CheckoutForm() {
                   <h2 className="font-black text-navy text-lg">Delivery</h2>
                   <Link href="/cart" className="text-xs text-navy hover:text-red font-semibold">Change</Link>
                 </div>
-                {giftOnly ? (
+                {giftOnly && shippingMethod !== "pickup" ? (
                   <div className="flex items-center gap-3 bg-cream rounded-xl p-4">
                     <span className="text-2xl">🎁</span>
                     <div>
@@ -334,7 +334,11 @@ function CheckoutForm() {
                     <span className="text-2xl">🏪</span>
                     <div>
                       <p className="font-bold text-navy text-sm">Pick up in store</p>
-                      <p className="text-xs text-gray-500">Free · Grand Rapids, MI · You&apos;ll be notified when ready</p>
+                      <p className="text-xs text-gray-500">
+                        {hasGift
+                          ? "Free · Grand Rapids, MI · Your gift card is handed to you in store — no email with the code is sent"
+                          : "Free · Grand Rapids, MI · You'll be notified when ready"}
+                      </p>
                     </div>
                   </div>
                 ) : (

@@ -104,6 +104,8 @@ export interface OrderConfirmationEmail {
   baseUrl?: string;
   /** Order contains only gift cards (nothing ships). */
   giftOnly?: boolean;
+  /** Gift card(s) collected in store — the code is NOT emailed to the customer. */
+  giftPickup?: boolean;
   /** Value for the logo <img> src (a cid: ref for real mail, a data: URI for previews). */
   logoSrc?: string;
   /** Override the sender address (defaults to FROM). Used for testing before domain verification. */
@@ -119,6 +121,8 @@ export function buildOrderEmailHtml(o: OrderConfirmationEmail): string {
 
   const intro = o.payAtPickup
     ? "Your order is placed! We're preparing it for pickup — pay in store when you collect it."
+    : o.giftPickup
+    ? "We've received your payment. Your gift card will be waiting for you at our Grand Rapids store — we'll hand it to you when you stop in."
     : o.giftOnly
     ? "We've received your payment — your gift card is ready below. Print it or forward this email to the lucky person."
     : "We've received your payment and your order is confirmed. We'll email you again as soon as we start preparing it for shipment.";
@@ -184,6 +188,10 @@ export interface NewOrderAdminEmail {
   shippingAddress?: { line1?: string; city?: string; state?: string; postalCode?: string; country?: string };
   /** Absolute base URL (no trailing slash) for the admin edit link. */
   baseUrl: string;
+  /** Gift cards issued by this order (codes) — the shop needs them for in-store handover. */
+  giftCards?: { code: string; amount: number }[];
+  /** Customer collects the gift card in store; no code was emailed to them. */
+  giftPickup?: boolean;
   logoSrc?: string;
   from?: string;
 }
@@ -199,6 +207,15 @@ export function buildNewOrderAdminHtml(o: NewOrderAdminEmail): string {
   const detail = (label: string, value: string) =>
     `<tr><td style="padding:2px 0;color:#9ca3af;font-size:13px;width:90px;">${label}</td><td style="padding:2px 0;color:${NAVY};font-size:13px;">${value}</td></tr>`;
 
+  const giftAdminBlock = (o.giftCards ?? []).length
+    ? `<div style="margin:0 0 20px;padding:14px 16px;border:2px solid ${o.giftPickup ? RED : NAVY};border-radius:8px;">
+        <p style="margin:0 0 8px;color:${o.giftPickup ? RED : NAVY};font-size:13px;font-weight:800;">${o.giftPickup ? "🎁 GIFT CARD FOR STORE PICKUP — customer was NOT emailed the code" : "🎁 Gift card(s) emailed to the customer"}</p>
+        ${(o.giftCards ?? [])
+          .map((g) => `<p style="margin:0 0 4px;color:${NAVY};font-size:14px;">${money(g.amount)} — <strong style="font-family:'Courier New',monospace;letter-spacing:1px;">${esc(g.code)}</strong> · <a href="${esc(`${o.baseUrl}/gift-card/print?code=${encodeURIComponent(g.code)}`)}" style="color:${RED};">print card</a></p>`)
+          .join("")}
+      </div>`
+    : "";
+
   const inner = `
     <h1 style="margin:0 0 6px;color:${NAVY};font-size:22px;">New order received 🔔</h1>
     <p style="margin:0 0 18px;color:#9ca3af;font-size:12px;">Order #${esc(shortId)} · ${money(o.total)}</p>
@@ -208,6 +225,7 @@ export function buildNewOrderAdminHtml(o: NewOrderAdminEmail): string {
       ${o.customerPhone ? detail("Phone", esc(o.customerPhone)) : ""}
       ${detail("Ship to", addr)}
     </table>
+    ${giftAdminBlock}
     ${itemsTable(o.items, o.total)}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0 0;">
       <tr><td align="center">
