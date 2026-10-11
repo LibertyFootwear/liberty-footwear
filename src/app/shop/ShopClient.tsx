@@ -6,9 +6,10 @@ import { Product, ProductCategory } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import { useLang } from "@/context/LanguageContext";
 import { trackViewItemList } from "@/lib/gtag";
+import Image from "next/image";
 import { Suspense, useState, useEffect } from "react";
 
-const CATEGORIES: { id: ProductCategory; label: string; desc: string }[] = [
+const CATEGORIES: { id: ProductCategory; label: string; desc: string; image?: string }[] = [
   { id: "Work",          label: "Work",          desc: "Rugged everyday boots built for long shifts on hard surfaces." },
   { id: "Casual",        label: "Casual",        desc: "Comfortable leather boots for off-the-clock, everyday wear." },
   { id: "Outdoors",      label: "Outdoors",      desc: "Waterproof hikers with aggressive lug soles for the trail." },
@@ -17,8 +18,11 @@ const CATEGORIES: { id: ProductCategory; label: string; desc: string }[] = [
   { id: "Insoles",       label: "Insoles",       desc: "Removable cushioned footbeds to refresh any pair." },
   { id: "Apparel",       label: "Apparel",       desc: "Liberty Footwear tees and caps — wear the brand." },
   { id: "Care",          label: "Leather Care",  desc: "All-natural conditioners to clean, waterproof and protect your leather." },
-  { id: "Gift Cards",    label: "Gift Cards",    desc: "Give the gift of American-made boots — delivered by email, printable at home." },
+  { id: "Gift Cards",    label: "Gift Cards",    desc: "Give the gift of American-made boots — emailed in minutes, printable at home, or pick up in store.", image: "/categories/gift-cards.png" },
 ];
+
+// Only real footwear categories read as "<name> Boots"; the rest use their own label.
+const BOOT_CATEGORY_IDS: ProductCategory[] = ["Work", "Casual", "Outdoors", "Safety", "One of a Kind"];
 
 const PRICE_RANGES = [
   { id: "under215", label: "Under $215", min: 0,   max: 214 },
@@ -291,6 +295,7 @@ function ShopContent({ products }: { products: Product[] }) {
                   Insoles:        "bg-[#3A5A6B]",
                   Apparel:        "bg-[#1e3a5f]",
                   Care:           "bg-[#8A6A1F]",
+                  "Gift Cards":   "bg-navy",
                 };
                 return (
                   <button
@@ -299,9 +304,14 @@ function ShopContent({ products }: { products: Product[] }) {
                     onClick={() => setParam("category", isActive ? null : c.id)}
                     className={`relative rounded-xl p-6 text-left transition hover:scale-[1.02] hover:shadow-lg ${BG[c.id]} ${isActive ? "ring-4 ring-offset-2 ring-navy" : ""}`}
                   >
+                    {c.image && (
+                      <div className="relative w-full aspect-[3/2] -mt-2 mb-3">
+                        <Image src={c.image} alt={`${c.label} — Liberty Footwear`} fill className="object-contain" sizes="(max-width: 1024px) 50vw, 20vw" />
+                      </div>
+                    )}
                     <p className="font-black text-white text-lg leading-tight">{c.label}</p>
                     <p className="text-white/75 text-xs mt-2 leading-snug">{c.desc}</p>
-                    <p className="text-white/50 text-xs mt-2">{count} styles</p>
+                    <p className="text-white/50 text-xs mt-2">{count} {c.id === "Gift Cards" ? "amounts" : "styles"}</p>
                     {isActive && (
                       <span className="absolute top-3 right-3 bg-white text-navy text-xs font-bold px-2 py-0.5 rounded-full">Active</span>
                     )}
@@ -315,7 +325,7 @@ function ShopContent({ products }: { products: Product[] }) {
           <div className="flex items-center justify-between gap-4 mb-6">
             <div>
               <h1 className="text-2xl font-black text-navy">
-                {cat ? `${cat} Boots` : t.shop.title}
+                {cat ? (BOOT_CATEGORY_IDS.includes(cat) ? `${cat} Boots` : (CATEGORIES.find((c) => c.id === cat)?.label ?? cat)) : t.shop.title}
               </h1>
               {cat && (
                 <p className="text-gray-500 text-sm mt-1 max-w-xl">{CATEGORIES.find((c) => c.id === cat)?.desc}</p>
