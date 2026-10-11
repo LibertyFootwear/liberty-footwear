@@ -366,6 +366,37 @@ export default function HomePage() {
         </section>
       )}
 
+      {/* ── GIFT CARDS (Christmas gift) ── */}
+      <section className="bg-white py-20 lg:py-24 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div>
+              <p className="text-red text-xs font-black tracking-widest uppercase mb-3">The Gift of Good Boots</p>
+              <h2 className="text-3xl lg:text-4xl font-black text-navy leading-tight">Looking for an original Christmas gift?</h2>
+              <div className="w-16 h-1 bg-red mt-4 mb-6" />
+              <p className="text-gray-700 text-lg leading-relaxed mb-3">
+                Give a Liberty Footwear Gift Card — $100, $200 or $300 toward American-made boots they&apos;ll actually wear.
+              </p>
+              <p className="text-gray-500 leading-relaxed mb-8">
+                Emailed to you within minutes with a card you can print and wrap, or pick it up in our Grand Rapids store.
+              </p>
+              <Link
+                href="/shop?category=Gift%20Cards"
+                className="inline-flex items-center gap-2 bg-red hover:bg-red-dark text-white font-bold text-base px-8 py-4 rounded-lg shadow-lg transition group"
+              >
+                Shop Gift Cards
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+            </div>
+            <Link href="/shop?category=Gift%20Cards" className="relative block aspect-[960/620] w-full max-w-xl mx-auto lg:ml-auto hover:scale-[1.02] transition-transform duration-300">
+              <Image src="/categories/gift-cards.png" alt="Liberty Footwear gift cards — $100, $200 and $300" fill className="object-contain" sizes="(max-width: 1024px) 90vw, 576px" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── BUILT IN AMERICA ── */}
       <section className="bg-navy text-white py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
