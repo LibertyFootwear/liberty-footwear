@@ -17,9 +17,14 @@ function isLockedSection(pathname: string): boolean {
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const isPrefetch =
-    req.headers.get("next-router-prefetch") === "1" ||
-    req.headers.get("purpose") === "prefetch";
+  // Next's link prefetches (any variant: next-router-prefetch, next-router-segment-prefetch,
+  // purpose / sec-purpose: prefetch) are not real navigations. The admin sidebar prefetches
+  // pages outside Analytics as soon as it renders — if those cleared the unlock, every
+  // Analytics tab would ask for the code again.
+  let isPrefetch = false;
+  req.headers.forEach((value, name) => {
+    if (/prefetch/i.test(name) || (/^(sec-)?purpose$/i.test(name) && /prefetch/i.test(value))) isPrefetch = true;
+  });
 
   // Only act on genuine navigations into the admin panel.
   if (isPrefetch || !pathname.startsWith("/admin") || pathname === "/admin/login") {
