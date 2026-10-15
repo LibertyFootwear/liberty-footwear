@@ -40,7 +40,13 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
     shipping_details?: { address?: Record<string, string> };
     customer_details?: { address?: Record<string, string>; phone?: string };
   };
-  const addr = s.shipping_details?.address ?? s.customer_details?.address;
+  // Shipped orders carry the destination we taxed (locked in metadata at checkout); Stripe's own
+  // shipping_details are only a fallback for sessions created before that change.
+  const md = session.metadata ?? {};
+  const lockedAddr: Record<string, string> | undefined = md.ship_line1
+    ? { line1: md.ship_line1, city: md.ship_city ?? "", state: md.ship_state ?? "", postal_code: md.ship_zip ?? "", country: md.ship_country ?? "US" }
+    : undefined;
+  const addr = lockedAddr ?? s.shipping_details?.address ?? s.customer_details?.address;
 
   const createdAt = new Date().toISOString();
   const shippingName = session.customer_details?.name ?? undefined;

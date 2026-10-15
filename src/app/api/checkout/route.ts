@@ -148,6 +148,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "gift_card_pay_online", message: "Gift cards must be paid for online." }, { status: 400 });
   }
 
+  // Shipped orders: the destination we collected on OUR form is the one we tax, ship to and
+  // record. It's locked into the Stripe session (metadata) and NOT re-collected on Stripe's page,
+  // so a customer can't change the state after the tax was decided.
+  const shipTo = shippingMethod !== "pickup" && !giftOnly
+    ? {
+        line1: billing?.address?.trim() ?? "",
+        city: billing?.city?.trim() ?? "",
+        state: billing?.state?.trim() ?? "",
+        zip: billing?.zip?.trim() ?? "",
+        country: (billing?.country || "US").trim().toUpperCase(),
+      }
+    : null;
+  if (shipTo) {
+    if (!shipTo.line1 || !shipTo.city || !shipTo.state || !shipTo.zip) {
+      return NextResponse.json({ error: "missing_shipping_address", message: "Please enter your full shipping address (street, city, state and ZIP)." }, { status: 400 });
+    }
+    if (!["US", "CA"].includes(shipTo.country)) {
+      return NextResponse.json({ error: "unsupported_country", message: "We currently ship to the United States and Canada." }, { status: 400 });
+    }
+  }
+
   // Shipping: boot-less orders (apparel, insoles, leather care) pay a flat fee when
   // shipped; free if any boot is in the cart or on pickup.
   const hasBoot = validatedItems.some((it) => {
@@ -283,8 +304,11 @@ export async function POST(req: NextRequest) {
     ] }),
     // Force a full billing address (incl. state) so every generated invoice is complete.
     billing_address_collection: "required",
-    ...(shippingMethod !== "pickup" && !giftOnly && {
-      shipping_address_collection: { allowed_countries: ["US", "CA"] as ["US", "CA"] },
+    // Shipping address is locked from our form (see shipTo above) — shown on Stripe's pay button.
+    ...(shipTo && {
+      custom_text: {
+        submit: { message: `Shipping to: ${shipTo.line1}, ${shipTo.city}, ${shipTo.state} ${shipTo.zip}, ${shipTo.country}`.slice(0, 1000) },
+      },
     }),
     ...(billing?.email && { customer_email: billing.email }),
     ...(discounts ? { discounts } : {}),
@@ -292,6 +316,7 @@ export async function POST(req: NextRequest) {
       ...(userId ? { userId } : {}),
       ...(billing ? { name: `${billing.firstName} ${billing.lastName}`, phone: billing.phone, shippingMethod: shippingMethod ?? "ship" } : {}),
       ...(appliedDiscount?.code ? { discountCode: appliedDiscount.code.code, discountCodeId: appliedDiscount.code.id } : {}),
+      ...(shipTo ? { ship_line1: shipTo.line1, ship_city: shipTo.city, ship_state: shipTo.state, ship_zip: shipTo.zip, ship_country: shipTo.country } : {}),
     },
     success_url: `${env.NEXT_PUBLIC_BASE_URL}/order/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${env.NEXT_PUBLIC_BASE_URL}/cart`,
