@@ -10,7 +10,7 @@ import { useState, useEffect, useRef, Suspense, createContext, useContext } from
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
 import { publicEnv } from "@/lib/publicEnv";
 import { trackBeginCheckout } from "@/lib/gtag";
-import { isBootCategory, isGiftCardCategory, SMALL_ITEM_SHIPPING } from "@/lib/shipping";
+import { isBootCategory, isGiftCardCategory, isNoTaxState, SMALL_ITEM_SHIPPING } from "@/lib/shipping";
 
 interface FieldCtx {
   form: Record<string, string | boolean>;
@@ -88,8 +88,6 @@ function CheckoutForm() {
   const shippingFee = shippingMethod !== "pickup" && items.length > 0 && !hasBoot && !giftOnly ? SMALL_ITEM_SHIPPING : 0;
 
   const taxableAmount = Math.max(0, subtotal - giftSubtotal - discount);
-  const tax = Math.round(taxableAmount * 0.06 * 100) / 100;
-  const total = Math.round((taxableAmount + tax + giftSubtotal + shippingFee) * 100) / 100;
 
   const [form, setForm] = useState({
     firstName: user?.name?.split(" ")[0] ?? "",
@@ -110,6 +108,12 @@ function CheckoutForm() {
     createAccount: false,
     password: "",
   });
+
+  // Tax follows the shipping state: no-sales-tax states (AK, DE, MT, NH, OR) pay none on shipped
+  // orders; pickups are in Michigan. Matches /api/checkout, which is what Stripe actually charges.
+  const taxExempt = shippingMethod !== "pickup" && !giftOnly && isNoTaxState(form.state);
+  const tax = taxExempt ? 0 : Math.round(taxableAmount * 0.06 * 100) / 100;
+  const total = Math.round((taxableAmount + tax + giftSubtotal + shippingFee) * 100) / 100;
   const [loading, setLoading] = useState(false);
   const [payAtPickup, setPayAtPickup] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -487,7 +491,7 @@ function CheckoutForm() {
                       : <span className="font-semibold text-green-600">Free</span>}
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Tax</span>
+                    <span className="text-gray-600">Tax{taxExempt ? " (no sales tax in your state)" : ""}</span>
                     <span className="font-semibold">${tax.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-cream-dark pt-3 flex justify-between font-black text-lg">

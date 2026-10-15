@@ -12,7 +12,7 @@ import { saveOrder } from "@/lib/ordersDb";
 import { decrementInventory } from "@/lib/inventoryDb";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/orderEmail";
 import { env } from "@/lib/env";
-import { isBootCategory, isGiftCardCategory } from "@/lib/shipping";
+import { isBootCategory, isGiftCardCategory, isNoTaxState } from "@/lib/shipping";
 import { validateDiscount, redeemDiscount } from "@/lib/discounts";
 
 const APPAREL_SHIPPING_CENTS = 800; // $8 flat when the order is apparel-only
@@ -225,12 +225,7 @@ export async function POST(req: NextRequest) {
   // US states with NO statewide sales tax ("NOMAD"): Delaware, Montana, New
   // Hampshire, Oregon, Alaska — don't charge tax when the order goes there.
   // Store pickups are always in Michigan, so those stay taxable.
-  const NO_TAX_STATES = new Set([
-    "de", "delaware", "mt", "montana", "nh", "new hampshire",
-    "or", "oregon", "ak", "alaska",
-  ]);
-  const destState = (shippingMethod === "pickup" ? "MI" : billing?.state ?? "").trim().toLowerCase();
-  const applyTax = destState !== "" ? !NO_TAX_STATES.has(destState) : true;
+  const applyTax = shippingMethod === "pickup" ? true : !isNoTaxState(billing?.state);
   const taxRateId = applyTax ? await getMiTaxRateId() : null;
 
   // Turn a validated code into a reusable Stripe coupon so the discount (and tax
