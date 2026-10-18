@@ -3,6 +3,7 @@ import { getSubscribers } from "@/lib/newsletterDb";
 import { getSupabase } from "@/lib/supabase";
 import { defaultNotifications, Notifications } from "@/lib/userDb";
 import NewsletterSender from "./NewsletterSender";
+import AddContactForm from "./AddContactForm";
 import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
@@ -81,6 +82,9 @@ export default async function AdminNewsletter() {
           </div>
         ))}
       </div>
+
+      {/* Add contacts (manual / old-site import) — go into the recipient list below. */}
+      <AddContactForm />
 
       {/* Compose & send */}
       <NewsletterSender recipientCount={list.length} />
