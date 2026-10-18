@@ -196,6 +196,50 @@ function onSheetEdit(e) {
   }
 }
 
+/** Menu: Liberty → Sync new rows only — send only rows that don't yet have an id in column A. */
+function syncNewRowsToAdmin() {
+  var ui = SpreadsheetApp.getUi();
+  var sheet = SpreadsheetApp.getActive().getSheetByName(TAB_NAME);
+  if (!sheet) { ui.alert("No " + TAB_NAME + " tab found."); return; }
+  var last = sheet.getLastRow();
+  if (last < 2) { ui.alert("Nothing to sync."); return; }
+
+  var data = sheet.getRange(2, 1, last - 1, COLS.length).getValues();
+  // Pick rows with no id (= never pushed to admin) and a date + stock #.
+  var picked = [], rowNums = [];
+  for (var i = 0; i < data.length; i++) {
+    var o = rowToObj(data[i]);
+    if (o.id) continue;
+    if (!o.sale_date || !o.stock_no) continue;
+    picked.push(o); rowNums.push(i + 2);
+  }
+  if (!picked.length) { ui.alert("No new rows found — every row already has an id in column A."); return; }
+  if (ui.alert("Send " + picked.length + " new row(s) to the admin?", ui.ButtonSet.OK_CANCEL) !== ui.Button.OK) return;
+
+  var sent = 0, inserted = 0, errors = 0;
+  var BATCH = 50;
+  var start = new Date().getTime();
+  for (var i = 0; i < picked.length; i += BATCH) {
+    if (new Date().getTime() - start > 5 * 60 * 1000) {
+      ui.alert("Stopped at row " + rowNums[i] + " (6-minute script limit). Run again to continue.");
+      break;
+    }
+    var rows = picked.slice(i, i + BATCH);
+    var nums = rowNums.slice(i, i + BATCH);
+    var out = callAdmin({ rows: rows });
+    if (out._status !== 200) { errors += rows.length; continue; }
+    var results = out.results || [];
+    for (var j = 0; j < results.length; j++) {
+      var r = results[j];
+      if (r && r.id) sheet.getRange(nums[j], 1).setValue(r.id);
+      if (r && r.error) { sheet.getRange(nums[j], COLS.length + 1).setValue("⚠ " + r.error); errors++; }
+      else if (r) { sheet.getRange(nums[j], COLS.length + 1).clearContent(); if (r.inserted) inserted++; }
+    }
+    sent += rows.length;
+  }
+  ui.alert("Done.\nSent: " + sent + "\nInserted (new in admin): " + inserted + "\nErrors: " + errors);
+}
+
 /** Menu: Liberty → Sync all to admin — resend every row in RetailSales to the DB (idempotent). */
 function syncAllToAdmin() {
   var ui = SpreadsheetApp.getUi();
@@ -250,6 +294,7 @@ function testConnection() {
 function onOpen() {
   SpreadsheetApp.getUi().createMenu("Liberty")
     .addItem("Test connection", "testConnection")
+    .addItem("Sync new rows only", "syncNewRowsToAdmin")
     .addItem("Sync all to admin", "syncAllToAdmin")
     .addItem("Delete selected rows from admin", "deleteSelectedFromAdmin")
     .addToUi();
