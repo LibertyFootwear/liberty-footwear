@@ -4,6 +4,7 @@ import { products } from "@/data/products";
 import SalesTable, { SaleRow, CatalogItem } from "./SalesTable";
 import SyncSheetButton from "./SyncSheetButton";
 import SalesImport from "./SalesImport";
+import BulkDeleteButton from "./BulkDeleteButton";
 import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +37,7 @@ export default async function AdminSales() {
       <PageHeader
         title={<>Retail Sales <span className="text-gray-300 font-bold">· {rows.length.toLocaleString()} rows</span></>}
         subtitle="In-store sales log — same columns as your spreadsheet. Add a row for each item sold at the counter."
-        actions={<><SalesImport /><SyncSheetButton /></>}
+        actions={<><SalesImport /><SyncSheetButton /><BulkDeleteButton /></>}
       />
       <SalesTable rows={rows} catalog={catalog} />
     </div>
