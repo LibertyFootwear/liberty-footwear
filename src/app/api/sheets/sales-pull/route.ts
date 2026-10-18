@@ -19,6 +19,7 @@ import { stockLine, isReturnRow, applyStock } from "@/lib/retailSalesStock";
  */
 
 const MAX_DELETE = 25;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type Row = Record<string, unknown>;
 type Result = { id?: string; inserted?: boolean; error?: string };
@@ -100,7 +101,9 @@ async function saveRow(row: Row): Promise<Result> {
     // Unknown id (deleted in admin?) → fall through and insert as a fresh row.
   }
 
-  const { data, error } = await sb.from("retail_sales").insert({ ...fields, customer_id }).select("id").single();
+  // Keep the Sheet's UUID on insert so a bulk re-sync (e.g. after admin was emptied) stays idempotent.
+  const insertRow = id && UUID.test(id) ? { id, ...fields, customer_id } : { ...fields, customer_id };
+  const { data, error } = await sb.from("retail_sales").insert(insertRow).select("id").single();
   if (error) return { error: error.message };
   await applyStock(stockLine(fields.stock_no, fields.size, fields.width, fields.qty), isReturnRow(fields.total));
   return { id: data?.id, inserted: true };

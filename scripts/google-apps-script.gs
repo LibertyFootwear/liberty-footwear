@@ -196,6 +196,46 @@ function onSheetEdit(e) {
   }
 }
 
+/** Menu: Liberty → Sync all to admin — resend every row in RetailSales to the DB (idempotent). */
+function syncAllToAdmin() {
+  var ui = SpreadsheetApp.getUi();
+  var sheet = SpreadsheetApp.getActive().getSheetByName(TAB_NAME);
+  if (!sheet) { ui.alert("No " + TAB_NAME + " tab found."); return; }
+  var last = sheet.getLastRow();
+  if (last < 2) { ui.alert("Nothing to sync."); return; }
+  if (ui.alert("Resend all " + (last - 1) + " rows to the admin? Rows already there update; missing ones are added.", ui.ButtonSet.OK_CANCEL) !== ui.Button.OK) return;
+
+  var data = sheet.getRange(2, 1, last - 1, COLS.length).getValues();
+  var BATCH = 50;
+  var sent = 0, inserted = 0, errors = 0;
+  var start = new Date().getTime();
+  for (var i = 0; i < data.length; i += BATCH) {
+    if (new Date().getTime() - start > 5 * 60 * 1000) {
+      ui.alert("Stopped at row " + (i + 2) + " (6-minute script limit). Run again to continue.");
+      break;
+    }
+    var rows = [], rowNums = [];
+    for (var k = 0; k < BATCH && i + k < data.length; k++) {
+      var o = rowToObj(data[i + k]);
+      if (!o.sale_date && !o.stock_no) continue; // blank line
+      rows.push(o);
+      rowNums.push(i + k + 2);
+    }
+    if (!rows.length) continue;
+    var out = callAdmin({ rows: rows });
+    if (out._status !== 200) { errors += rows.length; continue; }
+    var results = out.results || [];
+    for (var j = 0; j < results.length; j++) {
+      var r = results[j];
+      if (r && r.id && String(r.id) !== String(rows[j].id)) sheet.getRange(rowNums[j], 1).setValue(r.id);
+      if (r && r.error) { sheet.getRange(rowNums[j], COLS.length + 1).setValue("⚠ " + r.error); errors++; }
+      else if (r) { sheet.getRange(rowNums[j], COLS.length + 1).clearContent(); if (r.inserted) inserted++; }
+    }
+    sent += rows.length;
+  }
+  ui.alert("Done.\nSent: " + sent + "\nInserted (new in admin): " + inserted + "\nErrors: " + errors);
+}
+
 /** Menu: Liberty → Test connection — tells you whether the Sheet can reach the admin. */
 function testConnection() {
   var ui = SpreadsheetApp.getUi();
@@ -210,6 +250,7 @@ function testConnection() {
 function onOpen() {
   SpreadsheetApp.getUi().createMenu("Liberty")
     .addItem("Test connection", "testConnection")
+    .addItem("Sync all to admin", "syncAllToAdmin")
     .addItem("Delete selected rows from admin", "deleteSelectedFromAdmin")
     .addToUi();
 }
