@@ -115,7 +115,7 @@ const _raw: RawProduct[] = [
     gallery: [1,2,3,4,5,6].map(i => `/products/KS0121B-${i}.jpg`),
   },
   {
-    stockNo: "KS2121B", slug: slug("KS2121B","gary-ct-black-black"),
+    stockNo: "KS0221B", slug: slug("KS0221B","gary-ct-black-black"),
     name: "Gary CT", family: "Gary", safetyToe: true,
     colorLeather: "Black", outsoleType: "Wedge rubber blend", colorOutsole: "Black",
     description: 'Oiled tumbled full grain leather. bioDewix® Dry cushion lining is breathable and wicks away sweat. Removable lightweight high cushion dual density Airtek20 recycled PU foam footbeds with NZYM™ organic odor control system. Texon insole with Performance Poron® foam for long-lasting underfoot cushioning. Rubber-blend direct attach Wedge outsole with mini lugs — slip and oil resistant, non-marking and sweet scented. Available in Cream or Black sole color. Composite toe: multilayer fiberglass with carbon nano tubes — 50% lighter than steel, non-metallic, ASTM F2413 certified.',
@@ -672,6 +672,19 @@ const _raw: RawProduct[] = [
     sizes: "", price: 300, isNew: false, image: img("KS0022"),
   },
 ];
+
+/**
+ * Stock numbers that were corrected: old code → current code. History (orders, retail sales,
+ * inventory) recorded under the old code is counted under the current one in analytics.
+ * KS2121B was a typo for the Gary CT Black/Black (family pattern: KS0221, KS0223B, KS0224B…).
+ */
+export const LEGACY_STOCK_NOS: Record<string, string> = { KS2121B: "KS0221B" };
+
+/** Current stock number for a (possibly legacy) code; unknown codes pass through unchanged. */
+export function canonStockNo(code: string): string {
+  const key = (code ?? "").toUpperCase().replace(/\s+/g, "").trim();
+  return LEGACY_STOCK_NOS[key] ?? code;
+}
 
 export const products: Product[] = _raw.map((p) => ({
   ...p,

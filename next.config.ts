@@ -48,6 +48,8 @@ const nextConfig: NextConfig = {
   // for good and left to 404.
   async redirects() {
     return [
+      // Corrected stock number (was a typo): old product URL → current one
+      { source: "/shop/ks2121b-gary-ct-black-black", destination: "/shop/ks0221b-gary-ct-black-black", permanent: true },
       // Old WooCommerce product + category pages → the shop
       { source: "/the-store/:slug*", destination: "/shop", permanent: true },
       { source: "/product-category/:slug*", destination: "/shop", permanent: true },

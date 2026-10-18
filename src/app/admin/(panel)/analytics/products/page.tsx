@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { isAnalyticsUnlocked } from "@/lib/analyticsLock";
 import { getAllOrders, getRetailSales } from "@/lib/analytics";
-import { products } from "@/data/products";
+import { products, canonStockNo } from "@/data/products";
 import AnalyticsGate from "@/components/AnalyticsGate";
 import Link from "next/link";
 import { PageHeader, StatCard } from "../../ui";
@@ -17,7 +17,7 @@ interface Row {
   byYear: Record<string, number>;
 }
 
-const norm = (s: string) => (s ?? "").toUpperCase().replace(/\s+/g, "").trim();
+const norm = (s: string) => canonStockNo((s ?? "").toUpperCase().replace(/\s+/g, "").trim()).toUpperCase();
 
 // stockNo -> {name, color} from the catalog, with a longest-prefix fallback for variants.
 const META = new Map(products.map((p) => [norm(p.stockNo), { name: p.name, color: p.colorLeather ?? "" }]));

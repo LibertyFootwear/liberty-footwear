@@ -1,5 +1,5 @@
 import { getSupabase } from "./supabase";
-import { products } from "@/data/products";
+import { products, canonStockNo } from "@/data/products";
 
 export interface OrderItem { stockNo: string; name: string; size?: string; price: number; qty: number }
 export interface OrderRow { items: OrderItem[]; total: number; status: string; created_at: string; source?: string | null }
@@ -63,8 +63,8 @@ export function aggFromOrders(rows: OrderRow[]): Agg {
     const monthKey = MONTHS[dt.getMonth()];
 
     for (const it of o.items ?? []) {
-      const prod = products.find((p) => p.stockNo === it.stockNo);
-      const key = it.stockNo || it.name;
+      const prod = products.find((p) => p.stockNo === canonStockNo(it.stockNo));
+      const key = canonStockNo(it.stockNo) || it.name;
       a.byStock[key] = (a.byStock[key] ?? 0) + it.qty;
       a.units += it.qty;
 
@@ -96,7 +96,7 @@ const NON_BOOT_KEYWORDS = [
 /** Is this stock number / item a boot? Catalog category is the source of truth;
  *  historical items not in the catalog fall back to a name check. */
 export function isBootItem(stockNo: string): boolean {
-  const p = products.find((x) => x.stockNo === stockNo);
+  const p = products.find((x) => x.stockNo === canonStockNo(stockNo));
   if (p) return p.category !== "Apparel";
   const s = stockNo.toLowerCase();
   return !NON_BOOT_KEYWORDS.some((kw) => s.includes(kw));
@@ -144,7 +144,7 @@ export function retailAgg(rows: RetailSaleRow[]): Agg {
     a.units += qty;
     a.revenue += r.total ?? 0;
 
-    const stock = r.stock_no || "Unknown";
+    const stock = canonStockNo(r.stock_no || "Unknown");
     a.byStock[stock] = (a.byStock[stock] ?? 0) + qty;
     const p = products.find((x) => x.stockNo === stock);
     if (p) a.byColor[p.colorLeather] = (a.byColor[p.colorLeather] ?? 0) + qty;
