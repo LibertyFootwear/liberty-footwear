@@ -196,6 +196,54 @@ function onSheetEdit(e) {
   }
 }
 
+/** Menu: Liberty → Sync rows since date… — resends every row with sale_date on/after the given date. */
+function syncRowsSinceDate() {
+  var ui = SpreadsheetApp.getUi();
+  var sheet = SpreadsheetApp.getActive().getSheetByName(TAB_NAME);
+  if (!sheet) { ui.alert("No " + TAB_NAME + " tab found."); return; }
+  var ans = ui.prompt("Sync rows since", "Enter the earliest sale_date to resend (YYYY-MM-DD):", ui.ButtonSet.OK_CANCEL);
+  if (ans.getSelectedButton() !== ui.Button.OK) return;
+  var since = String(ans.getResponseText() || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(since)) { ui.alert("Expected a date like 2025-10-01."); return; }
+
+  var last = sheet.getLastRow();
+  if (last < 2) { ui.alert("Nothing to sync."); return; }
+  var data = sheet.getRange(2, 1, last - 1, COLS.length).getValues();
+  var picked = [], rowNums = [];
+  for (var i = 0; i < data.length; i++) {
+    var o = rowToObj(data[i]);
+    if (!o.sale_date || !o.stock_no) continue;
+    var d = String(o.sale_date).slice(0, 10);
+    if (d < since) continue;
+    picked.push(o); rowNums.push(i + 2);
+  }
+  if (!picked.length) { ui.alert("No rows found with sale_date >= " + since + "."); return; }
+  if (ui.alert("Send " + picked.length + " row(s) with sale_date >= " + since + " to the admin? Existing rows update, missing ones are added.", ui.ButtonSet.OK_CANCEL) !== ui.Button.OK) return;
+
+  var sent = 0, inserted = 0, errors = 0;
+  var BATCH = 50;
+  var start = new Date().getTime();
+  for (var i = 0; i < picked.length; i += BATCH) {
+    if (new Date().getTime() - start > 5 * 60 * 1000) {
+      ui.alert("Stopped at row " + rowNums[i] + " (6-minute script limit). Run again to continue.");
+      break;
+    }
+    var rows = picked.slice(i, i + BATCH);
+    var nums = rowNums.slice(i, i + BATCH);
+    var out = callAdmin({ rows: rows });
+    if (out._status !== 200) { errors += rows.length; continue; }
+    var results = out.results || [];
+    for (var j = 0; j < results.length; j++) {
+      var r = results[j];
+      if (r && r.id && String(r.id) !== String(rows[j].id)) sheet.getRange(nums[j], 1).setValue(r.id);
+      if (r && r.error) { sheet.getRange(nums[j], COLS.length + 1).setValue("⚠ " + r.error); errors++; }
+      else if (r) { sheet.getRange(nums[j], COLS.length + 1).clearContent(); if (r.inserted) inserted++; }
+    }
+    sent += rows.length;
+  }
+  ui.alert("Done.\nSent: " + sent + "\nInserted (new in admin): " + inserted + "\nErrors: " + errors);
+}
+
 /** Menu: Liberty → Sync new rows only — send only rows that don't yet have an id in column A. */
 function syncNewRowsToAdmin() {
   var ui = SpreadsheetApp.getUi();
@@ -250,20 +298,22 @@ function syncAllToAdmin() {
   if (ui.alert("Resend all " + (last - 1) + " rows to the admin? Rows already there update; missing ones are added.", ui.ButtonSet.OK_CANCEL) !== ui.Button.OK) return;
 
   var data = sheet.getRange(2, 1, last - 1, COLS.length).getValues();
+  // Walk from the BOTTOM up — newest rows reach the admin first if the 6-min limit hits.
   var BATCH = 50;
   var sent = 0, inserted = 0, errors = 0;
   var start = new Date().getTime();
-  for (var i = 0; i < data.length; i += BATCH) {
+  for (var i = data.length; i > 0; i -= BATCH) {
     if (new Date().getTime() - start > 5 * 60 * 1000) {
-      ui.alert("Stopped at row " + (i + 2) + " (6-minute script limit). Run again to continue.");
+      ui.alert("Stopped at row " + (i + 1) + " (6-minute script limit). Run again to continue.");
       break;
     }
     var rows = [], rowNums = [];
-    for (var k = 0; k < BATCH && i + k < data.length; k++) {
-      var o = rowToObj(data[i + k]);
+    for (var k = 0; k < BATCH && i - 1 - k >= 0; k++) {
+      var idx = i - 1 - k;
+      var o = rowToObj(data[idx]);
       if (!o.sale_date && !o.stock_no) continue; // blank line
       rows.push(o);
-      rowNums.push(i + k + 2);
+      rowNums.push(idx + 2);
     }
     if (!rows.length) continue;
     var out = callAdmin({ rows: rows });
@@ -295,6 +345,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu("Liberty")
     .addItem("Test connection", "testConnection")
     .addItem("Sync new rows only", "syncNewRowsToAdmin")
+    .addItem("Sync rows since date…", "syncRowsSinceDate")
     .addItem("Sync all to admin", "syncAllToAdmin")
     .addItem("Delete selected rows from admin", "deleteSelectedFromAdmin")
     .addToUi();
