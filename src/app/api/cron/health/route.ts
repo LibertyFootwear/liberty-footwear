@@ -45,6 +45,17 @@ export async function GET(req: NextRequest) {
       detail: okUrl ? "" : `HTTP ${res?.status ?? "?"} ${(data as { error?: string }).error ?? url ?? ""}`.trim() });
   }
 
+ // Contact form probe — confirms the API is live without emailing or logging a real message.
+  {
+    const { res, ms } = await safeFetch(`${SITE}/api/contact`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ _probe: env.CRON_SECRET, name: "monitor", email: "monitor@libertyfootwear.com", subject: "probe", message: "probe" }),
+    });
+    const data = res ? await res.json().catch(() => ({})) : {};
+    const ok = res?.ok === true && (data as { probe?: boolean }).probe === true;
+    checks.push({ name: "Contact form API", ok, ms, detail: ok ? "" : `HTTP ${res?.status ?? "?"} ${(data as { error?: string }).error ?? ""}`.trim() });
+  }
+
   await emailAlert("Hourly health check", checks);
   const failed = checks.filter((c) => !c.ok).length;
   return NextResponse.json({ ok: failed === 0, failed, total: checks.length, checks });

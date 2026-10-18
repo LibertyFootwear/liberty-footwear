@@ -57,6 +57,12 @@ export async function POST(req: NextRequest) {
     website?: string; renderedAt?: number; turnstileToken?: string;
   };
 
+  // Monitoring probe (cron health check): confirms the handler is reachable without delivering
+  // a real message. Authorised with CRON_SECRET; nothing is emailed or logged.
+  if ((raw as unknown as { _probe?: string })._probe === process.env.CRON_SECRET && process.env.CRON_SECRET) {
+    return NextResponse.json({ ok: true, probe: true });
+  }
+
   // ── Bot filters ──
   // 1) Honeypot: a hidden field real users never see. If filled, silently accept
   //    (return ok so the bot moves on) but drop the message.
