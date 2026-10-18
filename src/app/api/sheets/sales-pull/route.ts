@@ -115,6 +115,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  // Connection test from the Sheet menu (Liberty → Test connection): auth passed = secret matches.
+  if (body.action === "ping") return NextResponse.json({ ok: true, ping: true });
+
   if (body.action === "delete") {
     if ((body.ids ?? []).length > MAX_DELETE) {
       return NextResponse.json({ error: `Refusing to delete more than ${MAX_DELETE} rows at once.` }, { status: 400 });

@@ -131,6 +131,7 @@ function rowToObj(values) {
   return o;
 }
 
+/** POST to the admin; always returns an object with `_status` (HTTP code) so failures are visible. */
 function callAdmin(payload) {
   payload.secret = SECRET;
   var res = UrlFetchApp.fetch(ADMIN_PULL_URL, {
@@ -139,7 +140,10 @@ function callAdmin(payload) {
     payload: JSON.stringify(payload),
     muteHttpExceptions: true,
   });
-  try { return JSON.parse(res.getContentText()); } catch (e) { return {}; }
+  var out = {};
+  try { out = JSON.parse(res.getContentText()); } catch (e) { out = { error: "Bad response: " + res.getContentText().slice(0, 120) }; }
+  out._status = res.getResponseCode();
+  return out;
 }
 
 /**
@@ -171,6 +175,13 @@ function onSheetEdit(e) {
     if (!rows.length) return;
 
     var out = callAdmin({ rows: rows });
+    if (out._status !== 200 || out.error) {
+      // e.g. 401 = SECRET here doesn't match SHEETS_WEBHOOK_SECRET on Vercel. Show it on the rows.
+      var msg = "⚠ not synced: " + (out.error || ("HTTP " + out._status));
+      console.error(msg);
+      for (var k = 0; k < rowNums.length; k++) sheet.getRange(rowNums[k], COLS.length + 1).setValue(msg);
+      return;
+    }
     var results = out.results || [];
     for (var j = 0; j < results.length; j++) {
       var r = results[j];
@@ -185,9 +196,20 @@ function onSheetEdit(e) {
   }
 }
 
+/** Menu: Liberty → Test connection — tells you whether the Sheet can reach the admin. */
+function testConnection() {
+  var ui = SpreadsheetApp.getUi();
+  var out;
+  try { out = callAdmin({ action: "ping" }); } catch (e) { ui.alert("Could not reach the admin:\n" + e); return; }
+  if (out._status === 200 && out.ok) ui.alert("Connected ✓\nEdits in this tab will sync to the admin.");
+  else if (out._status === 401) ui.alert("Wrong secret (HTTP 401).\nThe SECRET at the top of this script must equal SHEETS_WEBHOOK_SECRET in Vercel (then redeploy Vercel).");
+  else ui.alert("Not connected: HTTP " + out._status + "\n" + (out.error || ""));
+}
+
 /** Menu: Liberty → Delete selected rows from admin (also reverses their stock effect). */
 function onOpen() {
   SpreadsheetApp.getUi().createMenu("Liberty")
+    .addItem("Test connection", "testConnection")
     .addItem("Delete selected rows from admin", "deleteSelectedFromAdmin")
     .addToUi();
 }
