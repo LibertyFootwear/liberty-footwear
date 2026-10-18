@@ -73,7 +73,20 @@ function itemRows(items: OrderItem[]): string {
     .join("");
 }
 
-function itemsTable(items: OrderItem[], total?: number): string {
+export interface EmailBreakdown { subtotal: number; discount: number; shipping: number; tax: number }
+
+function itemsTable(items: OrderItem[], total?: number, bd?: EmailBreakdown): string {
+  const line = (label: string, value: string, color = "#6b7280") =>
+    `<tr>
+       <td style="padding:6px 0 0;text-align:right;color:${color};font-size:13px;">${label}</td>
+       <td style="padding:6px 0 0;text-align:right;color:${color};font-size:13px;white-space:nowrap;">${value}</td>
+     </tr>`;
+  const bdRows = bd
+    ? line("Subtotal", money(bd.subtotal)) +
+      (bd.discount > 0 ? line("Discount", `−${money(bd.discount)}`, "#15803d") : "") +
+      line("Shipping", bd.shipping > 0 ? money(bd.shipping) : "Free") +
+      line("Sales tax", money(bd.tax))
+    : "";
   const totalRow =
     total !== undefined
       ? `<tr>
@@ -81,7 +94,7 @@ function itemsTable(items: OrderItem[], total?: number): string {
            <td style="padding:16px 0 0;text-align:right;color:${NAVY};font-size:16px;font-weight:800;white-space:nowrap;">${money(total)}</td>
          </tr>`
       : "";
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${itemRows(items)}${totalRow}</table>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${itemRows(items)}${bdRows}${totalRow}</table>`;
 }
 
 // ── Order confirmation (sent on payment) ───────────────────────────────────
@@ -98,6 +111,8 @@ export interface OrderConfirmationEmail {
   invoicePdf?: { filename: string; base64: string };
   /** Store-pickup order that pays in store — no invoice, "pay at pickup" note. */
   payAtPickup?: boolean;
+  /** Subtotal / discount / shipping / tax shown above the total (items are pre-tax). */
+  breakdown?: EmailBreakdown;
   /** Gift cards bought in this order — each gets a redemption code box + printable-card link. */
   giftCards?: { code: string; amount: number }[];
   /** Site origin used to build the printable-card links. */
@@ -149,7 +164,7 @@ export function buildOrderEmailHtml(o: OrderConfirmationEmail): string {
     <p style="margin:0 0 4px;color:#374151;font-size:15px;">${intro}</p>
     <p style="margin:0 0 22px;color:#9ca3af;font-size:12px;">Order #${esc(o.orderId.slice(0, 8))}</p>
     ${giftBlock}
-    ${itemsTable(o.items, o.total)}
+    ${itemsTable(o.items, o.total, o.breakdown)}
     ${invoiceLink}`;
   return shell(o.logoSrc, inner);
 }

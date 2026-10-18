@@ -226,6 +226,7 @@ export async function POST(req: NextRequest) {
           to: billing.email, name: shippingName,
           items: validatedItems.map((it) => ({ stockNo: it.stockNo, name: it.name, size: it.size, price: it.price, qty: it.qty })),
           total, orderId, payAtPickup: true,
+          breakdown: { subtotal, discount: discountAmt, shipping: 0, tax },
         });
       } catch (err) { console.error("Pickup confirmation email failed:", err); }
     }

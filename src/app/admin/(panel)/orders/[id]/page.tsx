@@ -8,6 +8,7 @@ import OrderStatusForm from "./OrderStatusForm";
 import PaymentStatusForm from "./PaymentStatusForm";
 import TrackingForm from "./TrackingForm";
 import { env } from "@/lib/env";
+import { getOrderBreakdown } from "@/lib/orderBreakdown";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,10 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
   if (!o) notFound();
 
   const items = (o.items ?? []) as { stockNo: string; name: string; price: number; qty: number }[];
+
+  // Subtotal / shipping / tax split (from Stripe for web orders — item prices on older orders include tax).
+  const bd = await getOrderBreakdown({ stripeSessionId: o.stripe_session_id as string | null, items, total: o.total as number });
+  const money = (n: number) => `$${n.toFixed(2)}`;
 
   // Pull the Stripe-generated invoice for web orders (created automatically at checkout).
   let invoiceUrl: string | null = null;
@@ -86,14 +91,25 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
                   <td className="px-3 sm:px-5 py-3 font-mono text-xs text-gray-500 whitespace-nowrap">{item.stockNo}</td>
                   <td className="px-3 sm:px-5 py-3 text-gray-600 whitespace-nowrap">{(item as unknown as Record<string, string>).size ?? "—"}</td>
                   <td className="px-3 sm:px-5 py-3 text-gray-600">{item.qty}</td>
-                  <td className="px-3 sm:px-5 py-3 font-bold tabular-nums whitespace-nowrap">${(item.price * item.qty).toFixed(2)}</td>
+                  <td className="px-3 sm:px-5 py-3 font-bold tabular-nums whitespace-nowrap">{money(bd?.lines?.[i]?.total ?? item.price * item.qty)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <div className="px-5 py-3 border-t border-gray-100 flex justify-end">
-          <p className="font-black text-lg text-navy">Total: ${o.total?.toFixed(2)}</p>
+          {bd ? (
+            <div className="w-full sm:w-72 text-sm space-y-1">
+              <div className="flex justify-between text-gray-600"><span>Subtotal (before tax)</span><span className="tabular-nums">{money(bd.subtotal)}</span></div>
+              {bd.discount > 0 && <div className="flex justify-between text-green-700"><span>Discount</span><span className="tabular-nums">−{money(bd.discount)}</span></div>}
+              <div className="flex justify-between text-gray-600"><span>Shipping</span><span className="tabular-nums">{bd.shipping > 0 ? money(bd.shipping) : "Free"}</span></div>
+              <div className="flex justify-between text-gray-600"><span>Sales tax</span><span className="tabular-nums">{money(bd.tax)}</span></div>
+              <div className="flex justify-between font-black text-lg text-navy border-t border-gray-200 pt-2 mt-1"><span>Total paid</span><span className="tabular-nums">{money(bd.total)}</span></div>
+              {bd.source === "estimate" && <p className="text-[11px] text-gray-400 text-right">Pay-at-pickup order — tax estimated at 6%.</p>}
+            </div>
+          ) : (
+            <p className="font-black text-lg text-navy">Total: {money(Number(o.total ?? 0))}</p>
+          )}
         </div>
       </div>
 

@@ -30,7 +30,8 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
       stockNo,
       name: li.description ?? prod?.name ?? "",
       size,
-      price: (li.amount_total ?? 0) / 100 / (li.quantity ?? 1),
+      // Pre-tax, net of any discount. (amount_total would include sales tax — tax is kept separately.)
+      price: ((li.amount_subtotal ?? 0) - (li.amount_discount ?? 0)) / 100 / (li.quantity ?? 1),
       qty: li.quantity ?? 1,
       slug: product?.slug,
     };
@@ -130,6 +131,12 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
         orderId,
         // Our own branded, printable invoice — no Stripe Invoicing fee.
         invoiceUrl: `${publicEnv.NEXT_PUBLIC_BASE_URL}/invoice/${orderId}`,
+        breakdown: {
+          subtotal: (session.amount_subtotal ?? 0) / 100,
+          discount: (session.total_details?.amount_discount ?? 0) / 100,
+          shipping: (session.total_details?.amount_shipping ?? 0) / 100,
+          tax: (session.total_details?.amount_tax ?? 0) / 100,
+        },
         giftCards: giftPickup ? undefined : giftCards,
         giftOnly,
         giftPickup,

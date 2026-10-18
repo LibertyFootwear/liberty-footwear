@@ -1,6 +1,7 @@
 import { getOrderById } from "@/lib/ordersDb";
 import { notFound } from "next/navigation";
 import PrintButton from "./PrintButton";
+import { getOrderBreakdown } from "@/lib/orderBreakdown";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +12,10 @@ export default async function InvoicePage({ params }: { params: Promise<{ orderI
   const order = await getOrderById(orderId);
   if (!order) notFound();
 
-  const subtotal = order.items.reduce((s, i) => s + i.price * i.qty, 0);
-  const adjustments = Math.round((order.total - subtotal) * 100) / 100; // tax + shipping
+  // Exact subtotal / discount / shipping / tax (older orders stored item prices WITH tax).
+  const bd = await getOrderBreakdown(order);
+  const subtotal = bd?.subtotal ?? order.items.reduce((s, i) => s + i.price * i.qty, 0);
+  const adjustments = Math.round((order.total - subtotal) * 100) / 100; // fallback: tax + shipping
   const date = new Date(order.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const addr = order.shippingAddress;
 
@@ -81,8 +84,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ orderI
                     <span className="block text-xs text-gray-400 font-mono">{i.stockNo}</span>
                   </td>
                   <td className="py-3 text-center text-gray-600">{i.qty}</td>
-                  <td className="py-3 text-right text-gray-600">{money(i.price)}</td>
-                  <td className="py-3 text-right text-navy font-semibold">{money(i.price * i.qty)}</td>
+                  <td className="py-3 text-right text-gray-600">{money(bd?.lines?.[idx]?.unit ?? i.price)}</td>
+                  <td className="py-3 text-right text-navy font-semibold">{money(bd?.lines?.[idx]?.total ?? i.price * i.qty)}</td>
                 </tr>
               ))}
             </tbody>
@@ -94,7 +97,15 @@ export default async function InvoicePage({ params }: { params: Promise<{ orderI
               <span>Subtotal</span>
               <span>{money(subtotal)}</span>
             </div>
-            {adjustments !== 0 && (
+            {bd ? (
+              <>
+                {bd.discount > 0 && (
+                  <div className="flex justify-between text-green-700"><span>Discount</span><span>−{money(bd.discount)}</span></div>
+                )}
+                <div className="flex justify-between text-gray-600"><span>Shipping</span><span>{bd.shipping > 0 ? money(bd.shipping) : "Free"}</span></div>
+                <div className="flex justify-between text-gray-600"><span>Sales tax</span><span>{money(bd.tax)}</span></div>
+              </>
+            ) : adjustments !== 0 && (
               <div className="flex justify-between text-gray-600">
                 <span>Tax &amp; shipping</span>
                 <span>{money(adjustments)}</span>
