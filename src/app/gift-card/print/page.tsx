@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
 import { normalizeCode } from "@/lib/discounts";
+import { getGiftDelivery } from "@/lib/giftDeliveryDb";
 import PrintButton from "@/app/invoice/[orderId]/PrintButton";
 import GiftCardArt from "./GiftCardArt";
 
@@ -17,6 +18,7 @@ export default async function GiftCardPrintPage({ searchParams }: { searchParams
 
   let amount: number | null = null;
   let redeemed = false;
+  let gift: Awaited<ReturnType<typeof getGiftDelivery>> = null;
   if (code) {
     const { data } = await getSupabase()
       .from("discount_codes")
@@ -27,6 +29,7 @@ export default async function GiftCardPrintPage({ searchParams }: { searchParams
     if (data?.amount_off != null && String(data.note ?? "").startsWith("Gift card")) {
       amount = Number(data.amount_off);
       redeemed = !data.active || (data.max_uses != null && data.used_count >= data.max_uses);
+      gift = await getGiftDelivery(code);
     }
   }
 
@@ -65,16 +68,26 @@ export default async function GiftCardPrintPage({ searchParams }: { searchParams
         {/* Message lines */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6 print:border-gray-300 mb-6">
           <div className="grid grid-cols-2 gap-8 mb-6">
-            {["To", "From"].map((l) => (
-              <div key={l}>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">{l}</p>
-                <div className="border-b border-gray-400 h-8" />
-              </div>
-            ))}
+            <div>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">To</p>
+              {gift?.recipientName
+                ? <p className="font-semibold text-navy text-lg mt-1 border-b border-gray-400 pb-1">{gift.recipientName}</p>
+                : <div className="border-b border-gray-400 h-8" />}
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">From</p>
+              {gift?.fromName
+                ? <p className="font-semibold text-navy text-lg mt-1 border-b border-gray-400 pb-1">{gift.fromName}</p>
+                : <div className="border-b border-gray-400 h-8" />}
+            </div>
           </div>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Message</p>
-          <div className="border-b border-gray-300 h-8" />
-          <div className="border-b border-gray-300 h-8" />
+          {gift?.message
+            ? <p className="text-navy mt-1 italic whitespace-pre-wrap">{gift.message}</p>
+            : <>
+                <div className="border-b border-gray-300 h-8" />
+                <div className="border-b border-gray-300 h-8" />
+              </>}
         </div>
 
         {/* How to redeem */}

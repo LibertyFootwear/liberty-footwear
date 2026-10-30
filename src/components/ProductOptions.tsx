@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Product, parseSizes } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import SalesPausedBanner, { useSiteSettings } from "@/components/SalesPausedBanner";
-import { BootAddons, DEFAULT_ADDONS, INSOLE_CHOICES, ADDON_PRICES, addonsSurcharge, takesAddons } from "@/lib/bootAddons";
+import { BootAddons, DEFAULT_ADDONS, INSOLE_CHOICES, ADDON_PRICES, GiftDetails, addonsSurcharge, cleanGiftDetails, takesAddons } from "@/lib/bootAddons";
 import { isBootCategory, isGiftCardCategory } from "@/lib/shipping";
 import { trackAddToCart } from "@/lib/gtag";
 
@@ -63,6 +63,8 @@ export default function ProductOptions({ product, variants }: Props) {
   // product — offer them as a package selector that navigates between variants.
   const isGift = isGiftCardCategory(product.category);
   const isCare = product.category === "Care" || isGift;
+  const [gift, setGift] = useState<GiftDetails>({});
+  const cleanGift = cleanGiftDetails(gift);
   const packageVariants = isCare
     ? [...variants].sort((a, b) => a.price - b.price)
     : [];
@@ -106,7 +108,7 @@ export default function ProductOptions({ product, variants }: Props) {
 
   function handleAdd() {
     if (!sizeLabel) return;
-    addItem(product, sizeLabel, showAddons ? addons : undefined);
+    addItem(product, sizeLabel, showAddons ? addons : undefined, isGift ? cleanGift : undefined);
     trackAddToCart({
       item_id: product.stockNo,
       item_name: product.name,
@@ -325,6 +327,42 @@ export default function ProductOptions({ product, variants }: Props) {
               })}
             </div>
           </div>
+        </div>
+      )}
+
+      {isGift && (
+        <div className="space-y-3 border-t border-gray-100 pt-6">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Personalise (optional)</p>
+          <p className="text-xs text-gray-500 -mt-2">Add a name, message or send date — printed on the card and shown in the email.</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input value={gift.recipientName ?? ""} onChange={(e) => setGift((g) => ({ ...g, recipientName: e.target.value }))}
+              placeholder="To (recipient's name)" maxLength={80}
+              className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-navy" />
+            <input value={gift.fromName ?? ""} onChange={(e) => setGift((g) => ({ ...g, fromName: e.target.value }))}
+              placeholder="From (your name)" maxLength={80}
+              className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-navy" />
+          </div>
+
+          <textarea value={gift.message ?? ""} onChange={(e) => setGift((g) => ({ ...g, message: e.target.value }))}
+            placeholder="Message (optional, up to 400 characters)" rows={2} maxLength={400}
+            className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-navy resize-y" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input type="email" value={gift.recipientEmail ?? ""} onChange={(e) => setGift((g) => ({ ...g, recipientEmail: e.target.value }))}
+              placeholder="Recipient's email (optional — we'll send the card to them)" maxLength={254}
+              className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-navy" />
+            <input type="date" value={gift.scheduledFor ?? ""} onChange={(e) => setGift((g) => ({ ...g, scheduledFor: e.target.value }))}
+              min={new Date().toISOString().slice(0, 10)}
+              className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-navy" />
+          </div>
+          <p className="text-[11px] text-gray-400">
+            {gift.recipientEmail
+              ? gift.scheduledFor
+                ? `We'll email the gift card to ${gift.recipientEmail} on ${gift.scheduledFor}. You get a receipt right away.`
+                : `We'll email the gift card to ${gift.recipientEmail} as soon as the order is paid. You get a receipt too.`
+              : "If you leave the email blank, the card is sent to you — perfect for printing and giving in person."}
+          </p>
         </div>
       )}
 

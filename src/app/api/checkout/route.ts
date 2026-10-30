@@ -61,7 +61,7 @@ async function getMiTaxRateId(): Promise<string> {
 
 export async function POST(req: NextRequest) {
   const { items, shippingMethod, billing, payAtPickup, coupon } = await req.json() as {
-    items: { stockNo: string; name: string; size?: string; price: number; qty: number; addons?: string }[];
+    items: { stockNo: string; name: string; size?: string; price: number; qty: number; addons?: string; gift?: Record<string, string> }[];
     shippingMethod?: "ship" | "pickup";
     payAtPickup?: boolean;
     coupon?: string;
@@ -126,6 +126,9 @@ export async function POST(req: NextRequest) {
     const surcharge = addonsSurcharge(addons ?? undefined);
     const label = addons ? addonsLabel(addons) : "";
     const name = `${item.name || product.name}${label ? ` — ${label}` : ""}`;
+    // Keep gift personalisation (optional) alongside the validated line so Stripe gets it as metadata.
+    const giftMeta = isGiftCardCategory(catalogItem?.category) && item.gift && typeof item.gift === "object"
+      ? JSON.stringify(item.gift).slice(0, 500) : undefined;
     return {
       stockNo: item.stockNo,
       name,
@@ -133,6 +136,7 @@ export async function POST(req: NextRequest) {
       price: product.price + surcharge,
       qty: item.qty,
       addons: addons ? encodeAddons(addons) : "",
+      giftMeta,
     };
   }));
 
@@ -273,7 +277,7 @@ export async function POST(req: NextRequest) {
       price_data: {
         currency: "usd",
         unit_amount: item.price * 100,
-        product_data: { name: item.name, metadata: { stockNo: item.stockNo, size: item.size, addons: item.addons } },
+        product_data: { name: item.name, metadata: { stockNo: item.stockNo, size: item.size, addons: item.addons, ...(item.giftMeta ? { gift: item.giftMeta } : {}) } },
       },
       quantity: item.qty,
       ...(taxRateId && !isGiftLine(item.stockNo) ? { tax_rates: [taxRateId] } : {}),

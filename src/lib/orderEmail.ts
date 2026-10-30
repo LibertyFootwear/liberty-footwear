@@ -397,3 +397,54 @@ export async function sendOrderStatusEmail(o: OrderStatusEmail): Promise<void> {
     attachments,
   });
 }
+
+
+// ── Gift card: email sent to the RECIPIENT (optional personalisation) ───────
+
+export interface GiftRecipientEmail {
+  to: string;
+  code: string;
+  amount: number;
+  recipientName?: string;
+  fromName?: string;
+  message?: string;
+  baseUrl: string;
+  logoSrc?: string;
+  from?: string;
+}
+
+export function buildGiftRecipientHtml(o: GiftRecipientEmail): string {
+  const printUrl = `${o.baseUrl}/gift-card/print?code=${encodeURIComponent(o.code)}`;
+  const hi = o.recipientName ? `Hi ${esc(o.recipientName.split(" ")[0])},` : "Hi,";
+  const sender = o.fromName ? `${esc(o.fromName)}` : "A friend";
+  const inner = `
+    <h1 style="margin:0 0 10px;color:${NAVY};font-size:22px;">${hi} you've got a gift. 🎁</h1>
+    <p style="margin:0 0 14px;color:#374151;font-size:15px;">${sender} sent you a Liberty Footwear gift card — American-made boots, built in Grand Rapids, Michigan.</p>
+    ${o.message ? `<blockquote style="margin:0 0 18px;padding:14px 18px;border-left:3px solid ${RED};background:#fafafa;color:#374151;font-style:italic;">${esc(o.message).replace(/\n/g, "<br>")}</blockquote>` : ""}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 22px;border:2px dashed ${NAVY};border-radius:10px;">
+      <tr><td style="padding:22px;text-align:center;">
+        <p style="margin:0 0 4px;color:#6b7280;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Liberty Footwear Gift Card</p>
+        <p style="margin:0 0 12px;color:${NAVY};font-size:34px;font-weight:800;">${money(o.amount)}</p>
+        <p style="margin:0 0 4px;color:#6b7280;font-size:12px;">Your code</p>
+        <p style="margin:0 0 16px;color:${RED};font-size:26px;font-weight:800;letter-spacing:3px;font-family:'Courier New',monospace;">${esc(o.code)}</p>
+        <a href="${esc(printUrl)}" style="display:inline-block;background:${RED};color:#ffffff;text-decoration:none;font-weight:bold;font-size:14px;padding:12px 24px;border-radius:6px;">View &amp; print your card →</a>
+        <p style="margin:14px 0 0;color:#6b7280;font-size:12px;line-height:1.6;">Enter the code in the <strong>discount code</strong> box at checkout on libertyfootwear.com, or show it in our Grand Rapids store. Single use — apply the full amount to one order.</p>
+      </td></tr>
+    </table>
+    <p style="margin:0;color:#9ca3af;font-size:12px;">Questions? Reply to this email or write to info@libertyfootwear.com.</p>`;
+  return shell(o.logoSrc, inner);
+}
+
+export async function sendGiftRecipientEmail(o: GiftRecipientEmail): Promise<void> {
+  const logo = getLogoBase64();
+  const attachments: MailAttachment[] = logo
+    ? [{ filename: "logo.png", content: Buffer.from(logo, "base64"), cid: LOGO_CID, contentType: "image/png" }]
+    : [];
+  await sendMail({
+    to: o.to,
+    from: o.from,
+    subject: `${o.fromName ? `${o.fromName} sent` : "You've got"} a Liberty Footwear gift card — ${money(o.amount)}`,
+    html: buildGiftRecipientHtml({ ...o, logoSrc: logo ? `cid:${LOGO_CID}` : undefined }),
+    attachments,
+  });
+}

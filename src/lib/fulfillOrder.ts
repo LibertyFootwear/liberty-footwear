@@ -1,5 +1,8 @@
 import Stripe from "stripe";
 import { saveOrder, getOrderByStripeSession } from "@/lib/ordersDb";
+import { saveGiftDelivery } from "@/lib/giftDeliveryDb";
+import { sendGiftRecipientEmail } from "@/lib/orderEmail";
+import type { GiftDetails } from "@/lib/bootAddons";
 import { decrementInventory } from "@/lib/inventoryDb";
 import { tryUpsertCustomer } from "@/lib/customersDb";
 import { sendOrderConfirmationEmail, sendNewOrderAdminEmail } from "@/lib/orderEmail";
@@ -26,6 +29,9 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
     const stockNo = prod?.metadata?.stockNo ?? "";
     const size = prod?.metadata?.size ?? "";
     const product = products.find((p) => p.stockNo === stockNo);
+    // Gift personalisation (optional) was packed as JSON into product.metadata.gift at checkout.
+    let gift: GiftDetails | undefined;
+    try { if (prod?.metadata?.gift) gift = JSON.parse(prod.metadata.gift) as GiftDetails; } catch { /* ignore bad json */ }
     return {
       stockNo,
       name: li.description ?? prod?.name ?? "",
@@ -34,6 +40,7 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
       price: ((li.amount_subtotal ?? 0) - (li.amount_discount ?? 0)) / 100 / (li.quantity ?? 1),
       qty: li.quantity ?? 1,
       slug: product?.slug,
+      gift,
     };
   });
 
@@ -81,10 +88,36 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session): 
   const giftOnly = giftItems.length > 0 && giftItems.length === items.length;
   // Picked up in store → staff hand over the card, so the code is not emailed to the customer.
   const giftPickup = giftItems.length > 0 && session.metadata?.shippingMethod === "pickup";
+  // One code per bought card. For each card we also record optional personalisation (recipient,
+  // from, message, scheduled date). If recipient email + due date <= today → send to recipient now;
+  // scheduled future dates are handled by /api/cron/send-scheduled-gifts.
   const giftCards: { code: string; amount: number }[] = [];
+  const todayISO = new Date().toISOString().slice(0, 10);
   for (const it of giftItems) {
     const amount = Math.round(it.price);
-    for (let n = 0; n < it.qty; n++) giftCards.push({ amount, code: await createGiftCardCode(amount, orderId) });
+    for (let n = 0; n < it.qty; n++) {
+      const code = await createGiftCardCode(amount, orderId);
+      giftCards.push({ amount, code });
+      const g = it.gift;
+      const dueToday = !g?.scheduledFor || g.scheduledFor <= todayISO;
+      await saveGiftDelivery({
+        code, amount, orderId,
+        buyerName: shippingName, buyerEmail: shippingEmail,
+        recipientName: g?.recipientName, recipientEmail: g?.recipientEmail,
+        fromName: g?.fromName ?? shippingName, message: g?.message,
+        scheduledFor: g?.scheduledFor ? `${g.scheduledFor}T12:00:00Z` : undefined,
+        sentAt: g?.recipientEmail && dueToday ? new Date().toISOString() : undefined,
+      });
+      if (g?.recipientEmail && dueToday) {
+        try {
+          await sendGiftRecipientEmail({
+            to: g.recipientEmail, code, amount,
+            recipientName: g.recipientName, fromName: g.fromName ?? shippingName, message: g.message,
+            baseUrl: publicEnv.NEXT_PUBLIC_BASE_URL,
+          });
+        } catch (err) { console.error("Gift recipient email failed:", err); }
+      }
+    }
   }
 
   await saveOrder({

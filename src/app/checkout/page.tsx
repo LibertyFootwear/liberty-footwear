@@ -243,6 +243,7 @@ function CheckoutForm() {
           price: i.product.price,
           qty: i.qty,
           addons: encodeAddons(i.addons),
+          gift: i.gift,
         })),
         coupon,
         discount,

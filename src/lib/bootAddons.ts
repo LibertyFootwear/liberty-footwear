@@ -34,6 +34,33 @@ export function addonsKey(a: BootAddons | undefined): string {
   return `${a.insole}|${a.speedhooks ? 1 : 0}|${a.toeBumpers ? 1 : 0}`;
 }
 
+export interface GiftDetails {
+  recipientName?: string;
+  recipientEmail?: string;
+  fromName?: string;
+  message?: string;
+  /** ISO date (yyyy-mm-dd). Empty / past → send immediately in fulfillment. */
+  scheduledFor?: string;
+}
+
+/** Clean up a user-entered gift block, dropping empty fields. Returns undefined when all empty. */
+export function cleanGiftDetails(g: GiftDetails | undefined): GiftDetails | undefined {
+  if (!g) return undefined;
+  const out: GiftDetails = {};
+  const s = (v?: string) => (v ?? "").trim().slice(0, 500);
+  if (s(g.recipientName)) out.recipientName = s(g.recipientName);
+  if (s(g.recipientEmail) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s(g.recipientEmail))) out.recipientEmail = s(g.recipientEmail);
+  if (s(g.fromName)) out.fromName = s(g.fromName);
+  if (s(g.message)) out.message = s(g.message).slice(0, 400);
+  if (s(g.scheduledFor) && /^\d{4}-\d{2}-\d{2}$/.test(s(g.scheduledFor))) out.scheduledFor = s(g.scheduledFor);
+  return Object.keys(out).length ? out : undefined;
+}
+
+/** Stable key for giftDetails — part of the cart lineId so distinct gifts don't merge. */
+export function giftKey(g: GiftDetails | undefined): string {
+  return g ? JSON.stringify(g) : "";
+}
+
 /** Human summary, e.g. "High Cushion insole · Speedhooks · Toe bumpers". */
 export function addonsLabel(a: BootAddons | undefined): string {
   if (!a) return "";
