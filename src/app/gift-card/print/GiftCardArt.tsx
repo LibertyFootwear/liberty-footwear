@@ -20,7 +20,7 @@ export default function GiftCardArt({ amount, code, redeemed }: { amount: number
       <g clipPath="url(#gc-clip)">
         <rect width="880" height="530" fill={NAVY} />
         <rect width="880" height="530" fill="url(#gc-stripes)" />
-        <image href="/logo/logo-white.png" x="30" y="26" width="380" height="190" />
+        <image href="/logo/logo-white.png" x="40" y="40" width="260" height="130" preserveAspectRatio="xMinYMin meet" />
         <rect y="462" width="880" height="68" fill={RED} />
         <text x="440" y="506" textAnchor="middle" fontFamily="Helvetica, Arial, sans-serif" fontWeight={700} fontSize={21} letterSpacing={6} fill="#fff">
           BUILT IN AMERICA · GRAND RAPIDS, MI
