@@ -9,6 +9,7 @@ import ProductRow from "@/components/ProductRow";
 import NewsletterForm from "@/components/NewsletterForm";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import { useLang } from "@/context/LanguageContext";
+import { isThanksgivingSeason } from "@/lib/season";
 
 const featured = products.filter((p) => p.image && p.category !== "Apparel").slice(0, 4);
 const apparel = products.filter((p) => p.category === "Apparel" && p.image);
@@ -366,20 +367,36 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ── GIFT CARDS (Christmas gift) ── */}
+      {/* ── GIFT CARDS (seasonal copy: Thanksgiving push until Nov 29, Christmas copy after) ── */}
       <section className="bg-white py-20 lg:py-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
-              <p className="text-red text-xs font-black tracking-widest uppercase mb-3">The Gift of Good Boots</p>
-              <h2 className="text-3xl lg:text-4xl font-black text-navy leading-tight">Looking for an original Christmas gift?</h2>
-              <div className="w-16 h-1 bg-red mt-4 mb-6" />
-              <p className="text-gray-700 text-lg leading-relaxed mb-3">
-                Give a Liberty Footwear Gift Card — $100, $200 or $300 toward American-made boots they&apos;ll actually wear.
-              </p>
-              <p className="text-gray-500 leading-relaxed mb-8">
-                Emailed to you within minutes with a card you can print and wrap, or pick it up in our Grand Rapids store.
-              </p>
+              {isThanksgivingSeason() ? (
+                <>
+                  <p className="text-[#7a1f1f] text-xs font-black tracking-widest uppercase mb-3">Thanks Given, Boots Given</p>
+                  <h2 className="text-3xl lg:text-4xl font-black text-navy leading-tight">Thankful? Say it in leather.</h2>
+                  <div className="w-16 h-1 bg-[#7a1f1f] mt-4 mb-6" />
+                  <p className="text-gray-700 text-lg leading-relaxed mb-3">
+                    A Liberty Footwear Gift Card — $100, $200 or $300 toward boots made right here in Grand Rapids.
+                  </p>
+                  <p className="text-gray-500 leading-relaxed mb-8">
+                    Order by Wednesday and it&apos;s in their inbox before the turkey hits the table. Print and tuck it under the plate.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-red text-xs font-black tracking-widest uppercase mb-3">The Gift of Good Boots</p>
+                  <h2 className="text-3xl lg:text-4xl font-black text-navy leading-tight">Looking for an original Christmas gift?</h2>
+                  <div className="w-16 h-1 bg-red mt-4 mb-6" />
+                  <p className="text-gray-700 text-lg leading-relaxed mb-3">
+                    Give a Liberty Footwear Gift Card — $100, $200 or $300 toward American-made boots they&apos;ll actually wear.
+                  </p>
+                  <p className="text-gray-500 leading-relaxed mb-8">
+                    Emailed to you within minutes with a card you can print and wrap, or pick it up in our Grand Rapids store.
+                  </p>
+                </>
+              )}
               <Link
                 href="/shop?category=Gift%20Cards"
                 className="inline-flex items-center gap-2 bg-red hover:bg-red-dark text-white font-bold text-base px-8 py-4 rounded-lg shadow-lg transition group"
