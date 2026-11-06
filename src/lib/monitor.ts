@@ -13,7 +13,8 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 export async function safeFetch(url: string, init?: RequestInit): Promise<{ res: Response | null; ms: number; err?: string }> {
   const t = Date.now();
   try {
-    const res = await fetch(url, { cache: "no-store", redirect: "manual", ...init });
+    // Follow redirects by default — a 3xx (e.g. apex→www, http→https) is expected and not a failure.
+    const res = await fetch(url, { cache: "no-store", redirect: "follow", ...init });
     return { res, ms: Date.now() - t };
   } catch (err) {
     return { res: null, ms: Date.now() - t, err: err instanceof Error ? err.message : String(err) };
