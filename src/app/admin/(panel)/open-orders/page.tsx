@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getSupabase } from "@/lib/supabase";
 import OpenOrdersTable, { OpenOrderRow } from "./OpenOrdersTable";
+import OpenOrdersImport from "./OpenOrdersImport";
 import { PageHeader } from "../ui";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +29,7 @@ export default async function AdminOpenOrders() {
       <PageHeader
         title="Open Orders"
         subtitle="Custom orders from walk-in & call-in customers — replaces the spreadsheet. Track each order from ordered → made → picked up."
+        actions={<OpenOrdersImport />}
       />
       <OpenOrdersTable rows={rows} />
     </div>
